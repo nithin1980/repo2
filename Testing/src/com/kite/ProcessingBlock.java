@@ -26,6 +26,10 @@ public class ProcessingBlock {
 	public static final String HOLDING_CE = "hold_ce";
 	public static final String HOLDING_NOTHING = "hold_nothing";
 	
+	public static final String RANGE_BOUND_PE = "range_bound_pe";
+	public static final String RANGE_BOUND_CE = "range_bound_ce";
+	
+	
 	public static final String HOLD_OPTION_DROP = "hold_option_drop";
 	
 	public static final String TOWARDS_HIGH = "towards_high";
@@ -66,30 +70,97 @@ public class ProcessingBlock {
 		ApplicationHelper.threadService.shutdown();
 		
 		DashBoard.positionMap.put("1", new GroupPosition());
+		DashBoard.positionMap.put("2", new GroupPosition());
 		
 		GroupPosition pos = DashBoard.positionMap.get("1");
 		Position newPosition = new Position("PE",70.0,77);
 		newPosition.setBuyRecord(0);
 		pos.getPePositions().add(newPosition);
 		
+		GroupPosition oppPosition = DashBoard.positionMap.get("2");
+		Position newOppositePosition = new Position("CE",70.0,140);
+		newPosition.setBuyRecord(0);
+		oppPosition.getCePositions().add(newOppositePosition);
+		
+		
+		boolean sellDuringBuy = true;
 		
 		long t = System.currentTimeMillis();
 		
 		for(int i=0;i<size;i++){
 			values = dataList.get(i);
 			CacheService.addNifty(Double.valueOf(values.get(1)));
-			if(i==6474){
-				log=true;
-			}
-			if(i==8474){
+			if(i==8471){
 				log=false;
+			}
+			
+			if(i==8690){
+				log=false;
+			}
+			
+
+			if(i==113000){
+				System.out.println();
 			}
 			
 			peScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(2))));
 			ceScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(3))));
 			action = process(newPosition,script,values , action, peScript, ceScript);
-			//assertEquals("Failed for record:"+i,values.get(4).trim(),action.getAction());
 			values.add(action.getAction());
+			
+
+			double currentProfit = 0;
+			
+
+				if(REVERSE_TO_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(3)));
+						//System.out.println("current profit:"+currentProfit+"..."+i);
+						if(currentProfit>-200){
+							newPosition.setSell(0);
+						}else{
+							newPosition.setSell(Double.valueOf(values.get(3)));
+							newPosition.setSellRecord(i);
+						}
+					}
+				}
+				
+				if(REVERSE_TO_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(2)));
+						
+						if(currentProfit>-200){
+							newPosition.setSell(0);
+						}else{
+							newPosition.setSell(Double.valueOf(values.get(2)));
+							newPosition.setSellRecord(i);
+						}
+						
+					}
+				}
+
+				
+		
+
+			
+			if(sellDuringBuy){
+				//selling during buy
+				if(BUY_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(3)));
+						newPosition.setSellRecord(i);
+					}
+					
+					
+					
+				}else if(BUY_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(2)));
+						newPosition.setSellRecord(i);
+					}
+				}
+			}
+			
 			
 			if(BUY_PE.equals(action.getAction())){
 				newPosition = new Position("PE",70.0,Double.valueOf(values.get(2)));
@@ -103,78 +174,36 @@ public class ProcessingBlock {
 				action.setAction(HOLDING_CE);
 			}
 			
-			if(REVERSE_TO_PE.equals(action.getAction())){
-				newPosition.setSell(Double.valueOf(values.get(3)));
-				newPosition.setSellRecord(i);
-			}else if(REVERSE_TO_CE.equals(action.getAction())){
-				newPosition.setSell(Double.valueOf(values.get(2)));
-				newPosition.setSellRecord(i);
+			if(!sellDuringBuy){
+				//sell first
+				if(REVERSE_TO_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(3)));
+						newPosition.setSellRecord(i);
+					}
+				}else if(REVERSE_TO_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(2)));
+						newPosition.setSellRecord(i);
+					}
+				}
 			}
 			
 			if(log){
-				System.out.println(values);
+				//System.out.println(values);
 			}
 			
 		}
 		
-//		System.out.println(pos.total());
-//		System.out.println(pos);
-		
-//		List<String> data = new ArrayList<String>();
-//		data.add("123456");
-//		data.add("20.5");
-//		data.add("15.35");
-//		data.add("2");
-//		
-//		
-//		
-//		process(script,data,action,null,null);
-//		assertEquals(BUY_PE,action.getAction());
-//		if(BUY_PE.equals(action.getAction())){
-//			action.setAction(HOLDING_PE);
-//		}else if(BUY_CE.equals(action.getAction())){
-//			action.setAction(HOLDING_CE);
-//		}
-//		data.set(1, "20.6");
-//		process(script,data,action,null,null);
-//		assertEquals(HOLDING_PE,action.getAction());
-//		
-//		data.set(1, "20.8");
-//		setPEPrice(new ValueTime("12348", 15.35));
-//		process(script,data,action,null,null);
-//		assertEquals(HOLDING_PE,action.getAction());
-//		
-//		data.set(1, "19.0");
-//		process(script,data,action,null,null);
-//		assertEquals(HOLDING_PE,action.getAction());
-//		
-//		data.set(1, "19.0");
-//		process(script,data,action,null,null);
-//		assertEquals(HOLDING_PE,action.getAction());
-//		
-//		data.set(1, "20.9");
-//		process(script,data,action,null,null);
-//		assertEquals(REVERSE_POSITION,action.getAction());
+		System.out.println(pos.total());
+		System.out.println("PE sale:"+pos.getPePositions().size()+", CE sale:"+pos.getCePositions().size());
+		System.out.println(pos);
 		
 		System.out.println(System.currentTimeMillis()-t);
 		
 	}
 	
-	private static void setPEPrice(ValueTime newPrice){
-		getPE().setCurrentPrice(getPE().getNewPrice());
-		getPE().setNewPrice(newPrice);
-	}
-	private static void setCEPrice(ValueTime newPrice){
-		getCE().setCurrentPrice(getCE().getNewPrice());
-		getCE().setNewPrice(newPrice);
-	}
 	
-	private static ScriptData getPE(){
-		return PE;
-	}
-	private static ScriptData getCE(){
-		return CE;
-	}
 	
 	private static void processDirectionalCount(ScriptData script,boolean priceIncreased,boolean noChange){
 		if(priceIncreased){
@@ -257,6 +286,19 @@ public class ProcessingBlock {
 		 * This needs to be stored... calling hits performance.
 		 */
 		int niftyRecordSize = CacheService.niftyCount();
+		
+		
+		/**
+		 * Set the high/low profit of position
+		 */
+		if("PE".equals(currentPosition.getName())){
+			currentPosition.setHighValue(peNewPrice.getValue());
+			currentPosition.setLowValue(peNewPrice.getValue());
+		}
+		if("CE".equals(currentPosition.getName())){
+			currentPosition.setHighValue(ceNewPrice.getValue());
+			currentPosition.setLowValue(ceNewPrice.getValue());
+		}
 
 		/**
 		 * Is current price higher than last 5 records low.
@@ -280,20 +322,11 @@ public class ProcessingBlock {
 			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList);
 		}
 		
-		logBuilder.append("trend:"+trend+",lowerThanHighest:"+lowerThanHighest+",higherThanLowest:"+higherThanLowest);
-		/**
-		 * 
-		 */
-		
-		
-		/**
-		 * calculate if there has been continous increase towards one direction.
-		 */
-		processDirectionalCount(script, priceIncreased, same);
+		logBuilder.append("nifty:"+newPrice+","+peNewPrice.getValue()+","+ceNewPrice.getValue()+",trend:"+trend+",lowerThanHighest:"+lowerThanHighest+",higherThanLowest:"+higherThanLowest);
 		
 		if(script.getBracketHigh()==null && script.getBracketLow()==null){
 			script.setBracketHigh(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()));
-			script.setBracketLow(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()-4));
+			script.setBracketLow(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()-3.8));
 		}
 		
 		if(script.getBracketHigh()!=null && script.getBracketLow()!=null){
@@ -319,52 +352,41 @@ public class ProcessingBlock {
 		String holding  = action.getAction();
 
 		if(same && !HOLDING_NOTHING.equals(holding)){
-//			if(HOLDING_PE.equals(holding)){
-//				response = HOLDING_PE;
-//			}else if(HOLDING_CE.equals(holding)){
-//				response = HOLDING_CE;
-//			}else{
-//				response = HOLD;
-//			}
 			response = holding;
 		}
 		
-		
-		/**
-		 * If it is reverse pe/ce, then i need to store the reverse price
-		 * if it reverse pe, then i can only buy if next price is higher/low than the reverse point!
-		 * if this does not work then use the margins
-		 */
-		
-		if(REVERSE_TO_PE.equals(holding)){
-			if(newPrice<=script.getReversePositionValue()){
-				response = BUY_PE;
-			}
-		}else if(REVERSE_TO_CE.equals(holding)){
-			if(newPrice>=script.getReversePositionValue()){
-				response = BUY_CE;
-			}
-		}
-		logBuilder.append(",script.getReversePositionValue():"+script.getReversePositionValue());
+
 		/**
 		 * If the current value is back to the reversing value... it means 
 		 * there has been a pull back from the reverse.
 		 */
+//		if(!priceIncreased && HOLDING_NOTHING.equals(holding) && Chart.DOWNTREND.equals(trend)){
+//			response = BUY_PE;
+//			//tactical high
+//			script.setBracketHigh(new ValueTime(time,newPrice));
+//			script.setBracketLow(new ValueTime(time, newPrice-3.8));
+//			script.calculateMargins();
+//		}else if(priceIncreased && HOLDING_NOTHING.equals(holding) && Chart.UPTREND.equals(trend)){
+//			response = BUY_CE;
+//			//tactical low
+//			script.setBracketHigh(new ValueTime(time,newPrice));
+//			script.setBracketLow(new ValueTime(time, newPrice-3.8));
+//			script.calculateMargins();
+//		}
+		
+		ValueTime bracketHigh = script.getBracketHigh();
+		ValueTime bracketLow = script.getBracketLow();
+
+		
 
 		
 		
+		response = handleReverseCondition(script, holding, newPrice, response,currentPosition,peNewPrice,ceNewPrice);
 		
-		if(!priceIncreased && HOLDING_NOTHING.equals(holding)){
-			response = BUY_PE;
-			//tactical high
-			script.setBracketLow(new ValueTime(time, newPrice));
-			script.setBracketHigh(new ValueTime(time,script.getCurrentPrice().getValue()));
-		}else if(priceIncreased && HOLDING_NOTHING.equals(holding)){
-			response = BUY_CE;
-			//tactical low
-			script.setBracketHigh(new ValueTime(time, newPrice));
-			script.setBracketLow(new ValueTime(time, script.getCurrentPrice().getValue()));
-		}
+		logBuilder.append(",script.getReversePositionValue():"+script.getReversePositionValue());
+		
+
+		
 		
 //		double profit = 0;
 //		if(HOLDING_PE.equals(holding)){
@@ -381,18 +403,50 @@ public class ProcessingBlock {
 //			currentPosition.setSell(0.00);
 //		}
 		
-		
-		ValueTime bracketHigh = script.getBracketHigh();
-		ValueTime bracketLow = script.getBracketLow();
-	
-		double newOptionPriceDifference= getPE().newPriceCurrentDifference();
-		double scriptPriceDifference = script.newPriceCurrentDifference();
-		
-		
 		logBuilder.append(",brackethigh:"+script.getBracketHigh().getValue()+",brackethighlow:"+script.getBracketHighLowerValue().getValue()+",bracketlowhigh:"
-							+script.getBracketLowHigherValue().getValue()+",bracketlow:"+script.getBracketLow().getValue()+",reversePositionCount:"+script.getReversePositionCount());
+							+script.getBracketLowHigherValue().getValue()+",bracketlow:"+script.getBracketLow().getValue()+",reversePositionOppurtunityCount:"+script.getReversePositionOppurtunityCount());
 		
 		
+		response = reversing(script, holding, priceTowardsHigh, higherThanLowest, newPrice, currentPosition, peNewPrice, ceNewPrice, response, same, priceTowardsLow, lowerThanHighest, priceIncreased);
+		
+		/**
+		 * Do this at the end... to prevent it from self chasing a high/low...
+		 */
+		if(newPrice>bracketHigh.getValue()){
+			script.setBracketHigh(new ValueTime(time,newPrice));
+			bracketHigh = script.getBracketHigh();
+		}
+		
+		if(newPrice<bracketLow.getValue()){
+			script.setBracketLow(new ValueTime(time,newPrice));			
+			bracketLow =  script.getBracketLow();
+		}
+		
+		script.calculateMargins();
+		
+		/**
+		 * TODO
+		 * there is an area after reverse to figure out when to buy the reverse position...
+		 * 
+		 */
+		if(response==null){
+			//System.out.println("No response generated.. so holding:"+action.getAction());
+			response = action.getAction();
+			//throw new RuntimeException("No response generated");
+		}
+		logBuilder.append(","+response);
+		if(log){
+			System.out.println(logBuilder.toString());
+		}
+		
+		
+		action.setAction(response);
+		return action;
+		
+	}
+	
+	private static String reversing(ScriptData script,String holding,boolean priceTowardsHigh,boolean higherThanLowest,double newPrice,Position currentPosition,ValueTime peNewPrice,ValueTime ceNewPrice,String response,
+			boolean same,boolean priceTowardsLow,boolean lowerThanHighest,boolean priceIncreased ){
 		/**
 		 * IMPLEMENT*****************************************
 		 * last 5+5 records increasing
@@ -404,180 +458,199 @@ public class ProcessingBlock {
 		/**
 		 * PE Logic
 		 */
-		if(!priceIncreased && !same && HOLDING_PE.equals(holding)){
-			if(bracketLow!=null){
-				if(newPrice<bracketLow.getValue()){
-					script.setBracketLow(new ValueTime(time, newPrice));
-					response =  HOLDING_PE;
-				}
-			}
-			
-			response = HOLDING_PE;
-			/**
-			 * if the option price drops.
-			 */
-			if(newOptionPriceDifference<0){
-				response = HOLD_OPTION_DROP;
-			}
-		}else if(priceIncreased && HOLDING_PE.equals(holding)){
-			
-			//int highNearVisits = bracketHigh.getNumberOfNearVisits();
-			
-			if(bracketHigh!=null && newPrice>bracketHigh.getValue()){
-				script.setBracketHigh(new ValueTime(time,newPrice));
-				bracketHigh = script.getBracketHigh();
-				script.calculateMargins();
-			}
-//			else if(bracketHigh!=null){
-//				bracketHigh.setNumberOfNearVisits(bracketHigh.getNumberOfNearVisits()+1);
-//			}
-			
+		if(HOLDING_PE.equals(holding)){
 			/**
 			 * If greater than higher low then reverse position
 			 * 
 			 * Needs to hold it for 2 times before changing... 
 			 */
-			if((priceTowardsHigh && higherThanLowest) || newPriceValue.getValue()>=script.getBracketHighLowerValue().getValue()){
-				if(script.getReversePositionCount()>=2){
+			if((priceTowardsHigh && higherThanLowest) || newPrice>=script.getBracketHighLowerValue().getValue()){
+				if(script.getReversePositionOppurtunityCount()>=19){
 					//reverse only if the buy and sell price are not equal.
 					if(currentPosition.getBuy()!=peNewPrice.getValue()){
 						//System.out.println("Reverse CE 1");
 						response = REVERSE_TO_CE;
 						script.setReversePositionValue(newPrice);
 						script.setCountSinceLastReverse(0);
+						
+						if(currentPosition.getReversePositionProfit()==0){
+							currentPosition.setReversePositionProfit(getOptionProfit(currentPosition, peNewPrice.getValue()));
+							System.out.println("Setting pe profit:"+getOptionProfit(currentPosition, peNewPrice.getValue()));
+						}
 					}
 				}else{
-					script.setReversePositionCount(script.getReversePositionCount()+1);
+					script.setReversePositionOppurtunityCount(script.getReversePositionOppurtunityCount()+1);
 					response = HOLDING_PE;
 				}
 				
 			}else{
-				script.setReversePositionCount(0);
-			}
-//			if(highNearVisits>1 
-//					&& TOWARDS_HIGH.equals(isCloseTo(bracketLow.getValue(),newPrice,bracketHigh.getValue()))){
-//				response = REVERSE_POSITION;
-//			}
-			if(bracketLow!=null && !REVERSE_TO_CE.equals(response)){
-//				if(bracketLow.getNumberOfNearVisits()< NEAR_MISS_COUNT){
-//					bracketLow.setNumberOfNearVisits(bracketLow.getNumberOfNearVisits()+1);
-//					response =  HOLDING_PE;
-//					
-//					if(newOptionPriceDifference<0){
-//						if(currentPosition.getBuy()!=peNewPrice.getValue()){
-//							System.out.println("Reverse CE 2");
-//							response = REVERSE_TO_CE;
-//							script.setReversePositionValue(newPrice);
-//						}
-//					}
-//				}
-				
-//				else if(bracketLow.getNumberOfNearVisits()==NEAR_MISS_COUNT){
-//					// 3 near miss means it is changing trend..
-//					if(currentPosition.getBuy()!=peNewPrice.getValue()){
-//						bracketLow.setNumberOfNearVisits(0);
-//						System.out.println(3);
-//						response=REVERSE_TO_CE;
-//						script.setReversePositionValue(newPrice);
-//					}
-//				}
+				script.setReversePositionOppurtunityCount(0);
 			}
 		}
-		
 		/**
 		 * CE Logic
 		 */
 		
-		newOptionPriceDifference = getCE().newPriceCurrentDifference();
-		
-		if(!priceIncreased && !same && HOLDING_CE.equals(holding)){
+		if(!same && HOLDING_CE.equals(holding)){
+		//if(!priceIncreased && !same && HOLDING_CE.equals(holding)){
 			
-			int lowNearVisits = bracketLow.getNumberOfNearVisits();
-			
-			if(bracketLow!=null && newPrice<bracketLow.getValue()){
-				script.setBracketLow(new ValueTime(time,newPrice));
-				bracketLow = script.getBracketLow();
-				script.calculateMargins();
-			}
-			
-//			else if(bracketLow!=null){
-//				bracketLow.setNumberOfNearVisits(bracketLow.getNumberOfNearVisits()+1);
-//			}
-			
-//			if(lowNearVisits>1 
-//					&& TOWARDS_LOW.equals(isCloseTo(bracketLow.getValue(),newPrice,bracketHigh.getValue()))){
-//				response = REVERSE_POSITION;
-//			}
-			if((priceTowardsLow && lowerThanHighest) || newPriceValue.getValue()<=script.getBracketLowHigherValue().getValue()){
-				if(script.getReversePositionCount()>=2){
+			if((priceTowardsLow && lowerThanHighest) || newPrice<=script.getBracketLowHigherValue().getValue()){
+				if(script.getReversePositionOppurtunityCount()>=19){
 					if(currentPosition.getBuy()!=ceNewPrice.getValue()){
 						//System.out.println("Reverse PE 1");
 						response = REVERSE_TO_PE;
 						script.setReversePositionValue(newPrice);
 						script.setCountSinceLastReverse(0);
+						
+						if(currentPosition.getReversePositionProfit()==0){
+							currentPosition.setReversePositionProfit(getOptionProfit(currentPosition, ceNewPrice.getValue()));
+							System.out.println("Setting ce profit:"+getOptionProfit(currentPosition,  ceNewPrice.getValue()));
+						}
+						
 					}
 				}else{
-					script.setReversePositionCount(script.getReversePositionCount()+1);
+					script.setReversePositionOppurtunityCount(script.getReversePositionOppurtunityCount()+1);
 					response = HOLDING_CE;
 				}
 			}else{
-				script.setReversePositionCount(0);
+				script.setReversePositionOppurtunityCount(0);
 			}
 			
-			if(bracketHigh!=null && !REVERSE_TO_PE.equals(response)){
-//				if(bracketHigh.getNumberOfNearVisits()< NEAR_MISS_COUNT){
-//					bracketHigh.setNumberOfNearVisits(bracketHigh.getNumberOfNearVisits()+1);
-//					response =  HOLDING_CE;
-//					
-//					if(newOptionPriceDifference<0){
-//						if(currentPosition.getBuy()!=ceNewPrice.getValue()){
-//							System.out.println("Reverse PE 2");
-//							response = REVERSE_TO_PE;
-//							script.setReversePositionValue(newPrice);
-//						}
-//					}					
-//				}
-				
-//				else if(bracketHigh.getNumberOfNearVisits()==NEAR_MISS_COUNT){
-//					// 3 near miss means it is changing trend..
-//					if(currentPosition.getBuy()!=ceNewPrice.getValue()){
-//						bracketHigh.setNumberOfNearVisits(0);
-//						response=REVERSE_TO_PE;
-//						script.setReversePositionValue(newPrice);
-//					}
-//				}
+		}
+		else if(priceIncreased && HOLDING_CE.equals(holding)){
+				response = HOLDING_CE;
+		}
+		
+		return response;
+	}
+	private static double getOptionProfit(Position currentPosition, double value){
+		
+		Position localPosition =  new Position(currentPosition);
+		
+		localPosition.setSell(value);
+		double profit = localPosition.getProfit();
+		return profit;
+	}
+	private static String handleReverseCondition(ScriptData script,String holding,double newPrice,String response,Position currentPosition,ValueTime peNewPrice,ValueTime ceNewPrice){
+		/**
+		 * If it is reverse pe/ce, then i need to store the reverse price
+		 * if it reverse pe, then i can only buy if next price is higher/low than the reverse point!
+		 * 
+		 * If it does not reach the reverse value, then go back to hold after 4 counts...
+		 * 
+		 * if this does not work then use the margins
+		 */
+		
+		double currentProfit = 0;
+		
+		if(REVERSE_TO_PE.equals(holding)){
+			
+			currentProfit = getOptionProfit(currentPosition, ceNewPrice.getValue());
+			
+			if(newPrice<=script.getReversePositionValue()){
+				response = BUY_PE;
+				script.setCountSinceLastReverse(0);
+				currentPosition.clearReversePositionProfit();
+				currentPosition.clearReversePositionHighProfit();
 			}
-		}else if(priceIncreased && HOLDING_CE.equals(holding)){
-			if(bracketHigh!=null){
-				if(newPrice>bracketHigh.getValue()){
-					script.setBracketHigh(new ValueTime(time, newPrice));
-					response =  HOLDING_CE;
+			/**
+			 * Either going up or range bound.
+			 * 
+			 */
+			else if(script.getCountSinceLastReverse()==10){
+				
+				
+				//check if the price is near reverse value or near bracket high.
+				System.out.println("checking ce profit now");
+				if(currentPosition.isProfitDecreasedEnough(currentProfit)){
+					response = BUY_PE;
+					currentPosition.clearReversePositionProfit();
+					currentPosition.clearReversePositionHighProfit();
+				}else{
+					response  =  HOLDING_CE;
+					
+					script.setCountSinceLastReverse(0);
+					
+					System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",current ce:"+ceNewPrice.getValue());
+					
 				}
 				
-				response = HOLDING_CE;
-				if(newOptionPriceDifference<0){
-					response = HOLD_OPTION_DROP;
-				}				
+				
+				
+//				String result = isCloseTo(script.getReversePositionValue(),newPrice,bracketHigh.getValue());
+//				if(TOWARDS_HIGH.equals(result)){
+//					//System.out.println("range bounded... pe--towards high");
+//					response = BUY_CE;
+//				}else{
+//					//System.out.println("range bounded... pe--towards low");
+//					response = BUY_PE;
+//				}
+			}
+			
+//			else if(script.getCountSinceLastReverse()==20){
+//				System.out.println(" range bounded.for 20 records...check if worth switching to PE???");
+//				//check the option price to see which way the wind is blowing...
+//				//has it increased..  indicating uptrend.
+//				//has it gone down indicating downtrend...
+//				response = REVERSE_TO_PE;
+//				//change the reverse price and set the count to zero?
+//				script.setReversePositionValue(newPrice);
+//				script.setCountSinceLastReverse(0);
+//			}
+			else{
+				script.setCountSinceLastReverse(script.getCountSinceLastReverse()+1);
+				currentPosition.setReversePositionHighProfit(currentProfit);
+			}
+		}else if(REVERSE_TO_CE.equals(holding)){
+			
+			currentProfit = getOptionProfit(currentPosition, peNewPrice.getValue());
+			
+			if(newPrice>=script.getReversePositionValue()){
+				response = BUY_CE;
+				script.setCountSinceLastReverse(0);
+				currentPosition.clearReversePositionProfit();
+				currentPosition.clearReversePositionHighProfit();
+			}
+			else if(script.getCountSinceLastReverse()==10){
+				
+				System.out.println("checking pe profit now");
+				if(currentPosition.isProfitDecreasedEnough(currentProfit)){
+					response = BUY_CE;
+					currentPosition.clearReversePositionProfit();
+					currentPosition.clearReversePositionHighProfit();
+				}else{
+					response  =  HOLDING_PE;
+					script.setCountSinceLastReverse(0);
+					System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",curren pe:"+peNewPrice.getValue());
+					
+				}
+				
+				
+				
+//				String result = isCloseTo(script.getReversePositionValue(),newPrice,bracketHigh.getValue());
+//				if(TOWARDS_LOW.equals(result)){
+//					//System.out.println("range bounded... ce--towards low");
+//					response = BUY_PE;
+//				}else{
+//					//System.out.println("range bounded... ce--towards high");
+//					response = BUY_CE;
+//				}
+			}
+			
+//			else if(script.getCountSinceLastReverse()==20){
+//				System.out.println(" range bounded.for 20 records...check if worth switching to CE???");
+//				response = REVERSE_TO_CE;
+//				script.setReversePositionValue(newPrice);
+//				script.setCountSinceLastReverse(0);
+//				
+//			}
+			else{
+				script.setCountSinceLastReverse(script.getCountSinceLastReverse()+1);
+				currentPosition.setReversePositionHighProfit(currentProfit);
 			}
 		}
-		/**
-		 * TODO
-		 * there is an area after reverse to figure out when to buy the reverse position...
-		 * 
-		 */
-		if(log){
-			System.out.println(logBuilder.toString());
-		}
-		if(response==null){
-			//System.out.println("No response generated.. so holding:"+action.getAction());
-			response = action.getAction();
-			//throw new RuntimeException("No response generated");
-		}
 		
-		
-		action.setAction(response);
-		return action;
-		
+		return response;
 	}
 	
 	private static String isCloseTo(double low,double value,double high){

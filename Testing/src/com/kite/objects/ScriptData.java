@@ -19,7 +19,7 @@ public class ScriptData {
 	private ValueTime currentPrice;
 	private ValueTime newPrice;
 	
-	private int reversePositionCount;
+	private int reversePositionOppurtunityCount;
 	
 	private double reversePositionValue;
 	
@@ -58,6 +58,13 @@ public class ScriptData {
 	private ValueTime bracketHighLowerValue;
 	private ValueTime bracketLowHigherValue;
 	
+	/**
+	 * If the points are range bound, this is to keep a reference 
+	 * and confirm it is range bound.
+	 */
+	private double rangeBoundHigh;
+	private double rangeBoundLow;
+	
 	public ScriptData() {
 		// TODO Auto-generated constructor stub
 	}
@@ -88,6 +95,19 @@ public class ScriptData {
 		
 		setBracketHighLowerValue(new ValueTime(getBracketHigh().getTime(), getBracketHigh().getValue()-spread));
 		setBracketLowHigherValue(new ValueTime(getBracketLow().getTime(), getBracketLow().getValue()+spread));
+	}
+	
+	public double getRangeBoundHigh() {
+		return rangeBoundHigh;
+	}
+	public void setRangeBoundHigh(double rangeBoundHigh) {
+		this.rangeBoundHigh = rangeBoundHigh;
+	}
+	public double getRangeBoundLow() {
+		return rangeBoundLow;
+	}
+	public void setRangeBoundLow(double rangeBoundLow) {
+		this.rangeBoundLow = rangeBoundLow;
 	}
 	public ValueTime getBracketHighLowerValue() {
 		return bracketHighLowerValue;
@@ -199,7 +219,13 @@ public class ScriptData {
 		return bracketHigh;
 	}
 	public void setBracketHigh(ValueTime bracketHigh) {
-		if(getBracketLow()==null){
+		if(getBracketHigh()==null){
+			
+			if(getBracketLow()!=null){
+				if(getBracketLow().getValue()>bracketHigh.getValue()){
+					throw new RuntimeException("Bracket high should be greater than bracket low");
+				}
+			}
 			this.bracketHigh = bracketHigh;
 			if(getBracketLow()!=null){
 				calculateMargins();
@@ -220,6 +246,12 @@ public class ScriptData {
 	}
 	public void setBracketLow(ValueTime bracketLow) {
 		if(getBracketLow()==null){
+			
+			if(getBracketHigh()!=null){
+				if(getBracketHigh().getValue()<bracketLow.getValue()){
+					throw new RuntimeException("Bracket low should be lower than bracket low");
+				}
+			}
 			this.bracketLow = bracketLow;
 			if(getBracketHigh()!=null){
 				calculateMargins();
@@ -234,11 +266,13 @@ public class ScriptData {
 			}
 		}
 	}
-	public int getReversePositionCount() {
-		return reversePositionCount;
+	
+	public int getReversePositionOppurtunityCount() {
+		return reversePositionOppurtunityCount;
 	}
-	public void setReversePositionCount(int reversePositionCount) {
-		this.reversePositionCount = reversePositionCount;
+	public void setReversePositionOppurtunityCount(
+			int reversePositionOppurtunityCount) {
+		this.reversePositionOppurtunityCount = reversePositionOppurtunityCount;
 	}
 	public double getReversePositionValue() {
 		return reversePositionValue;
