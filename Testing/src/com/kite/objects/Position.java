@@ -35,6 +35,8 @@ public class Position {
 	private double lowValue;
 	
 	
+	private Position reversePosition;
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
@@ -91,7 +93,7 @@ public class Position {
 		
 		double diff = ((getReversePositionHighProfit()-currentProfit)/getReversePositionHighProfit())*100;
 		
-		System.out.println("percentage decrease:"+diff+"---"+getReversePositionHighProfit()+"--"+currentProfit);
+//		System.out.println("percentage decrease:"+diff+"---"+getReversePositionHighProfit()+"--"+currentProfit);
 		if(diff>10){
 			return true;
 		}
@@ -219,6 +221,14 @@ public class Position {
 	}
 	public void setExpense(double expense) {
 		this.expense = expense;
+	}
+
+	public Position getReversePosition() {
+		return reversePosition;
+	}
+
+	public void setReversePosition(Position reversePosition) {
+		this.reversePosition = reversePosition;
 	}
 	
 	

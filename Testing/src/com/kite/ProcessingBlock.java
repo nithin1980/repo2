@@ -65,23 +65,19 @@ public class ProcessingBlock {
 		ScriptData ceScript = new ScriptData();
 		List<String> values = null;
 		
-		CacheService.niftytDoubleList.clear();
+		CacheService.clearNifty();;
 		CacheService.dumpNifty();
-		ApplicationHelper.threadService.shutdown();
+		//ApplicationHelper.threadService.shutdown();
 		
 		DashBoard.positionMap.put("1", new GroupPosition());
 		DashBoard.positionMap.put("2", new GroupPosition());
 		
 		GroupPosition pos = DashBoard.positionMap.get("1");
-		Position newPosition = new Position("PE",70.0,77);
+		Position newPosition = new Position("PE",70.0,48.5);
 		newPosition.setBuyRecord(0);
 		pos.getPePositions().add(newPosition);
 		
-		GroupPosition oppPosition = DashBoard.positionMap.get("2");
-		Position newOppositePosition = new Position("CE",70.0,140);
-		newPosition.setBuyRecord(0);
-		oppPosition.getCePositions().add(newOppositePosition);
-		
+		addReversePosition(newPosition, "CE", 120.0);
 		
 		boolean sellDuringBuy = true;
 		
@@ -98,10 +94,6 @@ public class ProcessingBlock {
 				log=false;
 			}
 			
-
-			if(i==113000){
-				System.out.println();
-			}
 			
 			peScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(2))));
 			ceScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(3))));
@@ -111,34 +103,47 @@ public class ProcessingBlock {
 
 			double currentProfit = 0;
 			
+			if(i>35 && i<1783){
+				System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(3)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(2))));
+				
+			}
+			
 
-				if(REVERSE_TO_PE.equals(action.getAction())){
+				if(REVERSE_TO_PE.equals(action.getAction()) || HOLDING_CE.equals(action.getAction())){
 					if(newPosition.getSell()==0){
 						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(3)));
 						//System.out.println("current profit:"+currentProfit+"..."+i);
-						if(currentProfit>-200){
-							newPosition.setSell(0);
-						}else{
+						if(currentProfit<Constants.LossLimit_1){
 							newPosition.setSell(Double.valueOf(values.get(3)));
 							newPosition.setSellRecord(i);
+							
+							
 						}
+						if(currentProfit>Constants.HighLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(3)));
+							newPosition.setSellRecord(i);
+							
+							
+						}
+						
 					}
 				}
 				
-				if(REVERSE_TO_CE.equals(action.getAction())){
+				if(REVERSE_TO_CE.equals(action.getAction()) || HOLDING_PE.equals(action.getAction())){
 					if(newPosition.getSell()==0){
 						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(2)));
 						
-						if(currentProfit>-200){
-							newPosition.setSell(0);
-						}else{
+						if(currentProfit<Constants.LossLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(2)));
+							newPosition.setSellRecord(i);
+						}
+						if(currentProfit>Constants.HighLimit_1){
 							newPosition.setSell(Double.valueOf(values.get(2)));
 							newPosition.setSellRecord(i);
 						}
 						
 					}
 				}
-
 				
 		
 
@@ -167,11 +172,13 @@ public class ProcessingBlock {
 				newPosition.setBuyRecord(i);
 				pos.getPePositions().add(newPosition);
 				action.setAction(HOLDING_PE);
+				addReversePosition(newPosition, "CE", Double.valueOf(values.get(3)));
 			}else if(BUY_CE.equals(action.getAction())){
 				newPosition = new Position("CE",70.0,Double.valueOf(values.get(3)));
 				newPosition.setBuyRecord(i);
 				pos.getCePositions().add(newPosition);
 				action.setAction(HOLDING_CE);
+				addReversePosition(newPosition, "PE", Double.valueOf(values.get(2)));
 			}
 			
 			if(!sellDuringBuy){
@@ -199,11 +206,13 @@ public class ProcessingBlock {
 		System.out.println("PE sale:"+pos.getPePositions().size()+", CE sale:"+pos.getCePositions().size());
 		System.out.println(pos);
 		
-		System.out.println(System.currentTimeMillis()-t);
+//		System.out.println(System.currentTimeMillis()-t);
 		
 	}
 	
-	
+	private static void addReversePosition(Position position,String name,double price){
+		position.setReversePosition(new Position(name, 70.0, price));
+	}
 	
 	private static void processDirectionalCount(ScriptData script,boolean priceIncreased,boolean noChange){
 		if(priceIncreased){
@@ -326,7 +335,7 @@ public class ProcessingBlock {
 		
 		if(script.getBracketHigh()==null && script.getBracketLow()==null){
 			script.setBracketHigh(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()));
-			script.setBracketLow(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()-3.8));
+			script.setBracketLow(new ValueTime(newPriceValue.getTime(), newPriceValue.getValue()-Constants.BracketLowDifference));
 		}
 		
 		if(script.getBracketHigh()!=null && script.getBracketLow()!=null){
@@ -465,7 +474,7 @@ public class ProcessingBlock {
 			 * Needs to hold it for 2 times before changing... 
 			 */
 			if((priceTowardsHigh && higherThanLowest) || newPrice>=script.getBracketHighLowerValue().getValue()){
-				if(script.getReversePositionOppurtunityCount()>=19){
+				if(script.getReversePositionOppurtunityCount()>=Constants.ReversePositionOppurtunityCount){
 					//reverse only if the buy and sell price are not equal.
 					if(currentPosition.getBuy()!=peNewPrice.getValue()){
 						//System.out.println("Reverse CE 1");
@@ -475,7 +484,7 @@ public class ProcessingBlock {
 						
 						if(currentPosition.getReversePositionProfit()==0){
 							currentPosition.setReversePositionProfit(getOptionProfit(currentPosition, peNewPrice.getValue()));
-							System.out.println("Setting pe profit:"+getOptionProfit(currentPosition, peNewPrice.getValue()));
+							//System.out.println("Setting pe profit:"+getOptionProfit(currentPosition, peNewPrice.getValue()));
 						}
 					}
 				}else{
@@ -495,7 +504,7 @@ public class ProcessingBlock {
 		//if(!priceIncreased && !same && HOLDING_CE.equals(holding)){
 			
 			if((priceTowardsLow && lowerThanHighest) || newPrice<=script.getBracketLowHigherValue().getValue()){
-				if(script.getReversePositionOppurtunityCount()>=19){
+				if(script.getReversePositionOppurtunityCount()>=Constants.ReversePositionOppurtunityCount){
 					if(currentPosition.getBuy()!=ceNewPrice.getValue()){
 						//System.out.println("Reverse PE 1");
 						response = REVERSE_TO_PE;
@@ -504,7 +513,7 @@ public class ProcessingBlock {
 						
 						if(currentPosition.getReversePositionProfit()==0){
 							currentPosition.setReversePositionProfit(getOptionProfit(currentPosition, ceNewPrice.getValue()));
-							System.out.println("Setting ce profit:"+getOptionProfit(currentPosition,  ceNewPrice.getValue()));
+							//System.out.println("Setting ce profit:"+getOptionProfit(currentPosition,  ceNewPrice.getValue()));
 						}
 						
 					}
@@ -561,7 +570,7 @@ public class ProcessingBlock {
 				
 				
 				//check if the price is near reverse value or near bracket high.
-				System.out.println("checking ce profit now");
+				//System.out.println("checking ce profit now");
 				if(currentPosition.isProfitDecreasedEnough(currentProfit)){
 					response = BUY_PE;
 					currentPosition.clearReversePositionProfit();
@@ -571,7 +580,7 @@ public class ProcessingBlock {
 					
 					script.setCountSinceLastReverse(0);
 					
-					System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",current ce:"+ceNewPrice.getValue());
+					//System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",current ce:"+ceNewPrice.getValue());
 					
 				}
 				
@@ -613,7 +622,7 @@ public class ProcessingBlock {
 			}
 			else if(script.getCountSinceLastReverse()==10){
 				
-				System.out.println("checking pe profit now");
+				//System.out.println("checking pe profit now");
 				if(currentPosition.isProfitDecreasedEnough(currentProfit)){
 					response = BUY_CE;
 					currentPosition.clearReversePositionProfit();
@@ -621,7 +630,7 @@ public class ProcessingBlock {
 				}else{
 					response  =  HOLDING_PE;
 					script.setCountSinceLastReverse(0);
-					System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",curren pe:"+peNewPrice.getValue());
+					//System.out.println("current:"+currentProfit+",stored:"+currentPosition.getReversePositionHighProfit()+",curren pe:"+peNewPrice.getValue());
 					
 				}
 				

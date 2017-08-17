@@ -53,6 +53,11 @@ public class CacheService {
 		niftytDoubleList = scriplist.get(0);
 	}
 	
+	public static void clearNifty(){
+		niftytDoubleList.clear();
+		niftyCount=0;
+	}
+	
 	public static int niftyCount(){
 		return niftyCount;
 	}
@@ -61,6 +66,14 @@ public class CacheService {
 		niftytDoubleList.add(value);
 		niftyCount++;
 	}
+	
+	public static void dumpNifty_sync(){
+		scriplist.set(0, niftytDoubleList);
+		if(!cachedb_1.isClosed()){
+			cachedb_1.commit();
+		}
+	}
+	
 	
 	public static void dumpNifty(){
 		ApplicationHelper.threadService.execute(new Runnable() {
@@ -184,26 +197,14 @@ public class CacheService {
 		
 		long t = System.currentTimeMillis();
 		
-//		for(int i=0;i<40000;i++){
-//			//cacheScriptInsert("test","12122", i);
-//			tDoubleList.add(i);
-//		}
-//		dumpNifty();
-		
-		niftytDoubleList.clear();
-		dumpNifty();
-		System.out.println(System.currentTimeMillis()-t);
-		
-		
-		ApplicationHelper.threadService.shutdown();
 		
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
-//		reporter.clear();
-//		reportdb.commit();
+		reporter.clear();
+		reportdb.commit();
 		StringBuilder builder;
 		
 //		try {
-//			FileWriter writer = new FileWriter(new File("C:/data/report.txt"));
+//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_16_008_2017.txt"));
 //			builder = new StringBuilder();
 //			//builder.append(reporter.toString());
 //			String data = null;

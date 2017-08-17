@@ -142,6 +142,7 @@ public class Kite {
 	    			symbolText = childElement1.getText();
 	    			if(symbolText!=null 
 	    					&& targetList.contains(symbolText.trim())){
+	    				//System.out.println(symbolText);
 	    				approvedList.put(symbolText,rootListElement);
 	    			}
 	    		}
@@ -264,10 +265,10 @@ public class Kite {
   
   public void getTargetList(){
 	  targetList.add("NIFTY 50 INDEX");
-	  targetList.add("NIFTY JUL 10000 CE");
-	  targetList.add("NIFTY JUL 10000 PE");
-	  targetList.add("NIFTY JUL 9900 CE");
-	  targetList.add("NIFTY JUL 9900 PE");
+	  targetList.add("NIFTY AUG 9800 CE");
+	  targetList.add("NIFTY AUG 9700 CE");
+	  targetList.add("NIFTY AUG 9800 PE");
+	  targetList.add("NIFTY AUG 9700 PE");
 	   
   }
 

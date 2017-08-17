@@ -2,6 +2,8 @@ package com.kite.objects;
 
 import java.util.List;
 
+import com.kite.Constants;
+
 public class ScriptData {
 	
 	private double open;
@@ -91,7 +93,7 @@ public class ScriptData {
 	public void calculateMargins(){
 		double spread = getBracketHigh().getValue()-getBracketLow().getValue();
 		
-		spread = spread/4;
+		spread = spread/Constants.MarginBreakup;
 		
 		setBracketHighLowerValue(new ValueTime(getBracketHigh().getTime(), getBracketHigh().getValue()-spread));
 		setBracketLowHigherValue(new ValueTime(getBracketLow().getTime(), getBracketLow().getValue()+spread));
