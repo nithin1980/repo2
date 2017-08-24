@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import sun.security.util.PendingException;
 import static org.junit.Assert.*;
 
 import com.kite.objects.Action;
@@ -25,6 +26,11 @@ public class ProcessingBlock {
 	public static final String HOLDING_PE = "hold_pe";
 	public static final String HOLDING_CE = "hold_ce";
 	public static final String HOLDING_NOTHING = "hold_nothing";
+	
+	public static final String INITIAL_POSITION = "INITIAL_POSITION";
+	public static final String ENTERED_POSITION = "ENTERED_POSITION";
+
+	
 	
 	public static final String RANGE_BOUND_PE = "range_bound_pe";
 	public static final String RANGE_BOUND_CE = "range_bound_ce";
@@ -73,11 +79,11 @@ public class ProcessingBlock {
 		DashBoard.positionMap.put("2", new GroupPosition());
 		
 		GroupPosition pos = DashBoard.positionMap.get("1");
-		Position newPosition = new Position("PE",70.0,48.5);
+		Position newPosition = new Position("PE",70.0,48);
 		newPosition.setBuyRecord(0);
 		pos.getPePositions().add(newPosition);
 		
-		addReversePosition(newPosition, "CE", 120.0);
+		addReversePosition(newPosition, "CE",191.9);
 		
 		boolean sellDuringBuy = true;
 		
@@ -103,9 +109,12 @@ public class ProcessingBlock {
 
 			double currentProfit = 0;
 			
-			if(i>35 && i<1783){
-				System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(3)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(2))));
-				
+			if(i>1774 && i<3393){
+				if(newPosition.getName().equals("PE")){
+					System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(2)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(3))));
+				}else{
+					System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(3)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(2))));
+				}
 			}
 			
 
@@ -122,9 +131,12 @@ public class ProcessingBlock {
 						if(currentProfit>Constants.HighLimit_1){
 							newPosition.setSell(Double.valueOf(values.get(3)));
 							newPosition.setSellRecord(i);
-							
-							
 						}
+						
+//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
+//							newPosition.setSell(Double.valueOf(values.get(3)));
+//							newPosition.setSellRecord(i);
+//						}
 						
 					}
 				}
@@ -141,6 +153,12 @@ public class ProcessingBlock {
 							newPosition.setSell(Double.valueOf(values.get(2)));
 							newPosition.setSellRecord(i);
 						}
+						
+//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
+//							newPosition.setSell(Double.valueOf(values.get(2)));
+//							newPosition.setSellRecord(i);
+//						}
+						
 						
 					}
 				}
@@ -172,13 +190,64 @@ public class ProcessingBlock {
 				newPosition.setBuyRecord(i);
 				pos.getPePositions().add(newPosition);
 				action.setAction(HOLDING_PE);
+				//action.setAction(INITIAL_POSITION);
 				addReversePosition(newPosition, "CE", Double.valueOf(values.get(3)));
 			}else if(BUY_CE.equals(action.getAction())){
 				newPosition = new Position("CE",70.0,Double.valueOf(values.get(3)));
 				newPosition.setBuyRecord(i);
 				pos.getCePositions().add(newPosition);
 				action.setAction(HOLDING_CE);
+				//action.setAction(INITIAL_POSITION);
 				addReversePosition(newPosition, "PE", Double.valueOf(values.get(2)));
+			}
+			
+			/** Disabled for now.***/
+//			if(INITIAL_POSITION.equals(action.getAction())){
+//				
+//				if("PE".equals(newPosition.getName())){
+//					currentProfit = getOptionProfit(newPosition, peScript.getNewPrice().getValue());
+//					
+//					if(currentProfit<-300){
+//						newPosition.setBuy(peScript.getNewPrice().getValue());
+//						action.setAction(HOLDING_PE);
+//					}
+//				}
+//				if("CE".equals(newPosition.getName())){
+//					currentProfit = getOptionProfit(newPosition, ceScript.getNewPrice().getValue());
+//					
+//					if(currentProfit<-300){
+//						newPosition.setBuy(ceScript.getNewPrice().getValue());
+//						action.setAction(HOLDING_CE);
+//					}
+//				}
+//				
+//			}
+			
+			if(INITIAL_POSITION.equals(action.getAction())){
+				
+				double reverseProfit = 0.0;
+				
+				if("PE".equals(newPosition.getName())){
+					currentProfit = getOptionProfit(newPosition, peScript.getNewPrice().getValue());
+					reverseProfit = getOptionProfit(newPosition.getReversePosition(), ceScript.getNewPrice().getValue());
+					if(currentProfit<0 && reverseProfit>0){
+						newPosition.setBuy(peScript.getNewPrice().getValue());
+						pos.getCePositions().get(pos.getCePositions().size()-1).setSell(ceScript.getNewPrice().getValue());
+						pos.getCePositions().get(pos.getCePositions().size()-1).setSellRecord(i);
+						action.setAction(HOLDING_PE);
+					}
+				}
+				if("CE".equals(newPosition.getName())){
+					currentProfit = getOptionProfit(newPosition, ceScript.getNewPrice().getValue());
+					reverseProfit = getOptionProfit(newPosition.getReversePosition(), peScript.getNewPrice().getValue());
+					if(currentProfit<0 && reverseProfit>0){
+						newPosition.setBuy(ceScript.getNewPrice().getValue());
+						pos.getPePositions().get(pos.getPePositions().size()-1).setSell(peScript.getNewPrice().getValue());
+						pos.getPePositions().get(pos.getPePositions().size()-1).setSellRecord(i);
+						action.setAction(HOLDING_CE);
+					}
+				}
+				
 			}
 			
 			if(!sellDuringBuy){

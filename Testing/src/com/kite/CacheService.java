@@ -42,6 +42,9 @@ public class CacheService {
 	static IndexTreeList<TDoubleList> scriplist = null;
 	private static int niftyCount = 0;
 	
+	
+	
+	
 	static{
 		reporter = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).createOrOpen();
 		
@@ -51,7 +54,34 @@ public class CacheService {
 			cachedb_1.commit();
 		}
 		niftytDoubleList = scriplist.get(0);
+		
+		
 	}
+	
+	public void addOptionCache(String groupName, double pePrice,double cePrice){
+		
+		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)cachedb_1.indexTreeList(groupName,Serializer.JAVA).createOrOpen();
+		 TDoubleList peList  = new TDoubleArrayList();
+		 TDoubleList ceList  = new TDoubleArrayList();
+		
+		if(options.size()==0){
+			options.add(peList);
+			options.add(ceList);
+			cachedb_1.commit();
+		}
+		
+		peList = options.get(0);
+		ceList = options.get(1);
+		
+		peList.add(pePrice);
+		ceList.add(cePrice);
+		
+		options.set(0, peList);
+		options.set(1, ceList);
+		
+	}
+	
+	
 	
 	public static void clearNifty(){
 		niftytDoubleList.clear();
@@ -164,6 +194,27 @@ public class CacheService {
 		
 	}
 	
+	public static TDoubleList[] getItemsFromOptionCache(String groupName,int size){
+		//verify performance...
+		TDoubleList peList = new TDoubleArrayList();
+		TDoubleList ceList = new TDoubleArrayList();
+		
+		
+		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)cachedb_1.indexTreeList(groupName,Serializer.JAVA).createOrOpen();
+		
+		
+		int peSize = niftytDoubleList.size();
+		
+		peList.addAll(options.get(0).subList(peSize-size, peSize));
+		ceList.addAll(options.get(1).subList(peSize-size, peSize));
+		
+		TDoubleList[] arrays = new TDoubleList[2];
+		arrays[0] = peList;
+		arrays[1] = ceList;
+		
+		return arrays;
+		
+	}
 	
 	
 	/**
@@ -199,12 +250,12 @@ public class CacheService {
 		
 		
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
-		reporter.clear();
-		reportdb.commit();
+//		reporter.clear();
+//		reportdb.commit();
 		StringBuilder builder;
-		
+//		
 //		try {
-//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_16_008_2017.txt"));
+//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_23_08_2017.txt"));
 //			builder = new StringBuilder();
 //			//builder.append(reporter.toString());
 //			String data = null;
