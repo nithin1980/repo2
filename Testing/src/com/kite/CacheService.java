@@ -252,10 +252,10 @@ public class CacheService {
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
 //		reporter.clear();
 //		reportdb.commit();
-		StringBuilder builder;
+//		StringBuilder builder;
 //		
 //		try {
-//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_23_08_2017.txt"));
+//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_25_08_2017.txt"));
 //			builder = new StringBuilder();
 //			//builder.append(reporter.toString());
 //			String data = null;

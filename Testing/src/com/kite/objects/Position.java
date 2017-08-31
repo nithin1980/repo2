@@ -1,5 +1,7 @@
 package com.kite.objects;
 
+import com.kite.Constants;
+
 /**
  * 
  * @author nkumar
@@ -11,6 +13,13 @@ package com.kite.objects;
  */
 public class Position {
 	
+	public static final String INITIAL_POSITION = "INITIAL_POSITION";
+	public static final String ENTERED_POSITION = "ENTERED_POSITION";
+//	public static final String POSITIVE = "ENTERED_POSITION";
+//	public static final String ENTERED_POSITION = "ENTERED_POSITION";
+	
+	
+	
 	private double buy=0.0;
 	private double sell=0.0;
 	//private double profit=0.0;
@@ -19,7 +28,7 @@ public class Position {
 	
 	private String name;
 	
-	private int size=150;
+	private int size=0;
 	
 	private int buyRecord;
 	private int sellRecord;
@@ -29,18 +38,40 @@ public class Position {
 	private double reversePositionHighProfit;
 	
 	
+	private String status;
 	
 	
 	private double highValue;
 	private double lowValue;
 	
+	private int highValRecord;
+	private int lowValRecord;
 	
 	private Position reversePosition;
+	
+	
+	/**
+	 * Reference High & Reference low: this will be used to compare the current price to see 
+	 * where it is going. It could day's high/low, list nearest high/low etc... 
+	 * The current price action will MOVE within this high/low
+	 */
+	private ValueTime bracketHigh;
+	private ValueTime bracketLow;
+	
+	/**
+	 * Value where it is assumed that it exists high trend, if falls below this value
+	 * value where it is assume that it has entered high , if it gains move this value.
+	 */
+	private ValueTime bracketHighLowerValue;
+	private ValueTime bracketLowHigherValue;	
+	
+	
+	private int reversePositionOppurtunityCount;
 	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return name+","+buy+","+sell+","+getProfit()+","+buyRecord+","+sellRecord+","+getHighValue()+","+getLowValue()+","+highProfit()+","+lowProfit()+"##";
+		return name+","+buy+","+sell+","+getProfit()+","+buyRecord+","+sellRecord+","+getHighValue()+","+getLowValue()+","+highProfit()+","+lowProfit()+","+cost()+","+profitPercentage()+"##";
 		//return "{name:"+name+",buy:"+buy+",sell:"+sell+",profit:"+profit+",buyRecord:"+buyRecord+",sellRecord:"+sellRecord+"}";
 	}
 	
@@ -70,13 +101,35 @@ public class Position {
 		setSize(localPosition.getSize());
 		
 	}
+	public void calculateMargins(){
+		double spread = getBracketHigh().getValue()-getBracketLow().getValue();
+		
+		spread = spread/Constants.MarginBreakup;
+		
+		setBracketHighLowerValue(new ValueTime(getBracketHigh().getTime(), getBracketHigh().getValue()-spread));
+		setBracketLowHigherValue(new ValueTime(getBracketLow().getTime(), getBracketLow().getValue()+spread));
+	}
+	public int size(){
+		if(size==0){
+			return (int) (20000/buy);
+		}
+		
+		return size;
+	}
+	public double cost(){
+		return buy*size();
+	}
+	
+	public double profitPercentage(){
+		return (getProfit()/cost())*100;
+	}
 	
 	public double getProfit() {
 		double profit =0.0;
 		
 		if(buy>0.0 && sell>0.0){
 			profit = sell-buy;
-			profit = (profit*size)-expense;
+			profit = (profit*size())-expense;
 		}
 		return profit;
 	}
@@ -101,12 +154,17 @@ public class Position {
 		return false;
 	}
 	
+	public double percentageFromHighProfit(double currentProfit){
+		double diff = ((highProfit()-currentProfit)/highProfit())*100;
+		
+		return diff;
+	}
 
 	public double highProfit(){
 		double profit =0.0;
 		
 		profit = getHighValue()-buy;
-		profit = (profit*size)-expense;
+		profit = (profit*size())-expense;
 		return profit;
 		
 	}
@@ -114,7 +172,7 @@ public class Position {
 		double profit =0.0;
 		
 		profit = getLowValue()-buy;
-		profit = (profit*size)-expense;
+		profit = (profit*size())-expense;
 		return profit;
 		
 	}
@@ -122,26 +180,106 @@ public class Position {
 		return highValue;
 	}
 
-	public void setHighValue(double highValue) {
+	
+	public ValueTime getBracketHigh() {
+		return bracketHigh;
+	}
+
+	public void setBracketHigh(ValueTime bracketHigh) {
+		if(getBracketHigh()==null){
+			
+			if(getBracketLow()!=null){
+				if(getBracketLow().getValue()>bracketHigh.getValue()){
+					throw new RuntimeException("Bracket high should be greater than bracket low");
+				}
+			}
+			this.bracketHigh = bracketHigh;
+			if(getBracketLow()!=null){
+				calculateMargins();
+			}
+		}
+		
+		if(getBracketHigh()!=null){
+			double diff = bracketHigh.getValue()-getBracketHigh().getValue();
+			this.bracketHigh = bracketHigh;
+			if(getBracketLow()!=null){
+				getBracketLow().setValue(getBracketLow().getValue()+diff);
+				calculateMargins();
+			}
+		}
+	}
+
+
+	public ValueTime getBracketLow() {
+		return bracketLow;
+	}
+
+	public void setBracketLow(ValueTime bracketLow) {
+		if(getBracketLow()==null){
+			
+			if(getBracketHigh()!=null){
+				if(getBracketHigh().getValue()<bracketLow.getValue()){
+					throw new RuntimeException("Bracket low should be lower than bracket low");
+				}
+			}
+			this.bracketLow = bracketLow;
+			if(getBracketHigh()!=null){
+				calculateMargins();
+			}
+		}
+		if(getBracketLow()!=null){
+			double diff = getBracketLow().getValue()-bracketLow.getValue();
+			this.bracketLow = bracketLow;
+			if(getBracketHigh()!=null){
+				getBracketHigh().setValue(getBracketHigh().getValue()-diff);
+				calculateMargins();
+			}
+		}
+	}
+
+	public ValueTime getBracketHighLowerValue() {
+		return bracketHighLowerValue;
+	}
+
+	public void setBracketHighLowerValue(ValueTime bracketHighLowerValue) {
+		this.bracketHighLowerValue = bracketHighLowerValue;
+	}
+
+	public ValueTime getBracketLowHigherValue() {
+		return bracketLowHigherValue;
+	}
+
+	public void setBracketLowHigherValue(ValueTime bracketLowHigherValue) {
+		this.bracketLowHigherValue = bracketLowHigherValue;
+	}
+
+	public boolean setHighValue(double highValue) {
 		if(this.highValue==0){
 			this.highValue = highValue;
+			return true;
 		}
 		if(highValue>this.highValue){
 			this.highValue = highValue;
+			return true;
 		}
+		
+		return false;
 	}
 
 	public double getLowValue() {
 		return lowValue;
 	}
 
-	public void setLowValue(double lowValue) {
+	public boolean setLowValue(double lowValue) {
 		if(this.lowValue==0){
 			this.lowValue=lowValue;
+			return true;
 		}
 		if(lowValue<this.lowValue){
 			this.lowValue = lowValue;
+			return true;
 		}
+		return false;
 	}
 
 	public double getReversePositionHighProfit() {
@@ -190,7 +328,7 @@ public class Position {
 	}
 
 	public int getSize() {
-		return size;
+		return size();
 	}
 	public void setSize(int size) {
 		this.size = size;
@@ -229,6 +367,39 @@ public class Position {
 
 	public void setReversePosition(Position reversePosition) {
 		this.reversePosition = reversePosition;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public int getReversePositionOppurtunityCount() {
+		return reversePositionOppurtunityCount;
+	}
+
+	public void setReversePositionOppurtunityCount(
+			int reversePositionOppurtunityCount) {
+		this.reversePositionOppurtunityCount = reversePositionOppurtunityCount;
+	}
+
+	public int getLowValRecord() {
+		return lowValRecord;
+	}
+
+	public void setLowValRecord(int lowValRecord) {
+		this.lowValRecord = lowValRecord;
+	}
+
+	public int getHighValRecord() {
+		return highValRecord;
+	}
+
+	public void setHighValRecord(int highValRecord) {
+		this.highValRecord = highValRecord;
 	}
 	
 	
