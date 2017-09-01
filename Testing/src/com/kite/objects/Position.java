@@ -1,5 +1,9 @@
 package com.kite.objects;
 
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.array.TDoubleArrayList;
+
+import com.kite.Chart;
 import com.kite.Constants;
 
 /**
@@ -68,6 +72,9 @@ public class Position {
 	
 	private int reversePositionOppurtunityCount;
 	
+	private TDoubleList cache  = new TDoubleArrayList();
+	private int cachesize; 
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
@@ -100,6 +107,32 @@ public class Position {
 		setBuy(localPosition.getBuy());
 		setSize(localPosition.getSize());
 		
+	}
+	public void addToRecord(double value){
+		cache.add(value);
+		cachesize++;
+	}
+	public void clearRecords(){
+		cache.clear();
+		cachesize=0;
+	}
+	public TDoubleList getItemsFromRecords(int recordNeeded){
+		TDoubleList items = new TDoubleArrayList();
+		
+		int listSize = cache.size();
+		items.addAll(cache.subList(listSize-recordNeeded, listSize));;
+		
+		return items;
+		
+	}
+	public String trend(){
+		if(cachesize<11){
+			return "TREND_NOT_AVAILABLE";
+		}
+		TDoubleList list = getItemsFromRecords(10);
+		String trend = Chart.calculateTrend(list);
+		
+		return trend;
 	}
 	public void calculateMargins(){
 		double spread = getBracketHigh().getValue()-getBracketLow().getValue();
@@ -153,7 +186,12 @@ public class Position {
 		
 		return false;
 	}
-	
+	public double percentgeProfit(double currentProfit){
+		double diff = (currentProfit/cost())*100;
+		
+		return diff;
+
+	}
 	public double percentageFromHighProfit(double currentProfit){
 		double diff = ((highProfit()-currentProfit)/highProfit())*100;
 		
