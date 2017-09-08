@@ -1,9 +1,9 @@
-package com.kite;
+package com.mod;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.kite.objects.GroupPosition;
+import com.mod.objects.GroupPosition;
 
 
 public class DashBoard {

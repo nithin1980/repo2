@@ -1,10 +1,10 @@
-package com.kite.objects;
+package com.mod.objects;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import com.kite.Chart;
-import com.kite.Constants;
+import com.mod.Chart;
+import com.mod.Constants;
 
 /**
  * 
@@ -124,6 +124,15 @@ public class Position {
 		
 		return items;
 		
+	}
+	public boolean isProfitDecreasedEnough(int currentrecord, int recordnumber, double percentReduction, double currentProfit){
+		double diff = percentageFromHighProfit(currentProfit);
+		
+		if(diff>percentReduction && (currentrecord-highValRecord)>recordnumber){
+			return true;
+		}
+		
+		return false;
 	}
 	public String trend(){
 		if(cachesize<11){

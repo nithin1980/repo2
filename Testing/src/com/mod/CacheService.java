@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -250,8 +250,8 @@ public class CacheService {
 		
 		
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
-//		reporter.clear();
-//		reportdb.commit();
+		reporter.clear();
+		reportdb.commit();
 //		StringBuilder builder;
 //		
 //		try {

@@ -1,4 +1,4 @@
-package com.kite.objects;
+package com.mod.objects;
 
 public class Action {
 	

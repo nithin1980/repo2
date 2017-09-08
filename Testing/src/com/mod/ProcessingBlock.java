@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 import gnu.trove.list.TDoubleList;
 
@@ -10,13 +10,14 @@ import org.junit.Test;
 import sun.security.util.PendingException;
 import static org.junit.Assert.*;
 
-import com.kite.objects.Action;
-import com.kite.objects.GroupPosition;
-import com.kite.objects.Position;
-import com.kite.objects.ScriptData;
-import com.kite.objects.ValueTime;
+import com.mod.datafeeder.DataFeed;
+import com.mod.objects.Action;
+import com.mod.objects.GroupPosition;
+import com.mod.objects.Position;
+import com.mod.objects.ScriptData;
+import com.mod.objects.ValueTime;
 
-public class ProcessingBlock3 {
+public class ProcessingBlock {
 
 	public static final String BUY_PE = "buy_pe";
 	public static final String BUY_CE = "buy_ce";
@@ -62,7 +63,7 @@ public class ProcessingBlock3 {
 	public void testPELogic(){
 		
 		
-		List<List<String>> dataList = ApplicationHelper.getConfig();
+		List<List<String>> dataList = DataFeed.data();
 		int size   = dataList.size();
 		//Action action  = new Action(HOLDING_NOTHING);
 		Action action  = new Action(HOLDING_CE);
@@ -71,7 +72,7 @@ public class ProcessingBlock3 {
 		ScriptData ceScript = new ScriptData();
 		List<String> values = null;
 		
-		CacheService.clearNifty();;
+		CacheService.clearNifty();
 		CacheService.dumpNifty();
 		//ApplicationHelper.threadService.shutdown();
 		
@@ -103,140 +104,168 @@ public class ProcessingBlock3 {
 			
 			peScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(2))));
 			ceScript.setNewPrice(new ValueTime(values.get(0),Double.valueOf(values.get(3))));
-			//action = process(newPosition,script,values , action, peScript, ceScript);
+			action = process(newPosition,script,values , action, peScript, ceScript);
 			values.add(action.getAction());
+			
 
 			double currentProfit = 0;
-			double reverseProfit = 0;
-			double currentPer = 0;
-			double reversePer = 0;
-			boolean highChanged = false;
-			boolean lowChanged = false;
-			if(i>6000 && i<7700){
+			
+			if(i>1774 && i<3393){
 				if(newPosition.getName().equals("PE")){
-					currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(2)));
-					reverseProfit = getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(3)));
-					currentPer = perCost(currentProfit, newPosition.cost());
-					reversePer = perCost(reverseProfit, newPosition.getReversePosition().cost());
-					
-					System.out.println("current :"+currentProfit+"("+currentPer +")"+"  reverse :"+reverseProfit+"("+reversePer +")"+" diff:"+(currentProfit+reverseProfit));
+					System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(2)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(3))));
 				}else{
-					currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(3)));
-					reverseProfit = getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(2)));
+					System.out.println("current profit:"+getOptionProfit(newPosition, Double.valueOf(values.get(3)))+"  reverse profit:"+getOptionProfit(newPosition.getReversePosition(), Double.valueOf(values.get(2))));
+				}
+			}
+			
+
+				if(REVERSE_TO_PE.equals(action.getAction()) || HOLDING_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(3)));
+						//System.out.println("current profit:"+currentProfit+"..."+i);
+						if(currentProfit<Constants.LossLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(3)));
+							newPosition.setSellRecord(i);
+							
+							
+						}
+						if(currentProfit>Constants.HighLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(3)));
+							newPosition.setSellRecord(i);
+						}
+						
+//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
+//							newPosition.setSell(Double.valueOf(values.get(3)));
+//							newPosition.setSellRecord(i);
+//						}
+						
+					}
+				}
+				
+				if(REVERSE_TO_CE.equals(action.getAction()) || HOLDING_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						currentProfit = getOptionProfit(newPosition, Double.valueOf(values.get(2)));
+						
+						if(currentProfit<Constants.LossLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(2)));
+							newPosition.setSellRecord(i);
+						}
+						if(currentProfit>Constants.HighLimit_1){
+							newPosition.setSell(Double.valueOf(values.get(2)));
+							newPosition.setSellRecord(i);
+						}
+						
+//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
+//							newPosition.setSell(Double.valueOf(values.get(2)));
+//							newPosition.setSellRecord(i);
+//						}
+						
+						
+					}
+				}
+				
+		
+
+			
+			if(sellDuringBuy){
+				//selling during buy
+				if(BUY_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(3)));
+						newPosition.setSellRecord(i);
+					}
 					
-					currentPer = perCost(currentProfit, newPosition.cost());
-					reversePer = perCost(reverseProfit, newPosition.getReversePosition().cost());
 					
-					System.out.println("current :"+currentProfit+"("+currentPer +")"+"  reverse :"+reverseProfit+"("+reversePer +")"+" diff:"+(currentProfit+reverseProfit));
+					
+				}else if(BUY_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(2)));
+						newPosition.setSellRecord(i);
+					}
 				}
 			}
 			
 			
-				if(HOLDING_CE.equals(action.getAction())){
-						currentProfit = getOptionProfit(newPosition, ceScript.getNewPrice().getValue());
-						reverseProfit = getOptionProfit(newPosition.getReversePosition(), peScript.getNewPrice().getValue());
-						highChanged = newPosition.setHighValue(ceScript.getNewPrice().getValue());
-						if(highChanged){
-							newPosition.setHighValRecord(i);
-						}
-						lowChanged = newPosition.setLowValue(ceScript.getNewPrice().getValue());
-						if(lowChanged){
-							newPosition.setLowValRecord(i);
-						}
-						
-						//System.out.println("current profit:"+currentProfit+"..."+i);
-//						if(currentProfit<Constants.LossLimit_1){
-//							newPosition.setSell(Double.valueOf(values.get(3)));
-//							newPosition.setSellRecord(i);
-//							
-//							
-//						}
-						newPosition.setBracketHigh(new ValueTime("",currentProfit));
-						newPosition.setBracketLow(new ValueTime("",currentProfit));
-						
-						if(newPosition.percentageFromHighProfit(currentProfit)>25 || newPosition.getReversePosition().percentgeProfit(currentProfit)>2){
-							newPosition.setSell(Double.valueOf(values.get(3)));
-							newPosition.setSellRecord(i);
-							newPosition = new Position("PE",70.0,Double.valueOf(values.get(2)));
-							newPosition.setBuyRecord(i);
-							pos.getPePositions().add(newPosition);
-							action.setAction(HOLDING_PE);
-							addReversePosition(newPosition, "CE", Double.valueOf(values.get(3)));
-							
-						}
-						
-						
-//						if(currentProfit>500){
-//							
-//							newPosition.setSell(Double.valueOf(values.get(3)));
-//							newPosition.setSellRecord(i);
-//							newPosition = new Position("PE",70.0,Double.valueOf(values.get(2)));
-//							newPosition.setBuyRecord(i);
-//							pos.getPePositions().add(newPosition);
-//							action.setAction(HOLDING_PE);
-//							addReversePosition(newPosition, "CE", Double.valueOf(values.get(3)));
-//							
-//						}
-						
-//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
-//							newPosition.setSell(Double.valueOf(values.get(3)));
-//							newPosition.setSellRecord(i);
-//						}
+			if(BUY_PE.equals(action.getAction())){
+				newPosition = new Position("PE",70.0,Double.valueOf(values.get(2)));
+				newPosition.setBuyRecord(i);
+				pos.getPePositions().add(newPosition);
+				action.setAction(HOLDING_PE);
+				//action.setAction(INITIAL_POSITION);
+				addReversePosition(newPosition, "CE", Double.valueOf(values.get(3)));
+			}else if(BUY_CE.equals(action.getAction())){
+				newPosition = new Position("CE",70.0,Double.valueOf(values.get(3)));
+				newPosition.setBuyRecord(i);
+				pos.getCePositions().add(newPosition);
+				action.setAction(HOLDING_CE);
+				//action.setAction(INITIAL_POSITION);
+				addReversePosition(newPosition, "PE", Double.valueOf(values.get(2)));
+			}
+			
+			/** Disabled for now.***/
+//			if(INITIAL_POSITION.equals(action.getAction())){
+//				
+//				if("PE".equals(newPosition.getName())){
+//					currentProfit = getOptionProfit(newPosition, peScript.getNewPrice().getValue());
+//					
+//					if(currentProfit<-300){
+//						newPosition.setBuy(peScript.getNewPrice().getValue());
+//						action.setAction(HOLDING_PE);
+//					}
+//				}
+//				if("CE".equals(newPosition.getName())){
+//					currentProfit = getOptionProfit(newPosition, ceScript.getNewPrice().getValue());
+//					
+//					if(currentProfit<-300){
+//						newPosition.setBuy(ceScript.getNewPrice().getValue());
+//						action.setAction(HOLDING_CE);
+//					}
+//				}
+//				
+//			}
+			
+			if(INITIAL_POSITION.equals(action.getAction())){
+				
+				double reverseProfit = 0.0;
+				
+				if("PE".equals(newPosition.getName())){
+					currentProfit = getOptionProfit(newPosition, peScript.getNewPrice().getValue());
+					reverseProfit = getOptionProfit(newPosition.getReversePosition(), ceScript.getNewPrice().getValue());
+					if(currentProfit<0 && reverseProfit>0){
+						newPosition.setBuy(peScript.getNewPrice().getValue());
+						pos.getCePositions().get(pos.getCePositions().size()-1).setSell(ceScript.getNewPrice().getValue());
+						pos.getCePositions().get(pos.getCePositions().size()-1).setSellRecord(i);
+						action.setAction(HOLDING_PE);
+					}
+				}
+				if("CE".equals(newPosition.getName())){
+					currentProfit = getOptionProfit(newPosition, ceScript.getNewPrice().getValue());
+					reverseProfit = getOptionProfit(newPosition.getReversePosition(), peScript.getNewPrice().getValue());
+					if(currentProfit<0 && reverseProfit>0){
+						newPosition.setBuy(ceScript.getNewPrice().getValue());
+						pos.getPePositions().get(pos.getPePositions().size()-1).setSell(peScript.getNewPrice().getValue());
+						pos.getPePositions().get(pos.getPePositions().size()-1).setSellRecord(i);
+						action.setAction(HOLDING_CE);
+					}
 				}
 				
-				if(HOLDING_PE.equals(action.getAction())){
-						currentProfit = getOptionProfit(newPosition, peScript.getNewPrice().getValue());
-						reverseProfit = getOptionProfit(newPosition.getReversePosition(), ceScript.getNewPrice().getValue());
-						highChanged = newPosition.setHighValue(peScript.getNewPrice().getValue());
-						if(highChanged){
-							newPosition.setHighValRecord(i);
-						}
-						lowChanged = newPosition.setLowValue(peScript.getNewPrice().getValue());
-						if(lowChanged){
-							newPosition.setLowValRecord(i);
-						}
-
-						newPosition.setBracketHigh(new ValueTime("",currentProfit));
-						newPosition.setBracketLow(new ValueTime("",currentProfit));
-						
-						if(newPosition.percentageFromHighProfit(currentProfit)>25 || newPosition.getReversePosition().percentgeProfit(currentProfit)>2){
-							newPosition.setSell(Double.valueOf(values.get(2)));
-							newPosition.setSellRecord(i);
-							newPosition = new Position("CE",70.0,Double.valueOf(values.get(3)));
-							newPosition.setBuyRecord(i);
-							pos.getCePositions().add(newPosition);
-							action.setAction(HOLDING_CE);
-							//action.setAction(INITIAL_POSITION);
-							addReversePosition(newPosition, "PE", Double.valueOf(values.get(2)));
-						}
-
-						
-//						if(currentProfit<Constants.LossLimit_1){
-//							newPosition.setSell(Double.valueOf(values.get(2)));
-//							newPosition.setSellRecord(i);
-//						}
-//						if(currentProfit>500){
-//							System.out.println("selling");
-//							newPosition.setSell(Double.valueOf(values.get(2)));
-//							newPosition.setSellRecord(i);
-//							newPosition = new Position("CE",70.0,Double.valueOf(values.get(3)));
-//							newPosition.setBuyRecord(i);
-//							pos.getCePositions().add(newPosition);
-//							action.setAction(HOLDING_CE);
-//							//action.setAction(INITIAL_POSITION);
-//							addReversePosition(newPosition, "PE", Double.valueOf(values.get(2)));
-//							
-//						}
-						
-//						if(newPosition.highProfit()>250 && newPosition.percentageFromHighProfit(currentProfit)>15){
-//							newPosition.setSell(Double.valueOf(values.get(2)));
-//							newPosition.setSellRecord(i);
-//						}
-						
-						
-					
+			}
+			
+			if(!sellDuringBuy){
+				//sell first
+				if(REVERSE_TO_PE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(3)));
+						newPosition.setSellRecord(i);
+					}
+				}else if(REVERSE_TO_CE.equals(action.getAction())){
+					if(newPosition.getSell()==0){
+						newPosition.setSell(Double.valueOf(values.get(2)));
+						newPosition.setSellRecord(i);
+					}
 				}
-		
+			}
+			
 			if(log){
 				//System.out.println(values);
 			}
@@ -251,13 +280,8 @@ public class ProcessingBlock3 {
 		
 	}
 	
-	private double perCost(double profit,double cost){
-		return (profit/cost)*100;
-	}
-	
 	private static void addReversePosition(Position position,String name,double price){
 		position.setReversePosition(new Position(name, 70.0, price));
-		
 	}
 	
 	private static void processDirectionalCount(ScriptData script,boolean priceIncreased,boolean noChange){

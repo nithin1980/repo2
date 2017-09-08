@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 import java.awt.AWTException;
 import java.awt.Robot;

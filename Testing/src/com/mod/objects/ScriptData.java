@@ -1,8 +1,8 @@
-package com.kite.objects;
+package com.mod.objects;
 
 import java.util.List;
 
-import com.kite.Constants;
+import com.mod.Constants;
 
 public class ScriptData {
 	

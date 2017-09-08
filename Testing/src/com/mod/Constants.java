@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 public class Constants {
 	

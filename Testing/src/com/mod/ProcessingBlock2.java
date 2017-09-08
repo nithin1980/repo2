@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 import gnu.trove.list.TDoubleList;
 
@@ -10,11 +10,11 @@ import org.junit.Test;
 import sun.security.util.PendingException;
 import static org.junit.Assert.*;
 
-import com.kite.objects.Action;
-import com.kite.objects.GroupPosition;
-import com.kite.objects.Position;
-import com.kite.objects.ScriptData;
-import com.kite.objects.ValueTime;
+import com.mod.objects.Action;
+import com.mod.objects.GroupPosition;
+import com.mod.objects.Position;
+import com.mod.objects.ScriptData;
+import com.mod.objects.ValueTime;
 
 public class ProcessingBlock2 {
 

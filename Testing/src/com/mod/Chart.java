@@ -1,4 +1,4 @@
-package com.kite;
+package com.mod;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
