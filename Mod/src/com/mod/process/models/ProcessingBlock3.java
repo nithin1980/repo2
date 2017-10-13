@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import gnu.trove.list.TDoubleList;
 
@@ -16,7 +16,7 @@ import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
 
-public class ProcessingBlock4 {
+public class ProcessingBlock3 {
 
 	public static final String BUY_PE = "buy_pe";
 	public static final String BUY_CE = "buy_ce";
@@ -156,7 +156,7 @@ public class ProcessingBlock4 {
 						newPosition.setBracketLow(new ValueTime("",currentProfit));
 						
 						//if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
-							if((currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())) || (reverseProfit<-400)){							
+							if(currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())){							
 							System.out.println(newPosition.trend());
 							newPosition.setSell(Double.valueOf(values.get(3)));
 							newPosition.setSellRecord(i);
@@ -204,7 +204,7 @@ public class ProcessingBlock4 {
 						newPosition.setBracketLow(new ValueTime("",currentProfit));
 						
 //						if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
-							if((currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())) || (reverseProfit<-400)){							
+							if(currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())){							
 							
 							System.out.println(newPosition.trend());
 							newPosition.setSell(Double.valueOf(values.get(2)));

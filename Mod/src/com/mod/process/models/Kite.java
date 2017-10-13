@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import static org.junit.Assert.fail;
 
@@ -47,7 +47,7 @@ public class Kite {
   @Before
   public void setUp() throws Exception {
 	getTargetList();  
-	System.setProperty("webdriver.gecko.driver", "C:/Apps/workspace-luna/Testing/lib/geckodriver.exe");  
+	System.setProperty("webdriver.gecko.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/geckodriver.exe");  
     driver = new FirefoxDriver();
     baseUrl = "https://kite.zerodha.com/";
     driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -266,10 +266,12 @@ public class Kite {
   
   public void getTargetList(){
 	  targetList.add("NIFTY 50 INDEX");
-	  targetList.add("NIFTY AUG 9800 CE");
-	  targetList.add("NIFTY AUG 9700 CE");
-	  targetList.add("NIFTY AUG 9800 PE");
-	  targetList.add("NIFTY AUG 9700 PE");
+	  targetList.add("NIFTY OCT 10000 CE");
+	  targetList.add("NIFTY OCT 9900 CE");
+	  targetList.add("NIFTY OCT 10100 CE");
+	  targetList.add("NIFTY OCT 10100 PE");
+	  targetList.add("NIFTY OCT 9900 PE");
+	  targetList.add("NIFTY OCT 10200 PE");
 	   
   }
 

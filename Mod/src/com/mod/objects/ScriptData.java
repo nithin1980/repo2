@@ -2,7 +2,7 @@ package com.mod.objects;
 
 import java.util.List;
 
-import com.mod.Constants;
+import com.mod.process.models.Constants;
 
 public class ScriptData {
 	

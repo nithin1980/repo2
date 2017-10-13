@@ -19,6 +19,11 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import com.mod.datafeeder.DataFeed;
+import com.mod.process.models.ApplicationHelper;
+import com.mod.process.models.CacheService;
+import com.mod.process.models.ProcessingBlock;
+
 @ClientEndpoint(configurator=WebsocketClientConfig.class)
 public class WebSocketClientExample {
 	
@@ -35,7 +40,7 @@ public class WebSocketClientExample {
 
     @OnOpen
     public void onOpen(Session session) throws Exception {
-    	
+    	//send initialising data from a config source....
     	session.getBasicRemote().sendText("{\"a\": \"subscribe\", \"v\": [408065]}");
         session.getBasicRemote().sendText("{\"a\": \"mode\", \"v\": [\"full\", [408065]]}");
     	System.out.println("connection opened");
@@ -44,9 +49,21 @@ public class WebSocketClientExample {
     @OnMessage
     public void onMessage(ByteBuffer message, Session session){
         // do something
-
-    	parseBuffer(message, "");
     	
+    	//Before doing anything.. add metadata to the cache.
+    	//CacheService.addMetaDataToDateRecording(groupName, metadata);
+    	
+    	//different thread...
+    	//just need the current price, high low open.
+    	final ByteBuffer data = message;
+    	ApplicationHelper.threadService.execute(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				parseBuffer(data, "");
+			}
+		});
     }
     
     public static String bytesToAlphabeticString(byte[] bytes) {
@@ -83,7 +100,7 @@ public class WebSocketClientExample {
 //        webSocketClient.setWebSocketFactory( new DefaultSSLWebSocketClientFactory( sslContext ) );
        // ClientManager client = ClientManager.createClient();
         try {
-            URI serverEndpointUri = new URI("wss://websocket.kite.trade/?api_key=kitefront&user_id=DV4051&public_token=ce9a863f36d4e67347965c9bb60371a3");
+            URI serverEndpointUri = new URI("wss://websocket.kite.trade/?api_key=kitefront&user_id=DV4051&public_token=f88c4a16db7899fc39d2446098ea0c9a");
             Session session = container.connectToServer(WebSocketClientExample.class, serverEndpointUri);
             //webSocketClient.connect(new WebSocketClientExample(), serverEndpointUri);
             
@@ -120,6 +137,7 @@ public class WebSocketClientExample {
 			} else {
 				start += 2;
 				//System.out.println("numPackets: " + numPackets);
+				long currentIncrementedTime = DataFeed.incrementTime();
 				for (int i = 0; i < numPackets; i++) {
 					// each packet
 					//System.out.println("packet num: " + i);
@@ -127,14 +145,16 @@ public class WebSocketClientExample {
 					if (numBytes != 0) {
 						// Valid Number of Bytes
 						start += 2;
-		
+						
 						// packet structure
 						byte[] pkt = new byte[numBytes];
 						buffer.get(pkt, 0, numBytes);
 						ByteBuffer pktBuffer = ByteBuffer.wrap(pkt);
 						if (pktBuffer != null) {
 							//parse quote packet buffer
-							parseQuotePktBuffer(pktBuffer, time);
+							parseQuotePktBuffer(pktBuffer, String.valueOf(currentIncrementedTime));
+							//put the time and collection of data here
+							//CacheService.addDateRecordingCache(data);
 							start += numBytes;
 						} else {
 							// Invalid Case: ByteBuffer could not wrap the bytes
@@ -151,13 +171,31 @@ public class WebSocketClientExample {
 		}
 	}    
     
+	/**
+	 * CREATE TEST CASE TO FEED THIS DATA.....
+	 * @param pktBuffer
+	 * @param time
+	 */
 	private void parseQuotePktBuffer(ByteBuffer pktBuffer, String time){
 		StreamingQuote streamingQuote = null;
 		
 		if(streamingQuoteParser != null){
-			streamingQuote = streamingQuoteParser.parse(pktBuffer, time);
+			streamingQuote = streamingQuoteParser.parse(pktBuffer,time );
 		}
+		StreamingQuoteModeFull fullObject = (StreamingQuoteModeFull)streamingQuote;
 		System.out.println("Quote: " + streamingQuote);
+		System.out.println(fullObject.getLtp());
+		System.out.println(fullObject.getInstrumentToken());
+		
+		
+		
+		CacheService.PRICE_LIST.put(fullObject.getInstrumentToken(), fullObject.getLtp().doubleValue());
+		/**
+		 * Need meta data in place before it is triggered.
+		 */
+		
+		ProcessingBlock processingBlock = new ProcessingBlock();
+		//----- do the processing....
 		
 	}
 	

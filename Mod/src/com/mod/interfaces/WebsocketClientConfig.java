@@ -23,10 +23,10 @@ public class WebsocketClientConfig extends Configurator {
         headers.put("Pragma", Arrays.asList("no-cache"));
         headers.put("Sec-WebSocket-Extensions", Arrays.asList("permessage-deflate; client_max_window_bits"));
         
-        headers.put("Sec-WebSocket-Key", Arrays.asList("QspFwfcdv1cL7c27w85xXA=="));
+        headers.put("Sec-WebSocket-Key", Arrays.asList("6fzWv4vmBRfkKoA4OgzCIA=="));
         headers.put("Sec-WebSocket-Version", Arrays.asList("13"));
         headers.put("Upgrade", Arrays.asList("websocket"));
-        headers.put("User-Agent", Arrays.asList("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"));
+        headers.put("User-Agent", Arrays.asList("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"));
         
     }
 

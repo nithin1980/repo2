@@ -5,6 +5,12 @@ public class KiteOrderObject implements OrderInterfaceObject{
  * {"exchange":"NFO","tradingsymbol":"NIFTY17JUL9700CE","transaction_type":"BUY","order_type":"MARKET","quantity"
 :"75","price":"0","product":"NRML","validity":"DAY","disclosed_quantity":"0","trigger_price":"0","squareoff_value"
 :"0","stoploss_value":"0","trailing_stoploss":"0","variety":"amo","client_id":"DV4051"}
+
+{"exchange":"NFO","tradingsymbol":"NIFTY17OCT10500CE","transaction_type":"BUY","order_type":"MARKET"
+,"quantity":"75","price":"0","product":"NRML","validity":"DAY","disclosed_quantity":"0","trigger_price"
+:"0","squareoff_value":"0","squareoff":"0","stoploss_value":"0","stoploss":"0","trailing_stoploss":"0"
+,"variety":"regular","client_id":"DV4051"}
+
  */
 	private String exchange;
 	private String tradingsymbol;

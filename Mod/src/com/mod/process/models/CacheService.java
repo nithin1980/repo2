@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +21,12 @@ import org.mapdb.HTreeMap;
 import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 
+import com.mod.objects.CacheMetaData;
+
 public class CacheService {
 	
 	
-	
+	static final String currentDate = getCurrentDate();
 	static final File dbfile = new File("C:/data/mapdb/report5.db");
 	static final DB reportdb = DBMaker.fileDB(dbfile).closeOnJvmShutdown().fileMmapEnableIfSupported().transactionEnable().make();
 	//static final DB reportdb = DBMaker.fileDB(dbfile).closeOnJvmShutdown().fileMmapEnableIfSupported().make();
@@ -33,6 +36,11 @@ public class CacheService {
 
 	static final File cachefile_1 = new File("C:/data/mapdb/cache7.db");
 	static final DB cachedb_1 = DBMaker.fileDB(cachefile_1).closeOnJvmShutdown().fileMmapEnableIfSupported().transactionEnable().allocateStartSize(40000).make();
+
+	static  File date_recording_db_file = new File("C:/data/mapdb/"+currentDate+"/"+currentDate+".db");
+	
+	//static final File date_recording_db_file = new File("C:/data/mapdb/"+currentDate+".db");
+	static DB date_recording_db = null;
 	
 	static boolean commited =  false;
 	
@@ -42,10 +50,23 @@ public class CacheService {
 	static IndexTreeList<TDoubleList> scriplist = null;
 	private static int niftyCount = 0;
 	
+	static final int holdingSize = 10;
+	private static TDoubleList[] dataArray = new TDoubleArrayList[holdingSize];
 	
+	public static Map<String, Double> PRICE_LIST = new HashMap<String, Double>();
 	
 	
 	static{
+		
+//		try {
+			date_recording_db_file.getParentFile().mkdirs();
+			//date_recording_db_file.createNewFile();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		date_recording_db = DBMaker.fileDB(date_recording_db_file).closeOnJvmShutdown().fileMmapEnableIfSupported().transactionEnable().allocateStartSize(40000).make();
+		
 		reporter = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).createOrOpen();
 		
 		scriplist =  (IndexTreeList<TDoubleList>)cachedb_1.indexTreeList("nifty",Serializer.JAVA).createOrOpen();
@@ -57,6 +78,91 @@ public class CacheService {
 		
 		
 	}
+	/**----------------------------------------------------------------------------------------------------------
+	 */
+	public static void addMetaDataToDateRecording(String groupName,CacheMetaData metadata){
+		date_recording_db.hashMap("metadata",Serializer.STRING,Serializer.JAVA).createOrOpen().put(groupName, metadata.getData());
+		date_recording_db.commit();
+	}
+	public static List<String> getMetaDataToDateRecording(String groupName){
+		HTreeMap<String, List<String>> metadata = date_recording_db.hashMap("metadata",Serializer.STRING,Serializer.JAVA).createOrOpen();
+		return metadata.get(groupName);
+	}
+	public static void addDateRecordingCache(TDoubleList data ){
+		/**
+		 * first one is time.
+		 */
+		int size = data.size();
+		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		
+		int savedsize = options.size();
+		if(savedsize==0){
+			for(int i=0;i<size;i++){
+				options.add(new TDoubleArrayList());
+				dataArray[i] = options.get(i);
+				dataArray[i].add(data.get(i));
+			}
+			date_recording_db.commit();
+		}else{
+			for(int i=0;i<size;i++){
+				dataArray[i].add(data.get(i));
+			}
+		}
+		
+	}
+	public static void clearDateDataRecord(){
+		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		options.clear();
+		date_recording_db.commit();
+	}
+	public static TDoubleList getItemsFromDateDataRecord(double stockid, int size){
+		//verify performance...
+		TDoubleList items = new TDoubleArrayList();
+
+		int index=-1;
+		int arraySize = 0;
+		/**
+		 * The first array is time
+		 */
+		for(int i=1;i<holdingSize;i++){
+			if(dataArray[i]!=null && dataArray[i].get(0)==stockid){
+				index = i;
+			}
+		}
+		if(index<0){
+			throw new RuntimeException("Cannot locate stock for:"+stockid);
+		}
+		int listSize = dataArray[index].size();
+		items.addAll(dataArray[index].subList(listSize-size, listSize));;
+		
+		return items;
+		
+	}
+	 
+	public static void dumpDateRecording(){
+		
+		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		int i=0;
+		while(dataArray[i]!=null){
+			options.set(i, dataArray[i]);
+			i++;
+		}
+		
+		if(!date_recording_db.isClosed()){
+			date_recording_db.commit();
+		}
+	}	
+	private static String getCurrentDate(){
+		Calendar calendar = Calendar.getInstance();
+		String date = calendar.get(Calendar.DATE)+"-"+(calendar.get(Calendar.MONTH)+1)+"-"+calendar.get(Calendar.YEAR);
+		return date;
+	}
+	/**----------------------------------------------------------------------------------------------------------
+	 */
+	
+	
+	
+	
 	
 	public void addOptionCache(String groupName, double pePrice,double cePrice){
 		
@@ -247,8 +353,6 @@ public class CacheService {
 		
 		
 		long t = System.currentTimeMillis();
-		
-		
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
 		reporter.clear();
 		reportdb.commit();

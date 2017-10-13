@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 public class Constants {
 	

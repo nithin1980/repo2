@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import gnu.trove.list.TDoubleList;
 
@@ -16,7 +16,7 @@ import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
 
-public class ProcessingBlock3 {
+public class ProcessingBlock4 {
 
 	public static final String BUY_PE = "buy_pe";
 	public static final String BUY_CE = "buy_ce";
@@ -56,7 +56,9 @@ public class ProcessingBlock3 {
 		
 	}
 	
-	
+	/**
+	 *  Total time in seconds: 23400
+	 */
 	
 	@Test
 	public void testPELogic(){
@@ -144,7 +146,17 @@ public class ProcessingBlock3 {
 							newPosition.setLowValRecord(i);
 						}
 						
+						highChanged = newPosition.getReversePosition().setHighValue(peScript.getNewPrice().getValue());
+						if(highChanged){
+							newPosition.getReversePosition().setHighValRecord(i);
+						}
+						lowChanged = newPosition.getReversePosition().setLowValue(peScript.getNewPrice().getValue());
+						if(lowChanged){
+							newPosition.getReversePosition().setLowValRecord(i);
+						}
+						
 						newPosition.addToRecord(currentProfit);
+						newPosition.getReversePosition().addToRecord(reverseProfit);
 						//System.out.println("current profit:"+currentProfit+"..."+i);
 //						if(currentProfit<Constants.LossLimit_1){
 //							newPosition.setSell(Double.valueOf(values.get(3)));
@@ -156,10 +168,11 @@ public class ProcessingBlock3 {
 						newPosition.setBracketLow(new ValueTime("",currentProfit));
 						
 						//if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
-							if(currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())){							
+							if((currentProfit>250 && (perCost(peScript.getNewPrice().getValue(), newPosition.getReversePosition().getLowValue())>25)) || reverseProfit>300){							
 							System.out.println(newPosition.trend());
 							newPosition.setSell(Double.valueOf(values.get(3)));
 							newPosition.setSellRecord(i);
+							
 							newPosition = new Position("PE",70.0,Double.valueOf(values.get(2)));
 							newPosition.setBuyRecord(i);
 							pos.getPePositions().add(newPosition);
@@ -198,13 +211,25 @@ public class ProcessingBlock3 {
 						if(lowChanged){
 							newPosition.setLowValRecord(i);
 						}
+						
+						highChanged = newPosition.getReversePosition().setHighValue(ceScript.getNewPrice().getValue());
+						if(highChanged){
+							newPosition.getReversePosition().setHighValRecord(i);
+						}
+						lowChanged = newPosition.getReversePosition().setLowValue(ceScript.getNewPrice().getValue());
+						if(lowChanged){
+							newPosition.getReversePosition().setLowValRecord(i);
+						}
+
+						
 						newPosition.addToRecord(currentProfit);
+						newPosition.getReversePosition().addToRecord(reverseProfit);
 
 						newPosition.setBracketHigh(new ValueTime("",currentProfit));
 						newPosition.setBracketLow(new ValueTime("",currentProfit));
 						
 //						if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
-							if(currentProfit>250 && Chart.DOWNTREND.equals(newPosition.trend())){							
+							if(((currentProfit>250) && (perCost(ceScript.getNewPrice().getValue(), newPosition.getReversePosition().getLowValue())>25)) || reverseProfit>300){							
 							
 							System.out.println(newPosition.trend());
 							newPosition.setSell(Double.valueOf(values.get(2)));

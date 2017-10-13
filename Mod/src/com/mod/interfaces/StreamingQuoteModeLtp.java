@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 
 public class StreamingQuoteModeLtp extends StreamingQuote{
 	public BigDecimal ltp;
+	
+	public StreamingQuoteModeLtp() {
+		// TODO Auto-generated constructor stub
+	}
 
 	/**
 	 * Constructor

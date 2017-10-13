@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -81,6 +81,8 @@ public class Chart {
 //		System.out.println();
 		
 	}
+	
+	
 	
 	@Test
 	public void testTrend(){

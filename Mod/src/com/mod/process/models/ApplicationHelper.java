@@ -1,4 +1,4 @@
-package com.mod;
+package com.mod.process.models;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,7 +14,7 @@ import org.apache.commons.csv.CSVRecord;
 
 public class ApplicationHelper {
 	
-	public static final ExecutorService threadService = Executors.newFixedThreadPool(5);
+	public static final ExecutorService threadService = Executors.newFixedThreadPool(15);
 	
 	public static List<List<String>> getConfig(){
 		Iterable<CSVRecord> records = null;

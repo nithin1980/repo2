@@ -14,6 +14,15 @@ public class StreamingQuoteModeFull extends StreamingQuoteModeQuote{
 	public MarketDepth offerEntry4;
 	public MarketDepth offerEntry5;
 	
+	
+	public StreamingQuoteModeFull() {
+		// TODO Auto-generated constructor stub
+	}
+	public StreamingQuoteModeFull(BigDecimal ltp) {
+		// TODO Auto-generated constructor stub
+		setLtp(ltp);
+	}
+	
 	/**
 	 * Constructor
 	 * @param time

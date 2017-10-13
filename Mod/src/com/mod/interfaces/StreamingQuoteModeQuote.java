@@ -13,6 +13,10 @@ public class StreamingQuoteModeQuote extends StreamingQuoteModeLtp{
 	public BigDecimal lowPrice;
 	public BigDecimal closePrice;
 	
+	public StreamingQuoteModeQuote() {
+		// TODO Auto-generated constructor stub
+	}
+	
 	/**
 	 * Constructor
 	 * @param time

@@ -3,8 +3,8 @@ package com.mod.objects;
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import com.mod.Chart;
-import com.mod.Constants;
+import com.mod.process.models.Chart;
+import com.mod.process.models.Constants;
 
 /**
  * 
