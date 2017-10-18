@@ -21,7 +21,9 @@ import org.mapdb.HTreeMap;
 import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 
+import com.mod.datafeeder.DataFeed;
 import com.mod.objects.CacheMetaData;
+import com.mod.support.ApplicationHelper;
 
 public class CacheService {
 	
@@ -53,8 +55,12 @@ public class CacheService {
 	static final int holdingSize = 10;
 	private static TDoubleList[] dataArray = new TDoubleArrayList[holdingSize];
 	
-	public static Map<String, Double> PRICE_LIST = new HashMap<String, Double>();
+	public static Map<Double, Double> PRICE_LIST = new HashMap<Double, Double>();
 	
+	public static IndexTreeList<TDoubleList> optionsBackup = null;
+	private static TDoubleList optionCodes = new TDoubleArrayList();
+	private static int optionsBackupCount = 0;
+	private static int optionsListCount = 0;
 	
 	static{
 		
@@ -76,7 +82,9 @@ public class CacheService {
 		}
 		niftytDoubleList = scriplist.get(0);
 		
+		//optionsBackup = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
 		
+		optionsBackup = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
 	}
 	/**----------------------------------------------------------------------------------------------------------
 	 */
@@ -88,31 +96,70 @@ public class CacheService {
 		HTreeMap<String, List<String>> metadata = date_recording_db.hashMap("metadata",Serializer.STRING,Serializer.JAVA).createOrOpen();
 		return metadata.get(groupName);
 	}
-	public static void addDateRecordingCache(TDoubleList data ){
+	
+	/**
+	 * 
+	 * @param data
+	 * This should run in a backup thread.
+	 * 
+	 */
+	public static void initializeDataArray(TDoubleList data){
+		/**
+		 * First element is always time
+		 */
+		optionsBackupCount = data.size();
+		TDoubleList dbackup = null;
+		
+		/**
+		 * Need to set the map size to prevent repeat size call.
+		 */
+		
+			for(int i=0;i<optionsBackupCount;i++){
+				optionsBackup.add(new TDoubleArrayList());
+				dbackup = new TDoubleArrayList();
+				dbackup.add(data.get(i));
+				optionCodes.add(data.get(i));
+				optionsBackup.set(i,dbackup);
+			}
+			optionsListCount=1;
+			date_recording_db.commit();
+	}
+	public static void addDateRecordingCache(){
 		/**
 		 * first one is time.
 		 */
-		int size = data.size();
-		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
 		
-		int savedsize = options.size();
-		if(savedsize==0){
-			for(int i=0;i<size;i++){
-				options.add(new TDoubleArrayList());
-				dataArray[i] = options.get(i);
-				dataArray[i].add(data.get(i));
-			}
-			date_recording_db.commit();
-		}else{
-			for(int i=0;i<size;i++){
-				dataArray[i].add(data.get(i));
-			}
+		long t = System.currentTimeMillis();
+		
+		int size = optionsBackup.size();
+		TDoubleList dbackup = optionsBackup.get(0);
+		dbackup.add(DataFeed.incrementTime());
+		optionsBackup.set(0, dbackup);
+		
+		
+		System.out.println("1--"+(System.currentTimeMillis()-t));
+		//double optionCode = 0;
+		for(int i=1;i<size;i++){
+			dbackup = optionsBackup.get(i);
+			System.out.println("2--"+(System.currentTimeMillis()-t));
+			dbackup.add(PRICE_LIST.get(optionCodes.get(i)));
+			System.out.println("3--"+(System.currentTimeMillis()-t));
+			optionsBackup.set(i, dbackup);
+			System.out.println("4--"+(System.currentTimeMillis()-t));
 		}
+		
+		
+		optionsListCount++;
+		
 		
 	}
 	public static void clearDateDataRecord(){
 		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
 		options.clear();
+		optionsBackup.clear();
+		optionsBackupCount=0;
+		optionsListCount=0;
+		optionCodes.clear();
 		date_recording_db.commit();
 	}
 	public static TDoubleList getItemsFromDateDataRecord(double stockid, int size){
@@ -120,33 +167,58 @@ public class CacheService {
 		TDoubleList items = new TDoubleArrayList();
 
 		int index=-1;
-		int arraySize = 0;
+
 		/**
 		 * The first array is time
 		 */
-		for(int i=1;i<holdingSize;i++){
-			if(dataArray[i]!=null && dataArray[i].get(0)==stockid){
+		for(int i=1;i<optionsBackupCount;i++){
+			if(optionsBackup.get(i)!=null && optionsBackup.get(i).get(0)==stockid){
 				index = i;
 			}
 		}
 		if(index<0){
 			throw new RuntimeException("Cannot locate stock for:"+stockid);
 		}
-		int listSize = dataArray[index].size();
-		items.addAll(dataArray[index].subList(listSize-size, listSize));;
+		items.addAll(optionsBackup.get(index).subList(optionsListCount-size, optionsListCount));;
 		
 		return items;
 		
 	}
-	 
-	public static void dumpDateRecording(){
+	public static TDoubleList getItemsFromDateDataRecord_Test(double stockid, int size){
+		//verify performance...
 		
 		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
-		int i=0;
-		while(dataArray[i]!=null){
-			options.set(i, dataArray[i]);
-			i++;
+		
+		TDoubleList items = new TDoubleArrayList();
+
+		int index=-1;
+		int optionsize = options.size();
+		/**
+		 * The first array is time
+		 */
+		for(int i=1;i<optionsize;i++){
+			if(options.get(i)!=null && options.get(i).get(0)==stockid){
+				index = i;
+			}
 		}
+		if(index<0){
+			throw new RuntimeException("Cannot locate stock for:"+stockid);
+		}
+		int listSize = options.get(index).size();
+		items.addAll(options.get(index).subList(listSize-size, listSize));;
+		
+		return items;
+		
+	}
+	
+	public static void dumpDateRecording(){
+		
+//		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+//		int i=0;
+//		while(dataArray[i]!=null){
+//			options.set(i, dataArray[i]);
+//			i++;
+//		}
 		
 		if(!date_recording_db.isClosed()){
 			date_recording_db.commit();
@@ -359,7 +431,7 @@ public class CacheService {
 //		StringBuilder builder;
 //		
 //		try {
-//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_25_08_2017.txt"));
+//			FileWriter writer = new FileWriter(new File("C:/data/reports/report_18_10_2017.txt"));
 //			builder = new StringBuilder();
 //			//builder.append(reporter.toString());
 //			String data = null;
