@@ -1,8 +1,12 @@
 package com.mod.process.models;
 
+import com.mod.objects.Action;
+import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.order.Order;
 import com.mod.order.OrderInfo;
+import com.mod.support.ApplicationHelper;
+import com.mod.support.ConfigData;
 
 public abstract class ProcessModelAbstract {
 
@@ -40,10 +44,50 @@ public abstract class ProcessModelAbstract {
 	public static final int NEAR_MISS_COUNT = 3;
 	
 	
+	
 	private ScriptData PE_PRICE;
 	private ScriptData CE_PRICE;
-
+	private Position currentPosition;
+	private double positionExpense = 0;
+	private Action currentAction;
 	
+	public ProcessModelAbstract() {
+		// TODO Auto-generated constructor stub
+		this.setPositionExpense(positionExpense());
+		setPE_PRICE(new ScriptData(getPositionId("pe_id"), 0, ""));
+		setCE_PRICE(new ScriptData(getPositionId("ce_id"), 0, ""));
+	}
+	
+	public ConfigData appConfig(){
+		return ApplicationHelper.Application_Config_Cache.get("app");
+	}
+	public ConfigData modeConfig(){
+		return ApplicationHelper.Application_Config_Cache.get(modelid());
+	}
+
+	private double positionExpense(){
+		String val = appConfig().getKeyValueConfigs().get("option_position_expense");
+		if(val==null){
+			throw new RuntimeException("Position expense must be set");
+		}
+		return Double.valueOf(val);
+	}
+
+	private double getPositionId(String key){
+		String val = modeConfig().getKeyValueConfigs().get(key);
+		if(val==null){
+			throw new RuntimeException("Position must be set up:"+key);
+		}
+		return Double.valueOf(val);
+		
+	}
+	public Position getCurrentPosition() {
+		return currentPosition;
+	}
+
+	public void setCurrentPosition(Position currentPosition) {
+		this.currentPosition = currentPosition;
+	}
 
 	public ScriptData getPE_PRICE() {
 		return PE_PRICE;
@@ -71,6 +115,22 @@ public abstract class ProcessModelAbstract {
 
 	public void setOrderInterface(Order orderInterface) {
 		this.orderInterface = orderInterface;
+	}
+
+	public double getPositionExpense() {
+		return positionExpense;
+	}
+
+	public void setPositionExpense(double positionExpense) {
+		this.positionExpense = positionExpense;
+	}
+
+	public Action getCurrentAction() {
+		return currentAction;
+	}
+
+	public void setCurrentAction(Action currentAction) {
+		this.currentAction = currentAction;
 	}
 	
 	

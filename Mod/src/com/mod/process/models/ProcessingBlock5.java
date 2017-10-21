@@ -10,29 +10,30 @@ import org.junit.Test;
 import sun.security.util.PendingException;
 import static org.junit.Assert.*;
 
+import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.Action;
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
+import com.mod.order.OrderInfo;
 import com.mod.support.ApplicationHelper;
 
 public class ProcessingBlock5 extends ProcessModelAbstract {
 
 
-	
-	
-	private static final ScriptData PE = new ScriptData("12345",15.35);
-	private static final ScriptData CE = new ScriptData("12345",100.45);
-	
-	
 	private static boolean log = false;
 	
 	public ProcessingBlock5() {
 		// TODO Auto-generated constructor stub
-		
-		DashBoard.positionMap.put("1", new GroupPosition());
+		super();
+		DashBoard.positionMap.put(modelid(), new GroupPosition());
 
+	}
+	@Override
+	public String modelid() {
+		// TODO Auto-generated method stub
+		return "pmodel5";
 	}
 	
 	
@@ -40,19 +41,151 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 	public void processNow() {
 		// TODO Auto-generated method stub
 		
-		GroupPosition pos = DashBoard.positionMap.get("1");
-		Position newPosition = new Position("PE",70.0,68);
-		newPosition.setBuyRecord(0);
-		pos.getPePositions().add(newPosition);
-		
-		addReversePosition(newPosition, "CE",217);
+		GroupPosition pos = DashBoard.positionMap.get(modelid());
+		double currentPrice = 0;
+		//Initial position
+		if(pos.isEmpty() && getCurrentPosition()==null){
+			double positionid = Double.valueOf(modeConfig().getKeyValueConfigs().get("initial_position"));
+			String positionName = KiteStockConverter.KITE_STOCK_LIST.get(positionid);
+			
+			//order the new position
+			/**
+			 * @TODO
+			 * Need a way to find out the ordered price
+			 */
+			getOrderInterface().orderKiteOption(new OrderInfo());
+			currentPrice = CacheService.PRICE_LIST.get(positionid);
+			updateScriptPrices();
+			setCurrentPosition(new Position(positionName, getPositionExpense(), currentPrice));
+			addReversePosition(getCurrentPosition());
+			
+			if(getCurrentPosition().isPEPosition()){
+				setCurrentAction(new Action(HOLDING_PE));
+			}else if(getCurrentPosition().isCEPosition()){
+				setCurrentAction(new Action(HOLDING_CE));
+			}
+		}else{
+			updateScriptPrices();
+			
+			double currentProfit = 0;
+			double reverseProfit = 0;
+			double currentPer = 0;
+			double reversePer = 0;
+			boolean highChanged = false;
+			boolean lowChanged = false;
+			
+				if(HOLDING_CE.equals(getCurrentAction().getAction())){
+					currentProfit = getOptionProfit(getCurrentPosition(), getCE_PRICE().getNewPrice().getValue());
+					reverseProfit = getOptionProfit(getCurrentPosition().getReversePosition(), getPE_PRICE().getNewPrice().getValue());
+					highChanged = getCurrentPosition().setHighValue(getCE_PRICE().getNewPrice().getValue());
+	//				if(highChanged){
+	//					getCurrentPosition().setHighValRecord(i);
+	//				}
+					lowChanged = getCurrentPosition().setLowValue(getCE_PRICE().getNewPrice().getValue());
+	//				if(lowChanged){
+	//					getCurrentPosition().setLowValRecord(i);
+	//				}
+					
+					highChanged = getCurrentPosition().getReversePosition().setHighValue(getPE_PRICE().getNewPrice().getValue());
+	//				if(highChanged){
+	//					getCurrentPosition().getReversePosition().setHighValRecord(i);
+	//				}
+					lowChanged = getCurrentPosition().getReversePosition().setLowValue(getPE_PRICE().getNewPrice().getValue());
+	//				if(lowChanged){
+	//					getCurrentPosition().getReversePosition().setLowValRecord(i);
+	//				}
+					
+					getCurrentPosition().addToRecord(currentProfit);
+					getCurrentPosition().getReversePosition().addToRecord(reverseProfit);
+					getCurrentPosition().setBracketHigh(new ValueTime("",currentProfit));
+					getCurrentPosition().setBracketLow(new ValueTime("",currentProfit));
+					
+					//if((currentProfit>250 && getCurrentPosition().isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(getCurrentPosition().trend())){
+						if((currentProfit>250 && (perCost(getPE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300){							
+						System.out.println(getCurrentPosition().trend());
+						getCurrentPosition().setSell(getPE_PRICE().getNewPrice().getValue());
+	//					getCurrentPosition().setSellRecord(i);
+						
+						
+						setCurrentPosition(createPosition(getPE_PRICE()));
+	//					getCurrentPosition().setBuyRecord(i);
+						
+						getCurrentAction().setAction(HOLDING_PE);
+						addReversePosition(getCurrentPosition());
+						pos.getPePositions().add(getCurrentPosition());
+					}
+			}
+			
+			if(HOLDING_PE.equals(getCurrentAction().getAction())){
+					currentProfit = getOptionProfit(getCurrentPosition(), getPE_PRICE().getNewPrice().getValue());
+					reverseProfit = getOptionProfit(getCurrentPosition().getReversePosition(), getCE_PRICE().getNewPrice().getValue());
+					highChanged = getCurrentPosition().setHighValue(getPE_PRICE().getNewPrice().getValue());
+	
+					//Store time record
+	//				if(highChanged){
+	//					getCurrentPosition().setHighValRecord(i);
+	//				}
+					lowChanged = getCurrentPosition().setLowValue(getPE_PRICE().getNewPrice().getValue());
+	//				if(lowChanged){
+	//					getCurrentPosition().setLowValRecord(i);
+	//				}
+					
+					highChanged = getCurrentPosition().getReversePosition().setHighValue(getCE_PRICE().getNewPrice().getValue());
+	//				if(highChanged){
+	//					getCurrentPosition().getReversePosition().setHighValRecord(i);
+	//				}
+					lowChanged = getCurrentPosition().getReversePosition().setLowValue(getCE_PRICE().getNewPrice().getValue());
+	//				if(lowChanged){
+	//					getCurrentPosition().getReversePosition().setLowValRecord(i);
+	//				}
+	
+					
+					getCurrentPosition().addToRecord(currentProfit);
+					getCurrentPosition().getReversePosition().addToRecord(reverseProfit);
+	
+					getCurrentPosition().setBracketHigh(new ValueTime("",currentProfit));
+					getCurrentPosition().setBracketLow(new ValueTime("",currentProfit));
+					
+	//				if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
+					if(((currentProfit>250) && (perCost(getCE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300){							
+						/**
+						 * @TODO need to remove the data in the position cache...
+						 * use the cacheservice
+						 */
+						System.out.println(getCurrentPosition().trend());
+						getCurrentPosition().setSell(getCE_PRICE().getNewPrice().getValue());
+	//					getCurrentPosition().setSellRecord(i);
+						setCurrentPosition(createPosition(getCE_PRICE()));
+	//					getCurrentPosition().setBuyRecord(i);
+						
+						getCurrentAction().setAction(HOLDING_CE);
+						//action.setAction(INITIAL_POSITION);
+						addReversePosition(getCurrentPosition());
+						pos.getCePositions().add(getCurrentPosition());
+					}
+			}
+			
+			
+		}
 		
 	}
 
-	@Override
-	public String modelid() {
-		// TODO Auto-generated method stub
-		return "pmodel5";
+	private void updateScriptPrices(){
+		getPE_PRICE().setNewPrice(new ValueTime("",CacheService.PRICE_LIST.get(getPE_PRICE().getId())));
+		getCE_PRICE().setNewPrice(new ValueTime("",CacheService.PRICE_LIST.get(getCE_PRICE().getId())));
+	}
+	
+	private void addReversePosition(Position currentPosition){
+		if(currentPosition.isPEPosition()){
+			currentPosition.setReversePosition(createPosition(getCE_PRICE()));
+		}else if (currentPosition.isCEPosition()){
+			currentPosition.setReversePosition(createPosition(getPE_PRICE()));
+		}
+	}
+	private Position createPosition(ScriptData scriptData){
+		String positionName = null;
+		positionName = KiteStockConverter.KITE_STOCK_LIST.get(scriptData.getId());
+		return new Position(positionName, getPositionExpense(), scriptData.getCurrentPrice().getValue());
 	}
 	
 	/**

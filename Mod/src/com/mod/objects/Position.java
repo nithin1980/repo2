@@ -108,6 +108,18 @@ public class Position {
 		setSize(localPosition.getSize());
 		
 	}
+	public boolean isPEPosition(){
+		if(getName()!=null && getName().contains("PE")){
+			return true;
+		}
+		return false;
+	}
+	public boolean isCEPosition(){
+		if(getName()!=null && getName().contains("CEE")){
+			return true;
+		}
+		return false;
+	}
 	public void addToRecord(double value){
 		cache.add(value);
 		cachesize++;

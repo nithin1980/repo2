@@ -12,17 +12,18 @@ public class KiteStockConverter {
 	public static final Map<Double, String> KITE_STOCK_LIST = new HashMap<Double, String>();
 	
 	
-	private ConfigData appConfig(){
+	private static ConfigData appConfig(){
 		return ApplicationHelper.Application_Config_Cache.get("app");
+	}
+	static{
+		buildKite();
 	}
 	
 	public KiteStockConverter() {
 		// TODO Auto-generated constructor stub
-		
-		buildKite();
 	}
 	
-	private void buildKite(){
+	private static void buildKite(){
 		List<String> data = appConfig().getReferenceDataMap().get("kite_token_list");
 		int size = data.size();
 		String[] values = null;
@@ -32,8 +33,11 @@ public class KiteStockConverter {
 		}
 	}
 	
-	private String[] values(String data){
+	private static String[] values(String data){
 		return data.split("\\,");
 	}
 
+	public static void build(){
+		
+	}
 }

@@ -147,9 +147,14 @@ public class CacheService {
 		
 		//double optionCode = 0;
 		for(int i=1;i<size;i++){
-			dbackup = optionsBackup.get(optionCodes.get(i));
-			dbackup.add(PRICE_LIST.get(optionCodes.get(i)));
-			optionsBackup.put(optionCodes.get(i), dbackup);
+			
+			if(PRICE_LIST.containsKey(optionCodes.get(i))){
+				dbackup = optionsBackup.get(optionCodes.get(i));
+				dbackup.add(PRICE_LIST.get(optionCodes.get(i)));
+				optionsBackup.put(optionCodes.get(i), dbackup);
+			}else{
+				throw new RuntimeException("Cannot find price from Price List for code:"+optionCodes.get(i));
+			}
 		}
 		
 		

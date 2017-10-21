@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.mod.datafeeder.DataFeed;
 import com.mod.interfaces.IStreamingQuoteParser;
+import com.mod.interfaces.KiteStockConverter;
 import com.mod.interfaces.StreamingQuote;
 import com.mod.interfaces.StreamingQuoteModeFull;
 import com.mod.interfaces.StreamingQuoteModeLtp;
@@ -31,7 +32,7 @@ public class ApplicationHelper {
 	
 	public static final ExecutorService threadService = Executors.newFixedThreadPool(15);
 	
-	
+
     public static String[] ltpStrings(){
 		
 		String[] values =subscribeValues();
@@ -189,12 +190,7 @@ public class ApplicationHelper {
 				quotes.add(streamingQuote);
 				
 				StreamingQuoteModeLtp ltpObject = (StreamingQuoteModeLtp)streamingQuote;
-				System.out.println("Quote: " + streamingQuote);
-				System.out.println(ltpObject.getLtp());
-				System.out.println(ltpObject.getInstrumentToken());
-				
-				
-				
+				System.out.println(ltpObject);
 				CacheService.PRICE_LIST.put(Double.valueOf(ltpObject.getInstrumentToken()), ltpObject.getLtp().doubleValue());
 				/**
 				 * Need meta data in place before it is triggered.

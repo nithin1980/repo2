@@ -36,6 +36,9 @@ public class GroupPosition {
 		this.cePositions = cePositions;
 	}
 	
+	public boolean isEmpty(){
+		return getPePositions().isEmpty() && getCePositions().isEmpty();
+	}
 	
 	public double total(){
 		double pePos = 0.0;
