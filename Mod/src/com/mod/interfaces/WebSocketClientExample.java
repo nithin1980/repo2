@@ -20,9 +20,9 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import com.mod.datafeeder.DataFeed;
-import com.mod.process.models.ApplicationHelper;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.ProcessingBlock;
+import com.mod.support.ApplicationHelper;
 
 @ClientEndpoint(configurator=WebsocketClientConfig.class)
 public class WebSocketClientExample {
@@ -189,7 +189,7 @@ public class WebSocketClientExample {
 		
 		
 		
-		CacheService.PRICE_LIST.put(fullObject.getInstrumentToken(), fullObject.getLtp().doubleValue());
+		CacheService.PRICE_LIST.put(Double.valueOf(fullObject.getInstrumentToken()), fullObject.getLtp().doubleValue());
 		/**
 		 * Need meta data in place before it is triggered.
 		 */

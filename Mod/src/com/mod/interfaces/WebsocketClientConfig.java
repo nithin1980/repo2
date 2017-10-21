@@ -7,10 +7,15 @@ import java.util.Map;
 import javax.websocket.ClientEndpointConfig.Configurator;
 import javax.websocket.HandshakeResponse;
 
+import com.mod.support.ApplicationHelper;
+import com.mod.support.ConfigData;
+
 public class WebsocketClientConfig extends Configurator {
 	
 	static volatile boolean called = false;
 
+	private ConfigData configData = ApplicationHelper.Application_Config_Cache.get("app");
+	
     @Override
     public void beforeRequest(Map<String, List<String>> headers) {
         called = true;
@@ -23,10 +28,14 @@ public class WebsocketClientConfig extends Configurator {
         headers.put("Pragma", Arrays.asList("no-cache"));
         headers.put("Sec-WebSocket-Extensions", Arrays.asList("permessage-deflate; client_max_window_bits"));
         
-        headers.put("Sec-WebSocket-Key", Arrays.asList("6fzWv4vmBRfkKoA4OgzCIA=="));
+        //headers.put("Sec-WebSocket-Key", Arrays.asList("6fzWv4vmBRfkKoA4OgzCIA=="));
+        System.out.println("User Agent:"+configData.getKeyValueConfigs().get("Sec-WebSocket-Key"));
+        headers.put("Sec-WebSocket-Key", Arrays.asList(configData.getKeyValueConfigs().get("Sec-WebSocket-Key")));
+        
         headers.put("Sec-WebSocket-Version", Arrays.asList("13"));
         headers.put("Upgrade", Arrays.asList("websocket"));
-        headers.put("User-Agent", Arrays.asList("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"));
+        System.out.println("User Agent:"+configData.getKeyValueConfigs().get("User-Agent"));
+        headers.put("User-Agent", Arrays.asList(configData.getKeyValueConfigs().get("User-Agent")));
         
     }
 

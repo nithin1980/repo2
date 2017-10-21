@@ -18,6 +18,9 @@ import java.util.List;
 
 
 
+
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -30,20 +33,28 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
-public class KiteInterface implements SystemInterface {
+import com.mod.support.ApplicationHelper;
+import com.mod.support.ConfigData;
 
+public class KiteInterface implements SystemInterface {
+	
+	public ConfigData appConfig(){
+		return ApplicationHelper.Application_Config_Cache.get("app");
+	}
+	
 	@Override
 	public void order(OrderInterfaceObject interfaceObject) {
 		
 		//KiteOrderObject kiteOrderObject = (KiteOrderObject)interfaceObject;
-		String url = "https://kite.zerodha.com/api/orders";
+		Map<String, String> keyvalues = appConfig().getKeyValueConfigs();
+		String url = keyvalues.get("kite_order_url");//  "https://kite.zerodha.com/api/orders";
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(url);
 		
 		//http://pp.axa-travel-insurance.com/AxaDE_B2B/login;jsessionid=FA1A27AD9305056ABB95647248D344C4.TI7A
 		
 		
-		post.addHeader("Host", "kite.zerodha.com");
+		post.addHeader("Host", keyvalues.get("Host"));
 		post.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0");
 		post.addHeader("Accept", "application/json, text/plain, */*");
 		post.addHeader("Accept-Language", "en-US,en;q=0.5");
@@ -51,11 +62,11 @@ public class KiteInterface implements SystemInterface {
 		post.addHeader("Cache-Control", "no-cache");
 		post.addHeader("Pragma", "no-cache");
 		post.addHeader("If-Modified-Since", "0");
-		post.addHeader("Content-Type", "application/json;charset=utf-8");
-		post.addHeader("Referer", "https://kite.zerodha.com/orderbook/");
+		post.addHeader("Content-Type", keyvalues.get("Content-Type"));
+		post.addHeader("Referer", keyvalues.get("order_referrer"));
 //		post.addHeader("Content-Length", "311");
 //		
-		post.addHeader("Cookie", "session=47efd4fb-f422-409e-958e-2175ac3b7194; lang=en");
+		post.addHeader("Cookie",keyvalues.get("Cookie"));
 		post.addHeader("DNT", "1");
 		post.addHeader("Connection", "keep-alive");
 		
@@ -68,7 +79,8 @@ public class KiteInterface implements SystemInterface {
 //		urlParameters.add(new BasicNameValuePair("login", "Einloggen"));
 //		urlParameters.add(new BasicNameValuePair("password", "dertererer"));
 //		urlParameters.add(new BasicNameValuePair("username", "test"));
-		
+
+		/*
 		try {
 			//post.setEntity(new UrlEncodedFormEntity(urlParameters));
 			post.setEntity(requestEntity);
@@ -95,6 +107,7 @@ public class KiteInterface implements SystemInterface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		
 		//WebSocketClientExample.main(null);
 		

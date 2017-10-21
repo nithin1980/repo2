@@ -57,7 +57,7 @@ public class CacheService {
 	
 	public static Map<Double, Double> PRICE_LIST = new HashMap<Double, Double>();
 	
-	public static IndexTreeList<TDoubleList> optionsBackup = null;
+	public static HTreeMap<Double,TDoubleList> optionsBackup = null;
 	private static TDoubleList optionCodes = new TDoubleArrayList();
 	private static int optionsBackupCount = 0;
 	private static int optionsListCount = 0;
@@ -84,7 +84,7 @@ public class CacheService {
 		
 		//optionsBackup = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
 		
-		optionsBackup = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		optionsBackup = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 	}
 	/**----------------------------------------------------------------------------------------------------------
 	 */
@@ -113,13 +113,21 @@ public class CacheService {
 		/**
 		 * Need to set the map size to prevent repeat size call.
 		 */
+		/**
+		 * Special identifier for time
+		 */
+		   optionsBackup.put(1000000.0,new TDoubleArrayList());
+			dbackup = new TDoubleArrayList();
+			dbackup.add(data.get(0));
+			optionCodes.add(data.get(0));
+			optionsBackup.put(data.get(0),dbackup);
 		
-			for(int i=0;i<optionsBackupCount;i++){
-				optionsBackup.add(new TDoubleArrayList());
+			for(int i=1;i<optionsBackupCount;i++){
+				//optionsBackup.put(data.get(i),new TDoubleArrayList());
 				dbackup = new TDoubleArrayList();
 				dbackup.add(data.get(i));
 				optionCodes.add(data.get(i));
-				optionsBackup.set(i,dbackup);
+				optionsBackup.put(data.get(i),dbackup);
 			}
 			optionsListCount=1;
 			date_recording_db.commit();
@@ -131,21 +139,17 @@ public class CacheService {
 		
 		long t = System.currentTimeMillis();
 		
-		int size = optionsBackup.size();
-		TDoubleList dbackup = optionsBackup.get(0);
+		int size = optionCodes.size();
+		TDoubleList dbackup = optionsBackup.get(1000000.0);
 		dbackup.add(DataFeed.incrementTime());
-		optionsBackup.set(0, dbackup);
+		optionsBackup.put(1000000.0, dbackup);
 		
 		
-		System.out.println("1--"+(System.currentTimeMillis()-t));
 		//double optionCode = 0;
 		for(int i=1;i<size;i++){
-			dbackup = optionsBackup.get(i);
-			System.out.println("2--"+(System.currentTimeMillis()-t));
+			dbackup = optionsBackup.get(optionCodes.get(i));
 			dbackup.add(PRICE_LIST.get(optionCodes.get(i)));
-			System.out.println("3--"+(System.currentTimeMillis()-t));
-			optionsBackup.set(i, dbackup);
-			System.out.println("4--"+(System.currentTimeMillis()-t));
+			optionsBackup.put(optionCodes.get(i), dbackup);
 		}
 		
 		
@@ -154,7 +158,7 @@ public class CacheService {
 		
 	}
 	public static void clearDateDataRecord(){
-		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 		options.clear();
 		optionsBackup.clear();
 		optionsBackupCount=0;
@@ -166,20 +170,20 @@ public class CacheService {
 		//verify performance...
 		TDoubleList items = new TDoubleArrayList();
 
-		int index=-1;
-
-		/**
-		 * The first array is time
-		 */
-		for(int i=1;i<optionsBackupCount;i++){
-			if(optionsBackup.get(i)!=null && optionsBackup.get(i).get(0)==stockid){
-				index = i;
-			}
-		}
-		if(index<0){
-			throw new RuntimeException("Cannot locate stock for:"+stockid);
-		}
-		items.addAll(optionsBackup.get(index).subList(optionsListCount-size, optionsListCount));;
+//		int index=-1;
+//
+//		/**
+//		 * The first array is time
+//		 */
+//		for(int i=1;i<optionsBackupCount;i++){
+//			if(optionsBackup.get(i)!=null && optionsBackup.get(i).get(0)==stockid){
+//				index = i;
+//			}
+//		}
+//		if(index<0){
+//			throw new RuntimeException("Cannot locate stock for:"+stockid);
+//		}
+		items.addAll(optionsBackup.get(stockid).subList(optionsListCount-size, optionsListCount));;
 		
 		return items;
 		
@@ -187,26 +191,11 @@ public class CacheService {
 	public static TDoubleList getItemsFromDateDataRecord_Test(double stockid, int size){
 		//verify performance...
 		
-		IndexTreeList<TDoubleList> options = (IndexTreeList<TDoubleList>)date_recording_db.indexTreeList("date_data_recorder",Serializer.JAVA).createOrOpen();
+		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 		
 		TDoubleList items = new TDoubleArrayList();
+		items.addAll(options.get(stockid).subList(optionsListCount-size, optionsListCount));;
 
-		int index=-1;
-		int optionsize = options.size();
-		/**
-		 * The first array is time
-		 */
-		for(int i=1;i<optionsize;i++){
-			if(options.get(i)!=null && options.get(i).get(0)==stockid){
-				index = i;
-			}
-		}
-		if(index<0){
-			throw new RuntimeException("Cannot locate stock for:"+stockid);
-		}
-		int listSize = options.get(index).size();
-		items.addAll(options.get(index).subList(listSize-size, listSize));;
-		
 		return items;
 		
 	}

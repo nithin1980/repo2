@@ -17,31 +17,43 @@ import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
 import com.mod.support.ApplicationHelper;
 
-public class ProcessingBlock4 extends ProcessModelAbstract {
+public class ProcessingBlock5 extends ProcessModelAbstract {
 
+
+	
+	
 	private static final ScriptData PE = new ScriptData("12345",15.35);
 	private static final ScriptData CE = new ScriptData("12345",100.45);
 	
 	
 	private static boolean log = false;
 	
-	public static void main(String[] args) {
-		System.out.println(isCloseTo(5.95,7.5,8.8));
+	public ProcessingBlock5() {
+		// TODO Auto-generated constructor stub
 		
+		DashBoard.positionMap.put("1", new GroupPosition());
+
 	}
-	@Override
-	public String modelid() {
-		// TODO Auto-generated method stub
-		return "pmodel4";
-	}
+	
 	
 	@Override
 	public void processNow() {
 		// TODO Auto-generated method stub
-		getOrderInterface().orderKiteOption(createOrderObject());
+		
+		GroupPosition pos = DashBoard.positionMap.get("1");
+		Position newPosition = new Position("PE",70.0,68);
+		newPosition.setBuyRecord(0);
+		pos.getPePositions().add(newPosition);
+		
+		addReversePosition(newPosition, "CE",217);
 		
 	}
 
+	@Override
+	public String modelid() {
+		// TODO Auto-generated method stub
+		return "pmodel5";
+	}
 	
 	/**
 	 *  Total time in seconds: 23400

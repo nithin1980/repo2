@@ -1,5 +1,7 @@
 package com.mod.process.models;
 
+import com.mod.support.ApplicationHelper;
+
 public class Constants {
 	
 	public static int ReversePositionOppurtunityCount = 32;

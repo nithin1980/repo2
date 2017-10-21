@@ -11,6 +11,8 @@ import java.util.Queue;
 
 import org.junit.Test;
 
+import com.mod.support.ApplicationHelper;
+
 public class Chart {
 	
 	public static final String UPTREND = "Uptrend";

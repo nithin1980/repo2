@@ -3,7 +3,7 @@ package com.mod.datafeeder;
 import java.util.Calendar;
 import java.util.List;
 
-import com.mod.process.models.ApplicationHelper;
+import com.mod.support.ApplicationHelper;
 
 public class DataFeed {
 

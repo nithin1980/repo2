@@ -10,6 +10,9 @@ public class Order {
 	public Order() {
 		setSystemInterface(new KiteInterface());
 	}
+	public Order(SystemInterface systemInterface) {
+		setSystemInterface(systemInterface);
+	}
 	
 	public void orderKiteOption(OrderInfo order){
 		KiteOrderObject orderObject = new KiteOrderObject();

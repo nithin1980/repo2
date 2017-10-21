@@ -5,7 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 
-public class StreamingQuoteParserModeFull{
+public class StreamingQuoteParserModeFull implements IStreamingQuoteParser{
 	
 
 	public StreamingQuote parse(ByteBuffer pktBuffer, String time) {

@@ -15,35 +15,10 @@ import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
+import com.mod.support.ApplicationHelper;
 
-public class ProcessingBlock2 {
+public class ProcessingBlock2 extends ProcessModelAbstract {
 
-	public static final String BUY_PE = "buy_pe";
-	public static final String BUY_CE = "buy_ce";
-	public static final String HOLD = "hold";
-	public static final String REVERSE_TO_PE = "reverse_position_pe";
-	public static final String REVERSE_TO_CE = "reverse_position_ce";
-	public static final String HOLDING_PE = "hold_pe";
-	public static final String HOLDING_CE = "hold_ce";
-	public static final String HOLDING_NOTHING = "hold_nothing";
-	
-	public static final String INITIAL_POSITION = "INITIAL_POSITION";
-	public static final String ENTERED_POSITION = "ENTERED_POSITION";
-
-	
-	
-	public static final String RANGE_BOUND_PE = "range_bound_pe";
-	public static final String RANGE_BOUND_CE = "range_bound_ce";
-	
-	
-	public static final String HOLD_OPTION_DROP = "hold_option_drop";
-	
-	public static final String TOWARDS_HIGH = "towards_high";
-	public static final String TOWARDS_LOW = "towards_low";
-	public static final String TOWARDS_NEITHER = "neither";
-	
-	public static final int NEAR_MISS_COUNT = 3;
-	
 	
 	private static final ScriptData PE = new ScriptData("12345",15.35);
 	private static final ScriptData CE = new ScriptData("12345",100.45);
@@ -55,7 +30,18 @@ public class ProcessingBlock2 {
 		System.out.println(isCloseTo(5.95,7.5,8.8));
 		
 	}
+	@Override
+	public String modelid() {
+		// TODO Auto-generated method stub
+		return "pmodel2";
+	}
 	
+	@Override
+	public void processNow() {
+		// TODO Auto-generated method stub
+		getOrderInterface().orderKiteOption(createOrderObject());
+	}
+
 	
 	
 	@Test
