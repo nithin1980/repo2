@@ -84,6 +84,9 @@ public class ScriptData {
 		setId(id);
 	}
 	
+	public double newPriceDiffFromCurrent(){
+		return getNewPrice().getValue()-getCurrentPrice().getValue();
+	}
 	public void increaseUptrend(){
 		uptrendCount = uptrendCount++;
 	}
@@ -222,6 +225,7 @@ public class ScriptData {
 		return newPrice;
 	}
 	public void setNewPrice(ValueTime newPrice) {
+		setCurrentPrice(getNewPrice());
 		this.newPrice = newPrice;
 	}
 	public List<ValueTime> getContinousOneWay() {

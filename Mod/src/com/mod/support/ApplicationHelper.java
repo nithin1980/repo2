@@ -167,11 +167,17 @@ public class ApplicationHelper {
 		 */
 		if(validData){
 			CacheService.addDateRecordingCache();
-			//Another thread??
+			//Should be asynchronous
 			int modelSize = processingModels.size();
 			
 			for(int i=0;i<modelSize;i++){
-				processingModels.get(i).processNow();
+				/**
+				 * @TODO This should be asynchrous
+				 */
+				if(processingModels.get(i).completedProcess){
+					processingModels.get(i).processNow();
+				}
+				
 			}
 		}else{
 			System.out.println("heart beat data...");
@@ -190,7 +196,7 @@ public class ApplicationHelper {
 				quotes.add(streamingQuote);
 				
 				StreamingQuoteModeLtp ltpObject = (StreamingQuoteModeLtp)streamingQuote;
-				System.out.println(ltpObject);
+				//System.out.println(ltpObject);
 				CacheService.PRICE_LIST.put(Double.valueOf(ltpObject.getInstrumentToken()), ltpObject.getLtp().doubleValue());
 				/**
 				 * Need meta data in place before it is triggered.

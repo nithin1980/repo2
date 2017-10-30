@@ -19,6 +19,7 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import com.mod.datafeeder.DataFeed;
+import com.mod.process.models.CacheService;
 import com.mod.process.models.ProcessModelAbstract;
 import com.mod.process.models.ProcessingBlock;
 import com.mod.process.models.ProcessingBlock2;
@@ -53,7 +54,7 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 		processingModels = new ArrayList<ProcessModelAbstract>();
 //		processingModels.add(new ProcessingBlock());
 //		processingModels.add(new ProcessingBlock2());
-		processingModels.add(new ProcessingBlock5());
+		processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
 	}
 	
 	
@@ -107,12 +108,10 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 			public void run() {
 				// TODO Auto-generated method stub
 				long t = System.currentTimeMillis();
-				byte[] d = data.array();
 				long currentIncrementedTime = DataFeed.incrementTime();
 				ApplicationHelper.parseBuffer(data, String.valueOf(currentIncrementedTime),processingModels,parserModeLtp);
 				System.out.println("Time taken:"+(System.currentTimeMillis()-t));
 				
-				System.out.println(data.array());
 			}
 			
 		});

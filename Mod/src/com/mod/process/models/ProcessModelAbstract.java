@@ -1,5 +1,7 @@
 package com.mod.process.models;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.mod.objects.Action;
 import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
@@ -15,6 +17,7 @@ public abstract class ProcessModelAbstract {
 	public abstract void processNow();
 	
 	public abstract String modelid();
+	
 	
 	
 	public static final String BUY_PE = "buy_pe";
@@ -47,15 +50,25 @@ public abstract class ProcessModelAbstract {
 	
 	private ScriptData PE_PRICE;
 	private ScriptData CE_PRICE;
+	private ScriptData NIFTY;
 	private Position currentPosition;
 	private double positionExpense = 0;
 	private Action currentAction;
+	
+	private static CacheService cacheService;
+	
+	public boolean completedProcess=true;
+	
+	public int count;
+	
+	public int saleRecord;
 	
 	public ProcessModelAbstract() {
 		// TODO Auto-generated constructor stub
 		this.setPositionExpense(positionExpense());
 		setPE_PRICE(new ScriptData(getPositionId("pe_id"), 0, ""));
 		setCE_PRICE(new ScriptData(getPositionId("ce_id"), 0, ""));
+		setNIFTY(new ScriptData(256265.0,0,""));
 	}
 	
 	public ConfigData appConfig(){
@@ -81,6 +94,15 @@ public abstract class ProcessModelAbstract {
 		return Double.valueOf(val);
 		
 	}
+	
+	public static CacheService getCacheService() {
+		return cacheService;
+	}
+
+	public static void setCacheService(CacheService cacheService) {
+		ProcessModelAbstract.cacheService = cacheService;
+	}
+
 	public Position getCurrentPosition() {
 		return currentPosition;
 	}
@@ -131,6 +153,14 @@ public abstract class ProcessModelAbstract {
 
 	public void setCurrentAction(Action currentAction) {
 		this.currentAction = currentAction;
+	}
+
+	public ScriptData getNIFTY() {
+		return NIFTY;
+	}
+
+	public void setNIFTY(ScriptData nIFTY) {
+		NIFTY = nIFTY;
 	}
 	
 	

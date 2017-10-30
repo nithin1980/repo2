@@ -115,7 +115,7 @@ public class Position {
 		return false;
 	}
 	public boolean isCEPosition(){
-		if(getName()!=null && getName().contains("CEE")){
+		if(getName()!=null && getName().contains("CE")){
 			return true;
 		}
 		return false;

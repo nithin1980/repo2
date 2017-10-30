@@ -21,12 +21,19 @@ import org.mapdb.HTreeMap;
 import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 
+
 import com.mod.datafeeder.DataFeed;
 import com.mod.objects.CacheMetaData;
 import com.mod.support.ApplicationHelper;
 
-public class CacheService {
+public class CacheService{
+
 	
+	protected CacheService() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	private static final CacheService singleton = new CacheService(); 
 	
 	static final String currentDate = getCurrentDate();
 	static final File dbfile = new File("C:/data/mapdb/report5.db");
@@ -86,6 +93,10 @@ public class CacheService {
 		
 		optionsBackup = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 	}
+	
+	public static CacheService getInstance(){
+		return singleton;
+	}	
 	/**----------------------------------------------------------------------------------------------------------
 	 */
 	public static void addMetaDataToDateRecording(String groupName,CacheMetaData metadata){
@@ -193,13 +204,32 @@ public class CacheService {
 		return items;
 		
 	}
+	public static double getValueForIndex(double stockid,int index){
+		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
+		return options.get(stockid).get(index);
+	}
 	public static TDoubleList getItemsFromDateDataRecord_Test(double stockid, int size){
 		//verify performance...
 		
 		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 		
+
+		optionsListCount = options.get(stockid).size();
 		TDoubleList items = new TDoubleArrayList();
+		
 		items.addAll(options.get(stockid).subList(optionsListCount-size, optionsListCount));;
+
+		return items;
+		
+	}
+	public static TDoubleList getItemsFromDateDataRecord_Test(double stockid, int startIndex,int endIndex){
+		//verify performance...
+		
+		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
+		
+		TDoubleList items = new TDoubleArrayList();
+		
+		items.addAll(options.get(stockid).subList(startIndex, endIndex));;
 
 		return items;
 		
@@ -419,9 +449,15 @@ public class CacheService {
 		
 		
 		long t = System.currentTimeMillis();
+		
+		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
+		TDoubleList slist = options.get(12616706.0);
+		
+		System.out.println();
+		
 		//HTreeMap<String, String> map = reportdb.hashMap("index_report",Serializer.STRING,Serializer.STRING).open();
-		reporter.clear();
-		reportdb.commit();
+//		reporter.clear();
+//		reportdb.commit();
 //		StringBuilder builder;
 //		
 //		try {

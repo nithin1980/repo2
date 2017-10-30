@@ -24,12 +24,15 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 
 	private static boolean log = false;
 	
-	public ProcessingBlock5() {
+	public ProcessingBlock5(CacheService cacheService) {
 		// TODO Auto-generated constructor stub
+		
 		super();
+		setCacheService(cacheService);
 		DashBoard.positionMap.put(modelid(), new GroupPosition());
 
 	}
+	
 	@Override
 	public String modelid() {
 		// TODO Auto-generated method stub
@@ -41,8 +44,19 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 	public void processNow() {
 		// TODO Auto-generated method stub
 		
+		long t = System.currentTimeMillis();
+		
+		completedProcess=false;
 		GroupPosition pos = DashBoard.positionMap.get(modelid());
 		double currentPrice = 0;
+		
+		double currentProfit = 0;
+		double reverseProfit = 0;
+		double currentPer = 0;
+		double reversePer = 0;
+		boolean highChanged = false;
+		boolean lowChanged = false;
+		
 		//Initial position
 		if(pos.isEmpty() && getCurrentPosition()==null){
 			double positionid = Double.valueOf(modeConfig().getKeyValueConfigs().get("initial_position"));
@@ -54,7 +68,7 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 			 * Need a way to find out the ordered price
 			 */
 			getOrderInterface().orderKiteOption(new OrderInfo());
-			currentPrice = CacheService.PRICE_LIST.get(positionid);
+			currentPrice = getCacheService().PRICE_LIST.get(positionid);
 			updateScriptPrices();
 			setCurrentPosition(new Position(positionName, getPositionExpense(), currentPrice));
 			addReversePosition(getCurrentPosition());
@@ -67,12 +81,6 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 		}else{
 			updateScriptPrices();
 			
-			double currentProfit = 0;
-			double reverseProfit = 0;
-			double currentPer = 0;
-			double reversePer = 0;
-			boolean highChanged = false;
-			boolean lowChanged = false;
 			
 				if(HOLDING_CE.equals(getCurrentAction().getAction())){
 					currentProfit = getOptionProfit(getCurrentPosition(), getCE_PRICE().getNewPrice().getValue());
@@ -101,21 +109,22 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 					getCurrentPosition().setBracketLow(new ValueTime("",currentProfit));
 					
 					//if((currentProfit>250 && getCurrentPosition().isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(getCurrentPosition().trend())){
-						if((currentProfit>250 && (perCost(getPE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300){							
-						System.out.println(getCurrentPosition().trend());
-						getCurrentPosition().setSell(getPE_PRICE().getNewPrice().getValue());
+						if(currentProfit<-800 || (currentProfit>450 && (perCost(getPE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300 || reverseProfit<-800){							
+//						System.out.println(getCurrentPosition().trend());
+						getCurrentPosition().setSell(getCE_PRICE().getNewPrice().getValue());
 	//					getCurrentPosition().setSellRecord(i);
-						
+						getCurrentPosition().setSellRecord(saleRecord);
+						pos.getCePositions().add(getCurrentPosition());
 						
 						setCurrentPosition(createPosition(getPE_PRICE()));
 	//					getCurrentPosition().setBuyRecord(i);
 						
 						getCurrentAction().setAction(HOLDING_PE);
 						addReversePosition(getCurrentPosition());
-						pos.getPePositions().add(getCurrentPosition());
+						System.out.println(count+" Sold CE Positions:"+pos);
+						saleRecord++;
 					}
-			}
-			
+			}else
 			if(HOLDING_PE.equals(getCurrentAction().getAction())){
 					currentProfit = getOptionProfit(getCurrentPosition(), getPE_PRICE().getNewPrice().getValue());
 					reverseProfit = getOptionProfit(getCurrentPosition().getReversePosition(), getCE_PRICE().getNewPrice().getValue());
@@ -147,13 +156,16 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 					getCurrentPosition().setBracketLow(new ValueTime("",currentProfit));
 					
 	//				if((currentProfit>250 && newPosition.isProfitDecreasedEnough(i, 10, 15, currentProfit)) || Chart.DOWNTREND.equals(newPosition.trend())){
-					if(((currentProfit>250) && (perCost(getCE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300){							
+					if(currentProfit<-800 || ((currentProfit>450) && (perCost(getCE_PRICE().getNewPrice().getValue(), getCurrentPosition().getReversePosition().getLowValue())>25)) || reverseProfit>300 || reverseProfit<-800){							
 						/**
 						 * @TODO need to remove the data in the position cache...
 						 * use the cacheservice
 						 */
-						System.out.println(getCurrentPosition().trend());
-						getCurrentPosition().setSell(getCE_PRICE().getNewPrice().getValue());
+//						System.out.println(getCurrentPosition().trend());
+						getCurrentPosition().setSell(getPE_PRICE().getNewPrice().getValue());
+						getCurrentPosition().setSellRecord(saleRecord);
+						
+						pos.getPePositions().add(getCurrentPosition());
 	//					getCurrentPosition().setSellRecord(i);
 						setCurrentPosition(createPosition(getCE_PRICE()));
 	//					getCurrentPosition().setBuyRecord(i);
@@ -161,18 +173,24 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 						getCurrentAction().setAction(HOLDING_CE);
 						//action.setAction(INITIAL_POSITION);
 						addReversePosition(getCurrentPosition());
-						pos.getCePositions().add(getCurrentPosition());
+						System.out.println(count+" Sold PE Positions:"+pos);
+						saleRecord++;
+
+						
 					}
 			}
 			
 			
 		}
-		
+		completedProcess=true;
+		count++;
+		System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit);
+		System.out.println("Processing Block5 completed in :"+(System.currentTimeMillis()-t)+"--"+"PE:"+getPE_PRICE().getNewPrice().getValue()+"--"+"CE:"+getCE_PRICE().getNewPrice().getValue());
 	}
 
 	private void updateScriptPrices(){
-		getPE_PRICE().setNewPrice(new ValueTime("",CacheService.PRICE_LIST.get(getPE_PRICE().getId())));
-		getCE_PRICE().setNewPrice(new ValueTime("",CacheService.PRICE_LIST.get(getCE_PRICE().getId())));
+		getPE_PRICE().setNewPrice(new ValueTime("",getCacheService().PRICE_LIST.get(getPE_PRICE().getId())));
+		getCE_PRICE().setNewPrice(new ValueTime("",getCacheService().PRICE_LIST.get(getCE_PRICE().getId())));
 	}
 	
 	private void addReversePosition(Position currentPosition){
@@ -185,7 +203,7 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 	private Position createPosition(ScriptData scriptData){
 		String positionName = null;
 		positionName = KiteStockConverter.KITE_STOCK_LIST.get(scriptData.getId());
-		return new Position(positionName, getPositionExpense(), scriptData.getCurrentPrice().getValue());
+		return new Position(positionName, getPositionExpense(), scriptData.getNewPrice().getValue());
 	}
 	
 	/**
@@ -205,8 +223,8 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 		ScriptData ceScript = new ScriptData();
 		List<String> values = null;
 		
-		CacheService.clearNifty();;
-		CacheService.dumpNifty();
+		getCacheService().clearNifty();;
+		getCacheService().dumpNifty();
 		//ApplicationHelper.threadService.shutdown();
 		
 		DashBoard.positionMap.put("1", new GroupPosition());
@@ -225,7 +243,7 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 		
 		for(int i=0;i<size;i++){
 			values = dataList.get(i);
-			CacheService.addNifty(Double.valueOf(values.get(1)));
+			getCacheService().addNifty(Double.valueOf(values.get(1)));
 			if(i==8471){
 				log=false;
 			}
@@ -504,7 +522,7 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 		 * TODO
 		 * This needs to be stored... calling hits performance.
 		 */
-		int niftyRecordSize = CacheService.niftyCount();
+		int niftyRecordSize = getCacheService().niftyCount();
 		
 		
 		/**
@@ -528,13 +546,13 @@ public class ProcessingBlock5 extends ProcessModelAbstract {
 		TDoubleList queryList = null;
 		
 		if(niftyRecordSize>10){
-			queryList = CacheService.getItemsFromNiftyCache(10);
+			queryList = getCacheService().getItemsFromNiftyCache(10);
 			trend = Chart.calculateTrend(queryList);
 			
 			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList.subList(5, 10));
 			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList.subList(5, 10));
 		}else if(niftyRecordSize>4){
-			queryList = CacheService.getItemsFromNiftyCache(4);
+			queryList = getCacheService().getItemsFromNiftyCache(4);
 			trend = Chart.calculateTrend(queryList);
 			
 			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList);
