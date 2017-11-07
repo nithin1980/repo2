@@ -12,18 +12,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
+import net.lightbody.bmp.BrowserMobProxy;
+import net.lightbody.bmp.BrowserMobProxyServer;
+import net.lightbody.bmp.client.ClientUtil;
+import net.lightbody.bmp.core.har.Har;
+import net.lightbody.bmp.core.har.HarEntry;
+import net.lightbody.bmp.proxy.CaptureType;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -43,18 +61,57 @@ public class Kite {
   static final String position = "position";
   static final String orders = "orders";
   
+  private BrowserMobProxy proxy;
   
   @Before
   public void setUp() throws Exception {
 	getTargetList();  
-	System.setProperty("webdriver.gecko.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/geckodriver.exe");  
-    driver = new FirefoxDriver();
+	//System.setProperty("webdriver.gecko.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/geckodriver.exe");
+	System.setProperty("webdriver.chrome.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/chromedriver.exe");
+	
+	// start the proxy
+//	proxy = new BrowserMobProxyServer();
+//	proxy.setTrustAllServers(true);
+//	
+//    proxy.start(0);
+//    int port = proxy.getPort();
+//    System.out.println(port);
+//
+//    // get the Selenium proxy object
+//    Proxy seleniumProxy = ClientUtil.createSeleniumProxy(proxy);
+    
+
+    // configure it as a desired capability
+    DesiredCapabilities capabilities = new DesiredCapabilities();
+    //capabilities.setCapability(CapabilityType.PROXY, seleniumProxy);
+	
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("start-maximized");
+    capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+    
+    capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+    //driver = new FirefoxDriver(capabilities);
+    
+    LoggingPreferences logPrefs = new LoggingPreferences();
+    logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
+    capabilities.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);    
+    
+    driver = new ChromeDriver(capabilities);
+    
+    // enable more detailed HAR capture, if desired (see CaptureType for the complete list)
+//    proxy.enableHarCaptureTypes(CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_CONTENT);    
+//    proxy.newHar("zerodha");
+    
     baseUrl = "https://kite.zerodha.com/";
     driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
   }
 
   @Test
   public void testKite() throws Exception {
+	  
+	    
+	    
+	  
 	    driver.navigate().to(baseUrl + "/");
 	    windowHandles.put(dashboard,driver.getWindowHandle());
 	    
@@ -88,9 +145,36 @@ public class Kite {
 	    driver.findElement(By.name("answer2")).sendKeys(answer2);
 	    driver.findElement(By.name("twofa")).click();
 	    
+
+	    
 	    //go to page 3
 	    driver.findElement(By.linkText("3")).click();
+
+	    /**
+	     * Triggering javascript
+	     */
+//	    String scriptToExecute = "var performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {}; var network = performance.getEntries() || {}; return network;";
+//	    String netData = ((JavascriptExecutor)driver).executeScript(scriptToExecute).toString();
 	    
+	    
+	    LogEntries les = driver.manage().logs().get(LogType.PERFORMANCE);
+	    for (LogEntry le : les) {
+	        //System.out.println(le.getMessage());
+	    	if(le.getMessage().contains("Sec-WebSocket-Key") || le.getMessage().contains("wss:")){
+	    		System.out.println(le.getMessage());
+	    	}
+	    }	    
+	    System.out.println();
+//	    Har har = proxy.getHar();	
+//	    List<HarEntry> list = har.getLog().getEntries();
+//	    for(int i=0;i<list.size();i++){
+//	    	System.out.println(list.get(i).getRequest().getUrl());
+//	    	if(list.get(i).getRequest().getUrl().contains("websocket")){
+//	    		HarEntry ent = list.get(i);
+//	    		System.out.println();
+//	    	}
+//	    }	    
+//	    System.out.println();
 	    //--------------------------------------------------------------
 	    /**
 	     *  Experiments are here.
@@ -115,7 +199,10 @@ public class Kite {
 
 	    //-------------------------------------------------------------------
 	    
-	    
+    	/**
+    	 * Get the traffic
+    	 */
+    	    
 	    
 	    List<WebElement> itemList = driver.findElements(By.className("item"));
 	    //WebDriverWait wait = new WebDriverWait(driver, 3);
@@ -148,6 +235,8 @@ public class Kite {
 	    			}
 	    		}
 	    	}
+	    	
+
 	    	
 	    	if(approvedList.isEmpty()){
 	    		throw new RuntimeException("No items to scan");
