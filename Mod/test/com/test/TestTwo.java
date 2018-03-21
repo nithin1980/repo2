@@ -9,17 +9,15 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.catalina.tribes.io.DirectByteArrayOutputStream;
 import org.junit.Test;
 
 import com.mod.datafeeder.DataFeed;
-import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.CacheMetaData;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.DashBoard;
-import com.mod.process.models.ProcessingBlock5;
 import com.mod.process.models.ProcessingBlock6;
+import com.mod.process.models.ProcessingBlock7;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
 import com.mod.support.XMLParsing;
@@ -46,6 +44,9 @@ public class TestTwo {
 		
 		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel6.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel6", configData);
+
+		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel7.config");
+		ApplicationHelper.Application_Config_Cache.put("pmodel7", configData);
 		
 		KiteStockConverter.build();
 		
@@ -61,18 +62,19 @@ public class TestTwo {
 		TestCacheService.getMetaDataToDateRecording("group1");
 		
 		long t = System.currentTimeMillis();
-		ProcessingBlock6 block6 = new ProcessingBlock6(TestCacheService.getInstance());
-		for(int i=1;i<7271;i++){
+		ProcessingBlock7 block7 = new ProcessingBlock7(TestCacheService.getInstance());
+		for(int i=1;i<4711;i++){
 			
 			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
 			System.out.println(CacheService.getValueForIndex(256265.0, i));
-			TestCacheService.PRICE_LIST.put(13937154.0, CacheService.getValueForIndex(13937154.0, i));
-			TestCacheService.PRICE_LIST.put(13941506.0, CacheService.getValueForIndex(13941506.0, i));
+			TestCacheService.PRICE_LIST.put(13943298.0, CacheService.getValueForIndex(13943298.0, i));
+			TestCacheService.PRICE_LIST.put(13942018.0, CacheService.getValueForIndex(13942018.0, i));
 			
 			TestCacheService.addDateRecordingCache();
+			TestCacheService.updateNiftyTrend(256265.0);
 			
-			if(block6.completedProcess){
-				block6.processNow();
+			if(block7.completedProcess){
+				block7.processNow();
 			}
 			
 			/**
@@ -102,9 +104,9 @@ public class TestTwo {
 		
 		//TDoubleList d = TestCacheService.getItemsFromDateDataRecord_Test(12616706.0, 5);
 		//TestCacheService.addDateRecordingCache(data);
-		block6.close();
-		System.out.println(DashBoard.positionMap.get("pmodel6"));
-		System.out.println(DashBoard.positionMap.get("pmodel6").total());
+		block7.close();
+		System.out.println(DashBoard.positionMap.get("pmodel7"));
+		System.out.println(DashBoard.positionMap.get("pmodel7").total());
 //		try {
 //			latch.await();
 //		} catch (InterruptedException e) {

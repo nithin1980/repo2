@@ -22,9 +22,11 @@ import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 
 
+
 import com.mod.datafeeder.DataFeed;
 import com.mod.objects.CacheMetaData;
 import com.mod.support.ApplicationHelper;
+import com.mod.support.Candle;
 
 public class CacheService{
 
@@ -68,6 +70,13 @@ public class CacheService{
 	private static TDoubleList optionCodes = new TDoubleArrayList();
 	private static int optionsBackupCount = 0;
 	private static int optionsListCount = 0;
+	
+	public static String niftyTrend="UNDEFINED";
+	
+	
+	public static List<Candle> pastCandles = new ArrayList<Candle>();
+	public static Candle previousCandle;
+	public static Candle currentCandle=new Candle();
 	
 	static{
 		
@@ -173,6 +182,20 @@ public class CacheService{
 		
 		
 	}
+	public static void updateNiftyTrend(double stockid){
+		TDoubleList list = null;
+		if(optionsListCount>60){
+			list = getItemsFromDateDataRecord(stockid, 60);
+		}
+//		else if(optionsListCount>20){
+//			list = getItemsFromDateDataRecord(stockid, 20);
+//		}
+		
+		if(list!=null){
+			niftyTrend =  Chart.calculateTrend(list);
+		}
+		
+	}
 	public static void clearDateDataRecord(){
 		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 		options.clear();
@@ -245,6 +268,7 @@ public class CacheService{
 //		}
 		
 		if(!date_recording_db.isClosed()){
+			System.out.println("data saved..");
 			date_recording_db.commit();
 		}
 	}	

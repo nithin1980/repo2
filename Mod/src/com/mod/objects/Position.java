@@ -312,6 +312,13 @@ public class Position {
 		this.bracketLowHigherValue = bracketLowHigherValue;
 	}
 
+	public void resetHigh(double newHigh){
+		this.highValue = newHigh;
+	}
+	public void resetLow(double newLow){
+		this.lowValue = newLow;
+	}
+	
 	public boolean setHighValue(double highValue) {
 		if(this.highValue==0){
 			this.highValue = highValue;

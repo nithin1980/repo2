@@ -63,6 +63,9 @@ public abstract class ProcessModelAbstract {
 	
 	public int saleRecord;
 	
+	private double niftyEarlyHigh;
+	private double niftyEarlyLow;
+	
 	public ProcessModelAbstract() {
 		// TODO Auto-generated constructor stub
 		this.setPositionExpense(positionExpense());
@@ -161,6 +164,34 @@ public abstract class ProcessModelAbstract {
 
 	public void setNIFTY(ScriptData nIFTY) {
 		NIFTY = nIFTY;
+	}
+
+	/**
+	 * @return the niftyEarlyHigh
+	 */
+	public double getNiftyEarlyHigh() {
+		return niftyEarlyHigh;
+	}
+
+	/**
+	 * @param niftyEarlyHigh the niftyEarlyHigh to set
+	 */
+	public void setNiftyEarlyHigh(double niftyEarlyHigh) {
+		this.niftyEarlyHigh = niftyEarlyHigh;
+	}
+
+	/**
+	 * @return the niftyEarlyLow
+	 */
+	public double getNiftyEarlyLow() {
+		return niftyEarlyLow;
+	}
+
+	/**
+	 * @param niftyEarlyLow the niftyEarlyLow to set
+	 */
+	public void setNiftyEarlyLow(double niftyEarlyLow) {
+		this.niftyEarlyLow = niftyEarlyLow;
 	}
 	
 	

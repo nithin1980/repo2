@@ -45,6 +45,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.mod.support.ApplicationHelper;
+import com.mod.support.GeneralJsonObject;
+
 public class Kite {
   private WebDriver driver;
   private String baseUrl;
@@ -160,8 +163,9 @@ public class Kite {
 	    LogEntries les = driver.manage().logs().get(LogType.PERFORMANCE);
 	    for (LogEntry le : les) {
 	        //System.out.println(le.getMessage());
-	    	if(le.getMessage().contains("Sec-WebSocket-Key") || le.getMessage().contains("wss:")){
-	    		System.out.println(le.getMessage());
+	    	if(le.getMessage().contains("Network.webSocketHandshakeResponseReceived")){
+	    		GeneralJsonObject jsonObject = ApplicationHelper.getObjectMapper().readValue(le.getMessage(), GeneralJsonObject.class);
+	    		System.out.println(jsonObject.websocketKey()+"--"+jsonObject.url());
 	    	}
 	    }	    
 	    System.out.println();

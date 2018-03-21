@@ -1,8 +1,12 @@
 package com.mod.support;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -15,16 +19,13 @@ import java.util.concurrent.Executors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import com.mod.datafeeder.DataFeed;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mod.interfaces.IStreamingQuoteParser;
-import com.mod.interfaces.KiteStockConverter;
 import com.mod.interfaces.StreamingQuote;
-import com.mod.interfaces.StreamingQuoteModeFull;
 import com.mod.interfaces.StreamingQuoteModeLtp;
-import com.mod.interfaces.StreamingQuoteParserModeFull;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.ProcessModelAbstract;
-import com.mod.process.models.ProcessingBlock;
 
 public class ApplicationHelper {
 	
@@ -32,6 +33,37 @@ public class ApplicationHelper {
 	
 	public static final ExecutorService threadService = Executors.newFixedThreadPool(15);
 	
+	private static long timer = 0;
+	
+	
+	public void bunchValues(double value){
+		
+		if(timer==0){
+			timer = System.currentTimeMillis();
+			CacheService.currentCandle.reset();
+		}
+		
+		CacheService.currentCandle.populate(value);
+		
+		if((System.currentTimeMillis()-timer)>60000){
+			timesUp(value);
+		}
+	}
+	
+	public void timesUp(double value){
+		timer=0;
+		CacheService.currentCandle.setClose(value);
+		CacheService.pastCandles.add(CacheService.currentCandle);
+		CacheService.previousCandle = new Candle(CacheService.currentCandle);
+		CacheService.currentCandle = new Candle();
+	}
+	
+	
+	public static ObjectMapper getObjectMapper(){
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		return mapper;		
+	}	
 
     public static String[] ltpStrings(){
 		
@@ -59,6 +91,127 @@ public class ApplicationHelper {
     	return values;
     }
 	
+    public static List<GeneralObject> getNiftyData(String date){
+		
+		GeneralJsonObject jsonObject = null;
+		
+		BufferedReader reader =  null;
+		
+		List<String> data = new ArrayList<String>();
+		
+		List<GeneralObject> objects = new ArrayList<GeneralObject>();
+		
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("C:/data/mapdb/databackup/nifty/"+date+".txt")),"UTF-8"));
+			//reader = new BufferedReader(new FileReader(fileNamewithFullPath+"list/Product-Type.csv"));
+			int i=1;
+			String str = null;
+			while((str=reader.readLine())!=null){
+				if(str.length()>3 && !str.contains("#comment") && i>2){
+					data.add(str.trim().replace(",", "").replace("[\"", "").replace("\"", "").replace("]", ""));
+				}
+				i++;
+			}
+			str=null;
+			reader.close();
+			
+			
+			
+			
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			
+		}
+		int size = data.size();
+		for(int i=0;i<size;i+=6){
+			objects.add(new GeneralObject(data.get(i),data.get(i+1), data.get(i+2), data.get(i+3), data.get(i+4), data.get(i+5)));
+		}
+		
+		data.clear();
+		
+		return objects;
+    }
+    public static List<String> getNiftyDataCSV(String date){
+		
+		
+		BufferedReader reader =  null;
+		
+		List<String> data = new ArrayList<String>();
+		
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("C:/data/reports/"+date+".txt")),"UTF-8"));
+			int i=1;
+			String str = null;
+			while((str=reader.readLine())!=null){
+				if(str.length()>3 && !str.contains("#comment")){
+					data.add(str);
+				}
+			}
+			str=null;
+			reader.close();
+			
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			
+		}
+		
+		return data;
+    }    
+    public static List<GeneralObject> getCE_PEData(String type,String strike,String date){
+		
+		BufferedReader reader =  null;
+		
+		List<String> data = new ArrayList<String>();
+		
+		List<GeneralObject> objects = new ArrayList<GeneralObject>();
+		
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("C:/data/mapdb/databackup/"+type+"/"+strike+"_"+date+".txt")),"UTF-8"));
+			//reader = new BufferedReader(new FileReader(fileNamewithFullPath+"list/Product-Type.csv"));
+			int i=1;
+			String str = null;
+			while((str=reader.readLine())!=null){
+				if(str.length()>3 && !str.contains("#comment") && i>2){
+					data.add(str.trim().replace(",", "").replace("[\"", "").replace("\"", "").replace("]", ""));
+				}
+				i++;
+			}
+			str=null;
+			reader.close();
+			
+			
+			
+			
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			
+		}
+		int size = data.size();
+		for(int i=0;i<size;i+=6){
+			objects.add(new GeneralObject(data.get(i),data.get(i+1), data.get(i+2), data.get(i+3), data.get(i+4), data.get(i+5)));
+		}
+		
+		data.clear();
+		
+		return objects;
+    }
+
+    
 	public static List<List<String>> getConfig(){
 		Iterable<CSVRecord> records = null;
 		Reader reader = null;
@@ -167,6 +320,14 @@ public class ApplicationHelper {
 		 */
 		if(validData){
 			CacheService.addDateRecordingCache();
+			
+			threadService.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					CacheService.updateNiftyTrend(256265.0);
+				}
+			});
 			//Should be asynchronous
 			int modelSize = processingModels.size();
 			
@@ -208,6 +369,17 @@ public class ApplicationHelper {
 		}
 		
 		
-	}	
+	}
+	
+	public static void main(String[] args) {
+		List<GeneralObject> object = getNiftyData("04-12-2017");
+		List<GeneralObject> PEobject = getCE_PEData("PE", "10000", "04-12-2017");
+		List<GeneralObject> CEobject = getCE_PEData("CE", "10200", "04-12-2017");
+		
+		double support=2.0;
+		double resistance=3.0;
+		
+		System.out.println();
+	}
 
 }

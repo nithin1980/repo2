@@ -24,6 +24,7 @@ import org.mapdb.Serializer;
 import com.mod.datafeeder.DataFeed;
 import com.mod.objects.CacheMetaData;
 import com.mod.process.models.CacheService;
+import com.mod.process.models.Chart;
 import com.mod.support.ApplicationHelper;
 
 public class TestCacheService extends CacheService{
@@ -185,6 +186,17 @@ public class TestCacheService extends CacheService{
 		return items;
 		
 	}
+	public static void updateNiftyTrend(double stockid){
+		TDoubleList list = null;
+		if(optionsListCount_test>60){
+			list = getItemsFromDateDataRecord(stockid, 60);
+		}
+		
+		if(list!=null){
+			niftyTrend =  Chart.calculateTrend(list);
+		}
+		
+	}	
 	public static TDoubleList getItemsFromDateDataRecord_Test(double stockid, int size){
 		//verify performance...
 		

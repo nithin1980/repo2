@@ -9,19 +9,21 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.catalina.tribes.io.DirectByteArrayOutputStream;
 import org.junit.Test;
 
 import com.mod.datafeeder.DataFeed;
-import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.CacheMetaData;
 import com.mod.process.models.CacheService;
+import com.mod.process.models.DashBoard;
+import com.mod.process.models.ProcessingBlock6;
+import com.mod.process.models.ProcessingBlock7;
+import com.mod.process.models.ProcessingBlock8;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
 import com.mod.support.XMLParsing;
 
-public class TestOne {
+public class TestThree {
 	private static CountDownLatch latch;
 	
 	@Test
@@ -49,36 +51,42 @@ public class TestOne {
 		
 		KiteStockConverter.build();
 		
-		CacheService.clearDateDataRecord();
-		CacheService.addMetaDataToDateRecording("group1", metadata());
-		CacheService.initializeDataArray(initialSetup());
+		
+		
+		TestCacheService.clearDateDataRecord();
+		TestCacheService.addMetaDataToDateRecording("group1", metadata());
+		TestCacheService.initializeDataArray(initialSetup());
 		/**
 		 * Need to intialise the price backup thread as well.
 		 */
 		
-		CacheService.getMetaDataToDateRecording("group1");
+		TestCacheService.getMetaDataToDateRecording("group1");
 		
 		long t = System.currentTimeMillis();
-//		for(int i=0;i<10;i++){
-//			
-//			CacheService.PRICE_LIST.put(12345.0, TestDataBuilder.option1.get(i).getLtp().doubleValue());
-//			CacheService.PRICE_LIST.put(12346.0, TestDataBuilder.option2.get(i).getLtp().doubleValue());
-//			CacheService.PRICE_LIST.put(12347.0, TestDataBuilder.option3.get(i).getLtp().doubleValue());
-//			CacheService.PRICE_LIST.put(12348.0, TestDataBuilder.option4.get(i).getLtp().doubleValue());
+		ProcessingBlock8 block8 = new ProcessingBlock8(TestCacheService.getInstance());
+		for(int i=1;i<4711;i++){
 			
+			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
+			System.out.println(CacheService.getValueForIndex(256265.0, i));
+			TestCacheService.PRICE_LIST.put(10377730.0, CacheService.getValueForIndex(10377730.0, i));
+			TestCacheService.PRICE_LIST.put(10118146.0, CacheService.getValueForIndex(10118146.0, i));
+			
+			TestCacheService.addDateRecordingCache();
+			TestCacheService.updateNiftyTrend(256265.0);
+			
+			if(block8.completedProcess){
+				block8.processNow();
+			}
 			
 			/**
 			 * This should read from the latest prices....
 			 */
-			
-			
-			
-			
-			
-//		}
+		}
 		//System.out.println("1a--"+(System.currentTimeMillis()-t));
-		KiteGeneralWebSocketClient webSocketClient = new KiteGeneralWebSocketClient(latch);
-		webSocketClient.connect();
+//		KiteGeneralWebSocketClient webSocketClient = new KiteGeneralWebSocketClient(latch);
+//		webSocketClient.connect();
+		
+		
 //		try {
 //			for(int i=0;i<35;i++){
 //				webSocketClient.onMessage(message(), null);
@@ -90,22 +98,22 @@ public class TestOne {
 //			e1.printStackTrace();
 //		}
 		
-		CacheService.dumpDateRecording();
+		//TestCacheService.dumpDateRecording();
 		/**
 		 * Gives back the last 5 prices
 		 */
 		
-		//TDoubleList d = CacheService.getItemsFromDateDataRecord_Test(12616706.0, 5);
-		//CacheService.addDateRecordingCache(data);
-		
-		
-		System.out.println();
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//TDoubleList d = TestCacheService.getItemsFromDateDataRecord_Test(12616706.0, 5);
+		//TestCacheService.addDateRecordingCache(data);
+		block8.close();
+		System.out.println(DashBoard.positionMap.get("pmodel8"));
+		System.out.println(DashBoard.positionMap.get("pmodel8").total());
+//		try {
+//			latch.await();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		
 		

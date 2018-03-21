@@ -25,6 +25,8 @@ import com.mod.process.models.ProcessingBlock;
 import com.mod.process.models.ProcessingBlock2;
 import com.mod.process.models.ProcessingBlock3;
 import com.mod.process.models.ProcessingBlock5;
+import com.mod.process.models.ProcessingBlock6;
+import com.mod.process.models.ProcessingBlock7;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
 
@@ -43,8 +45,17 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 	
 	private CountDownLatch latch;
 	
+	private Session kiteSession;
+	
 	public KiteGeneralWebSocketClient() {
 		// TODO Auto-generated constructor stub
+		processingModels = new ArrayList<ProcessModelAbstract>();
+//		processingModels.add(new ProcessingBlock());
+//		processingModels.add(new ProcessingBlock2());
+		processingModels.add(new ProcessingBlock6(CacheService.getInstance()));
+		
+		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
+		
 	}
 	
 	public KiteGeneralWebSocketClient(CountDownLatch latch) {
@@ -54,7 +65,9 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 		processingModels = new ArrayList<ProcessModelAbstract>();
 //		processingModels.add(new ProcessingBlock());
 //		processingModels.add(new ProcessingBlock2());
-		processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
+		//processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
+		
+		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
 	}
 	
 	
@@ -119,7 +132,10 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
     
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        latch.countDown();
+    	if(latch!=null){
+    		latch.countDown();
+    	}
+    	System.out.println("Connection closed...");
     }
     
     public void connect(){
@@ -138,7 +154,8 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
       try {
           //URI serverEndpointUri = new URI("wss://websocket.kite.trade/?api_key=kitefront&user_id=DV4051&public_token=f88c4a16db7899fc39d2446098ea0c9a");
           URI serverEndpointUri = new URI(appConfig().getKeyValueConfigs().get("destination_url"));
-          Session session = container.connectToServer(this, serverEndpointUri);
+          kiteSession = container.connectToServer(this, serverEndpointUri);
+          
           //webSocketClient.connect(new WebSocketClientExample(), serverEndpointUri);
           
           
@@ -150,6 +167,17 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}    	
+    }
+    
+    public void closeSession(){
+    	try {
+			if(kiteSession!=null){
+				kiteSession.close();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }

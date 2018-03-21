@@ -1,32 +1,29 @@
 package com.mod.process.models;
 
-import gnu.trove.list.TDoubleList;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
-import sun.security.util.PendingException;
-import static org.junit.Assert.*;
-
 import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.Action;
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
-import com.mod.order.OrderInfo;
-import com.mod.support.ApplicationHelper;
 
-public class ProcessingBlock6 extends ProcessModelAbstract {
+public class ProcessingBlock8 extends ProcessModelAbstract {
 
 
 	private static boolean log = false;
 	
 	private int positionTime=0;
 	
-	public ProcessingBlock6(CacheService cacheService) {
+	private double triggerValue;
+	
+	private Position realPosition;
+	
+	private String initialPosition;
+	
+	private double resistance;
+	private double support;
+	
+	public ProcessingBlock8(CacheService cacheService) {
 		// TODO Auto-generated constructor stub
 		
 		super();
@@ -38,7 +35,7 @@ public class ProcessingBlock6 extends ProcessModelAbstract {
 	@Override
 	public String modelid() {
 		// TODO Auto-generated method stub
-		return "pmodel6";
+		return "pmodel8";
 	}
 	
 	public void close(){
@@ -67,16 +64,16 @@ public class ProcessingBlock6 extends ProcessModelAbstract {
 		double currentProfit = 0;
 		double reverseProfit = 0;
 		double currentPer=0;
+		double reversePer=0;
 		
-		updateScriptPrices();
-		if(positionTime>0){
-			positionTime++;
-		}
+		//updateScriptPrices();
+		
 		double niftydiff = getNIFTY().newPriceDiffFromCurrent();
 		
+		String trend = getCacheService().niftyTrend;
+		System.out.println("trend:"+trend);
 		if(getCurrentPosition()==null){
-			if(niftydiff>=2.5){
-				System.out.println("-----up-------"+getNIFTY().getNewPrice().getValue()+"------------");
+			if("CE".equals(initialPosition)){
 				double positionid = getCE_PRICE().getId();
 				String positionName = KiteStockConverter.KITE_STOCK_LIST.get(positionid);
 				currentPrice = getCacheService().PRICE_LIST.get(positionid);
@@ -88,8 +85,8 @@ public class ProcessingBlock6 extends ProcessModelAbstract {
 				
 				
 			}
-			else if(niftydiff<=-2.5){
-				System.out.println("---down---------"+getNIFTY().getNewPrice().getValue()+"------------");
+			else if("PE".equals(initialPosition)){
+				
 				double positionid = getPE_PRICE().getId();
 				String positionName = KiteStockConverter.KITE_STOCK_LIST.get(positionid);
 				currentPrice = getCacheService().PRICE_LIST.get(positionid);
@@ -113,45 +110,76 @@ public class ProcessingBlock6 extends ProcessModelAbstract {
 				currentProfit = getOptionProfit(getCurrentPosition(), getCE_PRICE().getNewPrice().getValue());
 				reverseProfit = getOptionProfit(getCurrentPosition().getReversePosition(), getPE_PRICE().getNewPrice().getValue());
 				currentPer = perCost(currentProfit, getCurrentPosition().cost());
+				reversePer = perCost(reverseProfit, getCurrentPosition().cost());
+				getCurrentPosition().setHighValue(getCE_PRICE().getNewPrice().getValue());
+				getCurrentPosition().setLowValue(getCE_PRICE().getNewPrice().getValue());
 				/**
 				 * This works fine with large amount like 60k
 				 */
-				if(currentPer>0.8){
-					getCurrentPosition().setSell(getCE_PRICE().getNewPrice().getValue());
-					getCurrentPosition().setSellRecord(saleRecord);
-					pos.getCePositions().add(getCurrentPosition());
-					System.out.println(count+" Sold CE Positions:"+pos);
-					saleRecord++;
-					
-					setCurrentPosition(null);
-					positionTime=0;
-					System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit);
+				
+				if(reversePer>1.5){
+					getCurrentPosition().setBuy(getCE_PRICE().getNewPrice().getValue());
+					getCurrentPosition().resetHigh(getCurrentPosition().getBuy());
+					addReversePosition(getCurrentPosition());
 				}
 				
-				System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit+"--"+getCE_PRICE().getNewPrice().getValue()+"---C+R Profit:"+(currentProfit+reverseProfit));
+				if(getCurrentPosition().getHighValue()>202){
+					System.out.println("203 now....");
+				}
+//				if(currentPer>2.5 && getCurrentPosition().percentageFromHighProfit(currentProfit)>25){
+//					System.out.println("High:"+getCurrentPosition().percentageFromHighProfit(currentProfit)+"--"+getCurrentPosition().getHighValue());
+//					getCurrentPosition().setSell(getCE_PRICE().getNewPrice().getValue());
+//					getCurrentPosition().setSellRecord(saleRecord);
+//					pos.getCePositions().add(getCurrentPosition());
+//					System.out.println(count+" Sold CE Positions:"+pos);
+//					saleRecord++;
+//					
+//					setCurrentPosition(null);
+//					positionTime=0;
+//					System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit);
+//				}
+				
+				System.out.println("Holding CE:Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit+"--"+getCE_PRICE().getNewPrice().getValue()+"---C+R Profit:"+(currentProfit+reverseProfit));
 				
 			}
 			else if(HOLDING_PE.equals(getCurrentAction().getAction())){
 				currentProfit = getOptionProfit(getCurrentPosition(), getPE_PRICE().getNewPrice().getValue());
 				reverseProfit = getOptionProfit(getCurrentPosition().getReversePosition(), getCE_PRICE().getNewPrice().getValue());
 				currentPer = perCost(currentProfit, getCurrentPosition().cost());
+				reversePer = perCost(reverseProfit, getCurrentPosition().cost());
+				getCurrentPosition().setHighValue(getPE_PRICE().getNewPrice().getValue());
+				getCurrentPosition().setLowValue(getPE_PRICE().getNewPrice().getValue());
+				
 				/**
 				 * This works fine with large amount like 60k
 				 */
 				
-				if(currentPer>0.8 ){
-					getCurrentPosition().setSell(getPE_PRICE().getNewPrice().getValue());
-					getCurrentPosition().setSellRecord(saleRecord);
-					pos.getCePositions().add(getCurrentPosition());
-					System.out.println(count+" Sold CE Positions:"+pos);
-					saleRecord++;
-					
-					setCurrentPosition(null);
-					positionTime=0;
-					System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit);
+				if(reversePer>1.5){
+					getCurrentPosition().setBuy(getPE_PRICE().getNewPrice().getValue());
+					getCurrentPosition().resetHigh(getCurrentPosition().getBuy());
+					addReversePosition(getCurrentPosition());
+				}				
+				if(getCurrentPosition().getHighValue()>202){
+					if(getCurrentPosition().percentageFromHighProfit(currentProfit)>580){
+						getCurrentPosition().percentageFromHighProfit(currentProfit);
+					}
+					System.out.println(" now...."+getCurrentPosition().percentageFromHighProfit(currentProfit)+"--"+getCurrentPosition().getBuy()+"--"+getCurrentPosition().getHighValue()+"--"+getPE_PRICE().getNewPrice().getValue());
 				}
 				
-				System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit+"--"+getPE_PRICE().getNewPrice().getValue());
+//				if(currentPer>2.5 && getCurrentPosition().percentageFromHighProfit(currentProfit)>25 ){
+//					System.out.println("High:"+getCurrentPosition().percentageFromHighProfit(currentProfit)+"--"+getCurrentPosition().getHighValue());
+//					getCurrentPosition().setSell(getPE_PRICE().getNewPrice().getValue());
+//					getCurrentPosition().setSellRecord(saleRecord);
+//					pos.getCePositions().add(getCurrentPosition());
+//					System.out.println(count+" Sold PE Positions:"+pos);
+//					saleRecord++;
+//					
+//					setCurrentPosition(null);
+//					positionTime=0;
+//					System.out.println("Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit);
+//				}
+				
+				System.out.println("Holding PE:Position profit:"+pos.total()+" Current:"+currentProfit+" Reverse:"+reverseProfit+"--"+getPE_PRICE().getNewPrice().getValue()+"---C+R Profit:"+(currentProfit+reverseProfit));
 				
 			}
 				
@@ -436,6 +464,30 @@ public class ProcessingBlock6 extends ProcessModelAbstract {
 		}
 		
 		return "neither";
+	}
+
+	public String getInitialPosition() {
+		return initialPosition;
+	}
+
+	public void setInitialPosition(String initialPosition) {
+		this.initialPosition = initialPosition;
+	}
+
+	public double getSupport() {
+		return support;
+	}
+
+	public void setSupport(double support) {
+		this.support = support;
+	}
+
+	public double getResistance() {
+		return resistance;
+	}
+
+	public void setResistance(double resistance) {
+		this.resistance = resistance;
 	}
 	
 }
