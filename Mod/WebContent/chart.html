@@ -1,0 +1,63 @@
+<html>
+  <head>
+  	<script src="js/chartdata.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(init);
+
+  var status='start';
+  var current=0;
+  
+  function init(){
+	    var data = google.visualization.arrayToDataTable([
+	                                                      ['', 10450, 10450, 10450, 10450],
+	                                                      // Treat first row as data as well.
+	                                                    ], true);
+       var options = {
+         legend:'none',
+    	 animation:{
+    	      duration: 0,
+    	      easing: 'in',
+    	       },
+    	 vAxis: {minValue:10450, maxValue:10495}
+       };
+       var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
+       
+       chart.draw(data, options);
+       start.onclick = async function() {
+	    	 while(true){
+	               draw(chart,data,dataArray[current],options);
+	               await sleep(1000);
+	    	 }  
+         }
+  }
+  function draw(chart,data,dataArray,options){
+	  if(status=='start'){
+		  current = current+1;
+		  data.addRow(dataArray);
+		  chart.draw(data, options);
+	  }
+  }
+  function sleep(ms) {
+	  return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  function stop(){
+	  status='stop';
+  }
+  function restart(){
+	  status='start';
+  }
+  
+  
+   
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 100%; height: 90%;"></div>
+    
+    <button id="start" style="float:left">Start</button>
+    <button id="stop" onclick="stop()" style="float:right">Stop</button>
+    <button id="restart" onclick="restart()" style="float:right">Restart</button>
+  </body>
+</html>
