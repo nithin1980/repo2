@@ -43,6 +43,10 @@ public class DataSocketServer {
     		DashBoard.kiteProcess.dumpData();
     	}else if("stopkite".equals(message)){
     		DashBoard.kiteProcess.stopProcess();
+    	}else if("startpe".equals(message)){
+    		DashBoard.kiteProcess.startPE();
+    	}else if("stoppe".equals(message)){
+    		DashBoard.kiteProcess.stopPE();
     	}
     }
 

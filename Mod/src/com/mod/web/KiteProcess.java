@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogEntries;
@@ -47,6 +48,14 @@ public class KiteProcess {
 	private String websocketKey;
 	
 	private String destinationUrl;
+	
+	
+	public void startPE(){
+		
+	}
+	public void stopPE(){
+		
+	}
 	
 	public void startProcess(){
 		
@@ -168,7 +177,7 @@ public class KiteProcess {
 	    
 	    driver = new ChromeDriver(capabilities);
 	    
-	    String baseUrl = "https://kite.zerodha.com/";
+	    String baseUrl = "https://kite.zerodha.com";
 	    driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		
 	    driver.navigate().to(baseUrl + "/");
@@ -178,15 +187,30 @@ public class KiteProcess {
 	     * Check first if the login page appears.
 	     */
 	    
-	    driver.findElement(By.name("user_id")).clear();
-	    driver.findElement(By.name("user_id")).sendKeys("DV4051");
-	    driver.findElement(By.id("inputtwo")).clear();
-	    driver.findElement(By.id("inputtwo")).sendKeys("manipal110");
-	    driver.findElement(By.name("login")).click();
+	    
+	    
+	    //driver.findElements(By.cssSelector("input")).get(0).clear();
+	    driver.findElements(By.cssSelector("input")).get(0).sendKeys("DV4051");
+	    //driver.findElements(By.cssSelector("input")).get(1).clear();
+	    driver.findElements(By.cssSelector("input")).get(1).sendKeys("manipal110");
+	    
+//	    driver.findElement(By.name("user_id")).clear();
+//	    driver.findElement(By.name("user_id")).sendKeys("DV4051");
+//	    driver.findElement(By.id("inputtwo")).clear();
+//	    driver.findElement(By.id("inputtwo")).sendKeys("manipal110");
+	    driver.findElements(By.cssSelector("button")).get(0).click();
+	    //driver.findElement(By.name("login")).click();
+	    
+	    try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	    
 	    //find the 2f questions
-	    String question1 = driver.findElements(By.className("first")).get(0).getText();
-	    String question2 = driver.findElements(By.className("second")).get(0).getText();
+	    String question1 = driver.findElements(By.cssSelector("input")).get(0).getAttribute("label");
+	    String question2 = driver.findElements(By.cssSelector("input")).get(1).getAttribute("label");
 	    
 	    String answer1 = "manipal";
 	    String answer2 = "manipal";
@@ -196,16 +220,25 @@ public class KiteProcess {
 	    	answer2 = "2002";
 	    }
 	    
-	    driver.findElement(By.name("answer1")).clear();
-	    driver.findElement(By.name("answer1")).sendKeys(answer1);
-	    driver.findElement(By.name("answer2")).clear();
-	    driver.findElement(By.name("answer2")).sendKeys(answer2);
-	    driver.findElement(By.name("twofa")).click();
+//	    driver.findElement(By.name("answer1")).clear();	
+//	    driver.findElement(By.name("answer1")).sendKeys(answer1);
+//	    driver.findElement(By.name("answer2")).clear();
+//	    driver.findElement(By.name("answer2")).sendKeys(answer2);
+//	    driver.findElement(By.name("twofa")).click();
+	    driver.findElements(By.cssSelector("input")).get(0).sendKeys(answer1);
+	    driver.findElements(By.cssSelector("input")).get(1).sendKeys(answer2);
+	    
+	    driver.findElements(By.cssSelector("button")).get(0).click();
 	    
 	    //go to page 3
-	    driver.findElement(By.linkText("3")).click();
+	  //  driver.findElement(By.linkText("3")).click();
 
-	    
+	    try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}	    
 	    
 	    LogEntries les = driver.manage().logs().get(LogType.PERFORMANCE);
 	    try {
@@ -228,7 +261,7 @@ public class KiteProcess {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	    
-	    
+	  System.out.println();  
 	    
 	}
 }
