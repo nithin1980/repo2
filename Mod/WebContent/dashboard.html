@@ -15,6 +15,7 @@
     <input type="button" value="Stop Kite" onclick="send('stopkite');"/>
 	<input type="button" value="Disconnect" onclick="disconnect();"/>
 
+
 	<div class="table-responsive">
 	<table class="table table-bordered table-condensed">
 		<thead></thead>
@@ -82,6 +83,14 @@
  		
 	</table>
 	</div>
+	
+    <input type="button" value="PE" onclick="send('startpe');"/>
+    <input type="button" value="CE" onclick="send('startce');"/>
+    <input type="button" value="Stop PE" onclick="send('stoppe  ');"/>
+	<input type="button" value="Stop CE" onclick="send('stopce');"/>
+	
+	<input type="button" value="Start Tracking" onclick="send('starttrack');"/>
+	<input type="button" value="Stop Tracking" onclick="send('stoptrack');"/>
 	
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

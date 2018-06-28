@@ -196,6 +196,9 @@ public class CacheService{
 		}
 		
 	}
+	public static void createCandles(){
+		//create candles accordingly......
+	}
 	public static void clearDateDataRecord(){
 		HTreeMap<Double,TDoubleList> options = (HTreeMap<Double,TDoubleList>)date_recording_db.hashMap("date_data_recorder",Serializer.DOUBLE,Serializer.JAVA).createOrOpen();
 		options.clear();

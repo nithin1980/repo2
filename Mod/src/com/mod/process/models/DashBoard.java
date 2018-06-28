@@ -32,6 +32,8 @@ public class DashBoard {
 	
 	public static int allowedSeconds;
 	
+	public static String checkedTime; 
+	
 	
 	public DashBoard() {
 		

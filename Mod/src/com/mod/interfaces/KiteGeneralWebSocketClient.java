@@ -52,9 +52,9 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 		processingModels = new ArrayList<ProcessModelAbstract>();
 //		processingModels.add(new ProcessingBlock());
 //		processingModels.add(new ProcessingBlock2());
-		processingModels.add(new ProcessingBlock6(CacheService.getInstance()));
+//		processingModels.add(new ProcessingBlock6(CacheService.getInstance()));
 		
-		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
+//		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
 		
 	}
 	
@@ -67,7 +67,7 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 //		processingModels.add(new ProcessingBlock2());
 		//processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
 		
-		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
+	//	processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
 	}
 	
 	

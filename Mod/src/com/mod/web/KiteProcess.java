@@ -125,7 +125,7 @@ public class KiteProcess {
 		String url =  appConfig().getKeyValueConfigs().get("time_url");
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet get = new HttpGet(url);
-		
+		GeneralJsonObject jsonObject = null;
 		try {
 			HttpResponse response = client.execute(get);
 			
@@ -137,7 +137,7 @@ public class KiteProcess {
 			while ((line = rd.readLine()) != null) {
 				result.append(line);
 			}
-			GeneralJsonObject jsonObject = ApplicationHelper.getObjectMapper().readValue(result.toString(), GeneralJsonObject.class);
+			jsonObject = ApplicationHelper.getObjectMapper().readValue(result.toString(), GeneralJsonObject.class);
 			
 			System.out.println(jsonObject.getDateTime_24HR());
 		} catch (ClientProtocolException e) {
@@ -152,10 +152,23 @@ public class KiteProcess {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException("Not able to get time"+e);
-		}		
+		}
+		
+		if(jsonObject.getDateTime_24HR()==null){
+			throw new RuntimeException("Not able to get time,as the value is empty. Process stopped");
+		}
+		
+		DashBoard.checkedTime=jsonObject.getDateTime_24HR();
+		
+		
+		
 	}
 	private static ConfigData appConfig(){
 		return ApplicationHelper.Application_Config_Cache.get("app");
+	}
+	
+	private void timeCheck(String time){
+		
 	}
 	
 	private void getkeys(){

@@ -115,7 +115,8 @@ public class Kite {
 	    
 	    
 	  
-	    driver.navigate().to(baseUrl + "/");
+	    //driver.navigate().to(baseUrl + "/");
+	    driver.navigate().to(baseUrl);
 	    windowHandles.put(dashboard,driver.getWindowHandle());
 	    
 	    /**

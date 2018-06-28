@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mod.process.models.CacheService;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.Candle;
 import com.mod.support.GeneralObject;
@@ -17,8 +18,8 @@ public class TestFour {
 		Candle can = new Candle();
 		can.setHigh(9864.5);
 		can.setLow(9863.9);
-		pastCandles.add(can);
-		previousCandle = can;
+		CacheService.pastCandles.add(can);
+		CacheService.previousCandle = can;
 	}
 	/**
 	 * 1.current high
@@ -51,8 +52,8 @@ public class TestFour {
 		double low=0;
 		double close=0;
 		double currentVal=0;
-		double previousLow=previousCandle.getLow();
-		double previousHigh=previousCandle.getHigh();
+		double previousLow=CacheService.previousCandle.getLow();
+		double previousHigh=CacheService.previousCandle.getHigh();
 		double previousClose=0;
 		
 		
@@ -66,20 +67,20 @@ public class TestFour {
 		for(int i=1197;i<6000;i++){
 			currentVal = Double.valueOf(dt1.get(i));
 			
-			bunch(currentVal);
+			ApplicationHelper.bunchValues(currentVal);
 			/***
 			 * TRIGGER
 			 * ---------------------------
 			 */
 			if(count==60){
-				timesUp(currentVal);
+				ApplicationHelper.timesUp(currentVal);
 				count=0;
 				if(alert1){
 					alert2=true;
 				}
 				alert1=false;
-				previousLow=previousCandle.getLow();
-				previousHigh=previousCandle.getHigh();
+				previousLow=CacheService.previousCandle.getLow();
+				previousHigh=CacheService.previousCandle.getHigh();
 			}
 			/**
 			 * --------------------------
@@ -189,32 +190,5 @@ public class TestFour {
 		
 	}
 	
-	private long timer = 0;
-	private static Candle currentCandle=new Candle();
-	private List<Candle> pastCandles = new ArrayList<Candle>();
-	
-	private Candle previousCandle;
-	
-	private void bunch(double value){
-		
-		if(timer==0){
-			timer = System.currentTimeMillis();
-			currentCandle.reset();
-		}
-		
-		currentCandle.populate(value);
-		
-		if((System.currentTimeMillis()-timer)>60000){
-			timesUp(value);
-		}
-	}
-	
-	private void timesUp(double value){
-		timer=0;
-		currentCandle.setClose(value);
-		pastCandles.add(currentCandle);
-		previousCandle = new Candle(currentCandle);
-		currentCandle = new Candle();
-	}
 
 }

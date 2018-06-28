@@ -35,8 +35,10 @@ public class ApplicationHelper {
 	
 	private static long timer = 0;
 	
+	private static long count=0;
 	
-	public void bunchValues(double value){
+	
+	public static void bunchValues(double value){
 		
 		if(timer==0){
 			timer = System.currentTimeMillis();
@@ -50,7 +52,7 @@ public class ApplicationHelper {
 		}
 	}
 	
-	public void timesUp(double value){
+	public static void timesUp(double value){
 		timer=0;
 		CacheService.currentCandle.setClose(value);
 		CacheService.pastCandles.add(CacheService.currentCandle);
@@ -325,7 +327,8 @@ public class ApplicationHelper {
 				
 				@Override
 				public void run() {
-					CacheService.updateNiftyTrend(256265.0);
+//					CacheService.updateNiftyTrend(256265.0);
+//					CacheService.createCandles();
 				}
 			});
 			//Should be asynchronous
@@ -335,15 +338,17 @@ public class ApplicationHelper {
 				/**
 				 * @TODO This should be asynchrous
 				 */
-				if(processingModels.get(i).completedProcess){
-					processingModels.get(i).processNow();
+				if(processingModels!=null && 
+						processingModels.get(i)!=null && 
+						processingModels.get(i).completedProcess){
+					//processingModels.get(i).processNow();
 				}
 				
 			}
 		}else{
 			System.out.println("heart beat data...");
 		}
-		
+		 
 		return quotes;
 	}    
 	
@@ -362,7 +367,7 @@ public class ApplicationHelper {
 				/**
 				 * Need meta data in place before it is triggered.
 				 */
-				
+				System.out.println(count++ +","+ltpObject.getInstrumentToken()+","+ltpObject.getLtp().doubleValue());
 				
 			}
 			
