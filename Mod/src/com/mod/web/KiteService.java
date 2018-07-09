@@ -13,12 +13,16 @@ public class KiteService {
 	
 	public static void orderPE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
+		String position_size = ApplicationHelper.modeConfig("pmodel10").getKeyValueConfigs().get("position_size");
+		
 		double pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
 		groupPosition.getPePositions().add(new Position("PE", 100.00,CacheService.PRICE_LIST.get(pe_id)));
 		orderInterface.orderKiteOption(null);
 	}
 	public static void orderCE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
+		String position_size = ApplicationHelper.modeConfig("pmodel10").getKeyValueConfigs().get("position_size");
+		
 		double ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
 		groupPosition.getCePositions().add(new Position("CE", 100.00,CacheService.PRICE_LIST.get(ce_id)));
 		orderInterface.orderKiteOption(null);

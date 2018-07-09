@@ -352,7 +352,6 @@ public class ApplicationHelper {
 				/**
 				 * @TODO This should be asynchrous
 				 */
-				System.out.println("Process compelted:"+processingModels.get(i).completedProcess);
 				if(processingModels!=null && 
 						processingModels.get(i)!=null && 
 						processingModels.get(i).completedProcess){

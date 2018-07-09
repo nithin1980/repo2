@@ -29,6 +29,7 @@ public class Position {
 	//private double profit=0.0;
 	
 	private double expense;
+	private double maxcost;
 	
 	private String name;
 	
@@ -92,6 +93,14 @@ public class Position {
 		setBuy(buy);
 		setName(name);
 	}
+	public Position(String name,double expense,double buy,double maxcost) {
+		// TODO Auto-generated constructor stub
+		setExpense(expense);
+		setBuy(buy);
+		setName(name);
+		setMaxCost(maxcost);
+	}
+	
 	public Position(String name,double expense,double buy,int size) {
 		// TODO Auto-generated constructor stub
 		setExpense(expense);
@@ -164,8 +173,11 @@ public class Position {
 		setBracketLowHigherValue(new ValueTime(getBracketLow().getTime(), getBracketLow().getValue()+spread));
 	}
 	public int size(){
-		if(size==0){
-			return (int) (20000/buy);
+		if(size==0 && maxcost!=0){
+			return (int) (maxcost/buy);
+		}
+		if(maxcost==0 && size==0){
+			return (int)(20000/buy);
 		}
 		
 		return size;
@@ -466,6 +478,14 @@ public class Position {
 
 	public void setHighValRecord(int highValRecord) {
 		this.highValRecord = highValRecord;
+	}
+
+	public double getMaxCost() {
+		return maxcost;
+	}
+
+	public void setMaxCost(double cost) {
+		this.maxcost = cost;
 	}
 	
 	
