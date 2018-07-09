@@ -1,14 +1,8 @@
 package com.mod.process.models;
 
-import gnu.trove.list.TDoubleList;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-
-import sun.security.util.PendingException;
-import static org.junit.Assert.*;
 
 import com.mod.objects.Action;
 import com.mod.objects.GroupPosition;
@@ -16,6 +10,8 @@ import com.mod.objects.Position;
 import com.mod.objects.ScriptData;
 import com.mod.objects.ValueTime;
 import com.mod.support.ApplicationHelper;
+
+import gnu.trove.list.TDoubleList;
 
 public class ProcessingBlock4 extends ProcessModelAbstract {
 

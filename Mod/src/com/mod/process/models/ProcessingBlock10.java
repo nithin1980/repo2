@@ -2,8 +2,6 @@ package com.mod.process.models;
 
 import java.util.List;
 
-import org.apache.commons.net.ntp.NTPUDPClient;
-
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
 

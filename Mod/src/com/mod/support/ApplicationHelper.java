@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,6 +37,27 @@ public class ApplicationHelper {
 	private static long timer = 0;
 	
 	private static long count=0;
+	
+	static final Properties prop = new Properties();
+	
+	static {
+		try {
+			prop.load(ApplicationHelper.class.getResourceAsStream("app.properties"));
+			System.out.println("Properties loaded:"+prop.containsKey("driver.location"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public ApplicationHelper() {
+		// TODO Auto-generated constructor stub
+	} 
+		
+	public static String getProperty(String key) {
+		return (String)prop.get(key);
+	}
 	
 	public static ConfigData appConfig(){
 		return ApplicationHelper.Application_Config_Cache.get("app");

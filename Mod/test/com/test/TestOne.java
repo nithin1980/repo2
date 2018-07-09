@@ -1,15 +1,11 @@
 package com.test;
 
-import gnu.trove.list.TDoubleList;
-import gnu.trove.list.array.TDoubleArrayList;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.catalina.tribes.io.DirectByteArrayOutputStream;
 import org.junit.Test;
 
 import com.mod.datafeeder.DataFeed;
@@ -20,6 +16,9 @@ import com.mod.process.models.CacheService;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
 import com.mod.support.XMLParsing;
+
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 public class TestOne {
 	private static CountDownLatch latch;

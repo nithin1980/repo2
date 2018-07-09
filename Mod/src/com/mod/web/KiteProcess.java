@@ -1,8 +1,5 @@
 package com.mod.web;
 
-import gnu.trove.list.TDoubleList;
-import gnu.trove.list.array.TDoubleArrayList;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,7 +17,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogEntries;
@@ -30,8 +26,8 @@ import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.gson.JsonParseException;
 import com.mod.datafeeder.DataFeed;
 import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
@@ -43,6 +39,9 @@ import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
 import com.mod.support.GeneralJsonObject;
 import com.mod.support.XMLParsing;
+
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 public class KiteProcess {
 	
@@ -81,7 +80,7 @@ public class KiteProcess {
 		
 		getkeys();
 		
-		ConfigData configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/app.config");
+		ConfigData configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"app.config");
 
 		configData.getKeyValueConfigs().put("Sec-WebSocket-Key",websocketKey);
 		configData.getKeyValueConfigs().put("destination_url",destinationUrl);
@@ -91,19 +90,19 @@ public class KiteProcess {
 		
 		ApplicationHelper.Application_Config_Cache.put("app", configData);
 
-		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/genwsclient.config");
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"genwsclient.config");
 		ApplicationHelper.Application_Config_Cache.put("mode1", configData);
 		
-		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel5.config");
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel5.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel5", configData);
 		
-		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel6.config");
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel6.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel6", configData);
 
-		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel7.config");
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel7.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel7", configData);
 
-		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel10.config");
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel10.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel10", configData);
 		
 		setDashboardPosition();
@@ -205,7 +204,7 @@ public class KiteProcess {
 		WebDriver driver =  null;
 		Map<String,String> windowHandles = new HashMap<String, String>();
 		
-		System.setProperty("webdriver.chrome.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", ApplicationHelper.getProperty("driver.location")+"Mod/WebContent/WEB-INF/lib/chromedriver.exe");
 	    DesiredCapabilities capabilities = new DesiredCapabilities();
 		
 	    ChromeOptions options = new ChromeOptions();
