@@ -22,6 +22,7 @@ import com.mod.datafeeder.DataFeed;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.ProcessModelAbstract;
 import com.mod.process.models.ProcessingBlock;
+import com.mod.process.models.ProcessingBlock10;
 import com.mod.process.models.ProcessingBlock2;
 import com.mod.process.models.ProcessingBlock3;
 import com.mod.process.models.ProcessingBlock5;
@@ -55,6 +56,7 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 //		processingModels.add(new ProcessingBlock6(CacheService.getInstance()));
 		
 //		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
+		processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
 		
 	}
 	
@@ -67,7 +69,7 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 //		processingModels.add(new ProcessingBlock2());
 		//processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
 		
-	//	processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
+		processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
 	}
 	
 	

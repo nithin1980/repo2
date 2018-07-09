@@ -9,6 +9,9 @@ import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.NtpV3Packet;
 import org.apache.commons.net.ntp.TimeInfo;
 
+import com.mod.objects.GroupPosition;
+import com.mod.objects.Position;
+
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -43,25 +46,13 @@ public class TestFive {
 //		}
 //	}		
 		
-	try {
-		//String TIME_SERVER = "nist1-ny.ustiming.org";
-		String TIME_SERVER = "time-a-g.nist.gov";
+		GroupPosition pos = new GroupPosition();
+		System.out.println(pos.overallProfPer(17.25, 15.25));
+		pos.getPePositions().add(new Position("PE", 100.00, 15));
+		//pos.getCePositions().add(new Position("CE", 100.00, 17));
+		System.out.println(pos.overallProfPer(15, 15.25));
 		
-		NTPUDPClient timeClient = new NTPUDPClient();
-		InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
-		TimeInfo timeInfo = timeClient.getTime(inetAddress);
-		NtpV3Packet message = timeInfo.getMessage();
-		long serverTime = message.getTransmitTimeStamp().getTime();
-		Date time = new Date(serverTime);
-		System.out.println("Time from " + TIME_SERVER + ": " + time);
-	} catch (UnknownHostException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-
+		
 	}
 	private void first(){
 		//track first mnt and hold off for the next opp.

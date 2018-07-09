@@ -47,6 +47,12 @@ public class DataSocketServer {
     		DashBoard.kiteProcess.startPE();
     	}else if("stoppe".equals(message)){
     		DashBoard.kiteProcess.stopPE();
+    	}else if("both".equals(message)){
+    		DashBoard.kiteProcess.bothPE_CE();
+    	}else if("startce".equals(message)){
+    		DashBoard.kiteProcess.startCE();
+    	}else if("stopce".equals(message)){
+    		DashBoard.kiteProcess.stopCE();
     	}
     }
 

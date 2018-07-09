@@ -37,6 +37,20 @@ public class ApplicationHelper {
 	
 	private static long count=0;
 	
+	public static ConfigData appConfig(){
+		return ApplicationHelper.Application_Config_Cache.get("app");
+	}
+	public static ConfigData modeConfig(String modelId){
+		return ApplicationHelper.Application_Config_Cache.get(modelId);
+	}
+	public static double getPositionId(String modelID,String key){
+		String val = modeConfig(modelID).getKeyValueConfigs().get(key);
+		if(val==null){
+			throw new RuntimeException("Position must be set up:"+key);
+		}
+		return Double.valueOf(val);
+		
+	}	
 	
 	public static void bunchValues(double value){
 		
@@ -338,10 +352,11 @@ public class ApplicationHelper {
 				/**
 				 * @TODO This should be asynchrous
 				 */
+				System.out.println("Process compelted:"+processingModels.get(i).completedProcess);
 				if(processingModels!=null && 
 						processingModels.get(i)!=null && 
 						processingModels.get(i).completedProcess){
-					//processingModels.get(i).processNow();
+					processingModels.get(i).processNow();
 				}
 				
 			}

@@ -1,5 +1,7 @@
 package com.mod.process.models;
 
+import java.util.List;
+
 import org.apache.commons.net.ntp.NTPUDPClient;
 
 import com.mod.objects.GroupPosition;
@@ -13,6 +15,11 @@ public class ProcessingBlock10 extends ProcessModelAbstract {
 	
     private String openingState;
     
+	public ProcessingBlock10(CacheService cacheService) {
+		super();
+		setCacheService(cacheService);
+	}    
+    
 	@Override
 	public String modelid() {
 		// TODO Auto-generated method stub
@@ -25,6 +32,9 @@ public class ProcessingBlock10 extends ProcessModelAbstract {
 
 		//getCE_PRICE().getNewPrice()
 		//getCE_PRICE().getCurrentPrice()
+		
+		completedProcess=false;
+		
 		GroupPosition groupPosition = DashBoard.positionMap.get(modelid());
 		
 		stateCheck();
@@ -39,24 +49,7 @@ public class ProcessingBlock10 extends ProcessModelAbstract {
 							System.out.println("entry pe.. at:"+getPE_PRICE().getNewPrice().getValue());
 							groupPosition.getPePositions().add(new Position("PE", 100.00, getPE_PRICE().getNewPrice().getValue()));
 						}
-//						else{
-//							System.out.println("reverse entry pe.. at:"+getPE_PRICE().getNewPrice().getValue());
-//							getCurrentPosition().setReversePosition(new Position("PE", 100.00, getPE_PRICE().getNewPrice().getValue()));
-//						}
 					}
-					
-//					if(entry(prev_ce, getCE_PRICE().getCurrentPrice().getValue(), getCE_PRICE().getNewPrice().getValue())){
-//						
-//						
-//						if(getCurrentPosition()==null){
-//							System.out.println("entry ce.. at:"+getCE_PRICE().getNewPrice().getValue());
-//							setCurrentPosition(new Position("CE", 100.00, getCE_PRICE().getNewPrice().getValue()));
-//						}else{
-//							System.out.println("reverse entry ce.. at:"+getCE_PRICE().getNewPrice().getValue());
-//							getCurrentPosition().setReversePosition(new Position("CE", 100.00, getCE_PRICE().getNewPrice().getValue()));
-//						}
-//					}
-					
 					break;
 				case ObservedState.DOWN_LOW:
 					if(entry(prev_ce, getCE_PRICE().getCurrentPrice().getValue(), getCE_PRICE().getNewPrice().getValue())){
@@ -80,6 +73,15 @@ public class ProcessingBlock10 extends ProcessModelAbstract {
 			}	
 //			if(entry(prevDay, prevVal, currentVal))
 		}
+		groupPosition.assignCESell(getCacheService().PRICE_LIST.get(getCE_PRICE().getId()));
+		groupPosition.assignPESell(getCacheService().PRICE_LIST.get(getPE_PRICE().getId()));
+		List<String> peInfo = groupPosition.peInfo();
+		List<String> ceInfo = groupPosition.ceInfo();
+		System.out.println("PE so far:"+peInfo.get(0)+","+peInfo.get(1)+","+peInfo.get(2));
+		System.out.println("CE so far:"+ceInfo.get(0)+","+ceInfo.get(1)+","+ceInfo.get(2));
+		System.out.println("Total:"+(Double.valueOf(peInfo.get(2))+Double.valueOf(ceInfo.get(2))));
+		
+		completedProcess=true;
 	}
 	/**
 	 * Check the opening value and see if 
@@ -103,6 +105,11 @@ public class ProcessingBlock10 extends ProcessModelAbstract {
 				}
 			}
 		}
+		
+		/**
+		 * Remove this..only for testing...should not be null during normal ops.
+		 */
+		openingState=null;
 	}
 	private boolean entry(double prevDay,double prevVal,double currentVal){
 		if(prevVal==0){

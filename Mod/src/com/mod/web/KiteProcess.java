@@ -36,6 +36,7 @@ import com.mod.datafeeder.DataFeed;
 import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.CacheMetaData;
+import com.mod.objects.GroupPosition;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.DashBoard;
 import com.mod.support.ApplicationHelper;
@@ -51,9 +52,28 @@ public class KiteProcess {
 	
 	
 	public void startPE(){
-		
+		try {
+			KiteService.orderPE();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void startCE(){
+		try {
+			KiteService.orderCE();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void bothPE_CE(){
+		KiteService.orderBoth();
 	}
 	public void stopPE(){
+		
+	}
+	public void stopCE(){
 		
 	}
 	
@@ -82,6 +102,11 @@ public class KiteProcess {
 
 		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel7.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel7", configData);
+
+		configData = XMLParsing.readAppConfig("C:/Users/nkumar/git/repo1/master/Mod/resource/pmodel10.config");
+		ApplicationHelper.Application_Config_Cache.put("pmodel10", configData);
+		
+		setDashboardPosition();
 		
 		KiteStockConverter.build();
 		
@@ -94,6 +119,11 @@ public class KiteProcess {
 		DashBoard.setKiteGenerlWebSocketClient(new KiteGeneralWebSocketClient());
 		DashBoard.kiteWebSocketClient.connect();
 		
+	}
+	private void setDashboardPosition(){
+		for(int i=1;i<11;i++){
+			DashBoard.positionMap.put("pmodel"+i, new GroupPosition());
+		}
 	}
 	public void dumpData(){
 		System.out.println("Saving data....");
