@@ -11,20 +11,41 @@ public class KiteService {
 
 	private static final Order orderInterface = new Order();
 	
+	private static double positionVal(String modelKey){
+		return Double.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("position_val"));
+	}
+	private static int lotsize(String modelKey){
+		return Integer.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("lot_size"));
+	}
 	public static void orderPE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
-		String position_size = ApplicationHelper.modeConfig("pmodel10").getKeyValueConfigs().get("position_size");
 		
+		double position_val = positionVal("pmodel10");
+		int lot_size = lotsize("pmodel10");
 		double pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
-		groupPosition.getPePositions().add(new Position("PE", 100.00,CacheService.PRICE_LIST.get(pe_id)));
+		double cost = CacheService.PRICE_LIST.get(pe_id);
+		
+		int size = (int)(Double.valueOf(position_val)/(cost*lot_size));
+		size=size*lot_size;
+		
+		groupPosition.getPePositions().add(new Position("PE", 100.00,cost,size));
+		
 		orderInterface.orderKiteOption(null);
 	}
 	public static void orderCE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
-		String position_size = ApplicationHelper.modeConfig("pmodel10").getKeyValueConfigs().get("position_size");
+
+		double position_val = positionVal("pmodel10");
+		int lot_size = lotsize("pmodel10");
 		
 		double ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
-		groupPosition.getCePositions().add(new Position("CE", 100.00,CacheService.PRICE_LIST.get(ce_id)));
+		double cost = CacheService.PRICE_LIST.get(ce_id);
+
+		int size = (int)(Double.valueOf(position_val)/(cost*lot_size));
+		size=size*lot_size;
+		
+		groupPosition.getCePositions().add(new Position("CE", 100.00,cost,size));
+		
 		orderInterface.orderKiteOption(null);
 	}
 	public static void orderBoth() throws RuntimeException{
