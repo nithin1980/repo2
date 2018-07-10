@@ -403,7 +403,7 @@ public class ApplicationHelper {
 				/**
 				 * Need meta data in place before it is triggered.
 				 */
-				System.out.println(count++ +","+ltpObject.getInstrumentToken()+","+ltpObject.getLtp().doubleValue());
+				//System.out.println(count++ +","+ltpObject.getInstrumentToken()+","+ltpObject.getLtp().doubleValue());
 				
 			}
 			
