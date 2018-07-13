@@ -6,6 +6,7 @@ import com.mod.order.Order;
 import com.mod.process.models.CacheService;
 import com.mod.process.models.DashBoard;
 import com.mod.support.ApplicationHelper;
+import com.sun.javafx.css.CalculatedValue;
 
 public class KiteService {
 
@@ -17,6 +18,16 @@ public class KiteService {
 	private static int lotsize(String modelKey){
 		return Integer.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("lot_size"));
 	}
+	private static int calculateSize(double position_val,double cost,int lot_size ){
+		int size = (int)(position_val/cost);
+		
+		if(((size+10)/lot_size)-(size/lot_size)==1){
+			return (size+10)/lot_size;
+		}else{
+			return size/lot_size;
+		}
+		
+	}
 	public static void orderPE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
 		
@@ -25,13 +36,16 @@ public class KiteService {
 		double pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
 		double cost = CacheService.PRICE_LIST.get(pe_id);
 		
-		int size = (int)(Double.valueOf(position_val)/(cost*lot_size));
+		int size = calculateSize(position_val, cost, lot_size); 
+				
+				//(int)(Double.valueOf(position_val)/(cost*lot_size));
 		size=size*lot_size;
 		
 		groupPosition.getPePositions().add(new Position("PE", 100.00,cost,size));
 		
 		orderInterface.orderKiteOption(null);
 	}
+	
 	public static void orderCE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
 
@@ -41,7 +55,8 @@ public class KiteService {
 		double ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
 		double cost = CacheService.PRICE_LIST.get(ce_id);
 
-		int size = (int)(Double.valueOf(position_val)/(cost*lot_size));
+		int size =calculateSize(position_val, cost, lot_size); 
+				//(int)(Double.valueOf(position_val)/(cost*lot_size));
 		size=size*lot_size;
 		
 		groupPosition.getCePositions().add(new Position("CE", 100.00,cost,size));

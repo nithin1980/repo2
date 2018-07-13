@@ -20,6 +20,7 @@ import javax.websocket.WebSocketContainer;
 
 import com.mod.datafeeder.DataFeed;
 import com.mod.process.models.CacheService;
+import com.mod.process.models.DashBoard;
 import com.mod.process.models.ProcessModelAbstract;
 import com.mod.process.models.ProcessingBlock;
 import com.mod.process.models.ProcessingBlock10;
@@ -126,6 +127,8 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 				long currentIncrementedTime = DataFeed.incrementTime();
 				ApplicationHelper.parseBuffer(data, String.valueOf(currentIncrementedTime),processingModels,parserModeLtp);
 				System.out.println("Time taken:"+(System.currentTimeMillis()-t));
+				//log last transacted time
+				DashBoard.lastRecordTime=System.currentTimeMillis();
 				
 			}
 			
