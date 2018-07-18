@@ -104,6 +104,9 @@ public class KiteProcess {
 
 		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel10.config");
 		ApplicationHelper.Application_Config_Cache.put("pmodel10", configData);
+
+		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel11.config");
+		ApplicationHelper.Application_Config_Cache.put("pmodel11", configData);
 		
 		setDashboardPosition();
 		

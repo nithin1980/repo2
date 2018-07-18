@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.NtpV3Packet;
@@ -44,13 +48,17 @@ public class TestFive {
 //			}
 //
 //		}
-//	}		
-		
-		GroupPosition pos = new GroupPosition();
-		System.out.println(pos.overallProfPer(17.25, 15.25));
-		pos.getPePositions().add(new Position("PE", 100.00, 15));
-		//pos.getCePositions().add(new Position("CE", 100.00, 17));
-		System.out.println(pos.overallProfPer(15, 15.25));
+//	}	
+		double position_val=13941;
+		double cost=151.5;
+		int lot_size=40;
+		int size = (int)(position_val/cost);
+		System.out.println(((size+10)/lot_size)-(size/lot_size));
+		if(((size+10)/lot_size)-(size/lot_size)==1){
+			System.out.println((size+10)/lot_size);
+		}else{
+			System.out.println(size/lot_size);
+		}
 		
 		
 	}

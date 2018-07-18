@@ -10,6 +10,8 @@ import com.mod.support.ConfigData;
 public class KiteStockConverter {
 	
 	public static final Map<Double, String> KITE_STOCK_LIST = new HashMap<Double, String>();
+	public static final Map<Double, String> BN_PE_LIST = new HashMap<Double, String>();
+	public static final Map<Double, String> BN_CE_LIST = new HashMap<Double, String>();
 	
 	
 	private static ConfigData appConfig(){
@@ -30,6 +32,12 @@ public class KiteStockConverter {
 		for(int i=0;i<size;i++){
 			values = values(data.get(i));
 			KITE_STOCK_LIST.put(Double.valueOf(values[0]), values[1]);
+			if(values[1].contains("BANKNIFTY") && values[1].contains("CE")){
+				BN_CE_LIST.put(Double.valueOf(values[0]), values[1]);
+			}
+			if(values[1].contains("BANKNIFTY") && values[1].contains("PE")){
+				BN_PE_LIST.put(Double.valueOf(values[0]), values[1]);
+			}
 		}
 	}
 	
