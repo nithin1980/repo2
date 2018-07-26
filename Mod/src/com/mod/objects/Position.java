@@ -23,6 +23,7 @@ public class Position {
 //	public static final String ENTERED_POSITION = "ENTERED_POSITION";
 	
 	
+	private double id;
 	
 	private double buy=0.0;
 	private double sell=0.0;
@@ -87,6 +88,14 @@ public class Position {
 		// TODO Auto-generated constructor stub
 		setExpense(expense);
 	}
+	public Position(double id,String name,double expense,double buy) {
+		// TODO Auto-generated constructor stub
+		setExpense(expense);
+		setBuy(buy);
+		setName(name);
+		setId(id);
+	}
+	
 	public Position(String name,double expense,double buy) {
 		// TODO Auto-generated constructor stub
 		setExpense(expense);
@@ -107,6 +116,14 @@ public class Position {
 		setBuy(buy);
 		setSize(size);
 		setName(name);
+	}
+	public Position(double id,String name,double expense,double buy,int size) {
+		// TODO Auto-generated constructor stub
+		setExpense(expense);
+		setBuy(buy);
+		setSize(size);
+		setName(name);
+		setId(id);
 	}
 	
 	public Position(Position localPosition) {
@@ -486,6 +503,14 @@ public class Position {
 
 	public void setMaxCost(double cost) {
 		this.maxcost = cost;
+	}
+
+	public double getId() {
+		return id;
+	}
+
+	public void setId(double id) {
+		this.id = id;
 	}
 	
 	

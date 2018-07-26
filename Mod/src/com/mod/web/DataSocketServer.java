@@ -53,7 +53,13 @@ public class DataSocketServer {
     		DashBoard.kiteProcess.startCE();
     	}else if("stopce".equals(message)){
     		DashBoard.kiteProcess.stopCE();
+    	}else if("bothranged".equals(message)){
+    		DashBoard.kiteProcess.bothEquals();
+    	}else if("combination".equals(message)){
+    		DashBoard.kiteProcess.combination();
     	}
+    	
+    	
     }
 
 

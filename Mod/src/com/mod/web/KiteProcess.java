@@ -69,6 +69,12 @@ public class KiteProcess {
 	public void bothPE_CE(){
 		KiteService.orderBoth();
 	}
+	public void bothEquals(){
+		KiteService.orderEquals();
+	}
+	public void combination(){
+		KiteService.orderCombination();
+	}
 	public void stopPE(){
 		
 	}
@@ -90,23 +96,31 @@ public class KiteProcess {
 		
 		ApplicationHelper.Application_Config_Cache.put("app", configData);
 
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"genwsclient.config");
-		ApplicationHelper.Application_Config_Cache.put("mode1", configData);
-		
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel5.config");
-		ApplicationHelper.Application_Config_Cache.put("pmodel5", configData);
-		
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel6.config");
-		ApplicationHelper.Application_Config_Cache.put("pmodel6", configData);
+//		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"genwsclient.config");
+//		ApplicationHelper.Application_Config_Cache.put("mode1", configData);
+//		
+//		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel5.config");
+//		ApplicationHelper.Application_Config_Cache.put("pmodel5", configData);
+//		
+//		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel6.config");
+//		ApplicationHelper.Application_Config_Cache.put("pmodel6", configData);
+//
+//		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel7.config");
+//		ApplicationHelper.Application_Config_Cache.put("pmodel7", configData);
+//
+//		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel10.config");
+//		ApplicationHelper.Application_Config_Cache.put("pmodel10", configData);
 
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel7.config");
-		ApplicationHelper.Application_Config_Cache.put("pmodel7", configData);
-
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel10.config");
-		ApplicationHelper.Application_Config_Cache.put("pmodel10", configData);
-
-		configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"pmodel11.config");
-		ApplicationHelper.Application_Config_Cache.put("pmodel11", configData);
+		ApplicationHelper.placeConfig("genwsclient");
+		ApplicationHelper.placeConfig("pmodel5");
+		ApplicationHelper.placeConfig("pmodel6");
+		ApplicationHelper.placeConfig("pmodel7");
+		ApplicationHelper.placeConfig("pmodel10");
+		ApplicationHelper.placeConfig("pmodel11");
+		ApplicationHelper.placeConfig("pmodel12");
+		ApplicationHelper.placeConfig("pmodel13");
+		ApplicationHelper.placeConfig("pmodel14");
+		ApplicationHelper.placeConfig("pmodel15");
 		
 		setDashboardPosition();
 		
@@ -116,14 +130,14 @@ public class KiteProcess {
 		CacheService.addMetaDataToDateRecording("group1", metadata());
 		CacheService.initializeDataArray(initialSetup());
 		
-		setApplicableTime();
-		
+		//setApplicableTime();
+		DashBoard.enableStatusCheck();
 		DashBoard.setKiteGenerlWebSocketClient(new KiteGeneralWebSocketClient());
 		DashBoard.kiteWebSocketClient.connect();
 		
 	}
 	private void setDashboardPosition(){
-		for(int i=1;i<11;i++){
+		for(int i=1;i<20;i++){
 			DashBoard.positionMap.put("pmodel"+i, new GroupPosition());
 		}
 	}
@@ -237,7 +251,7 @@ public class KiteProcess {
 	    //driver.findElements(By.cssSelector("input")).get(0).clear();
 	    driver.findElements(By.cssSelector("input")).get(0).sendKeys("DV4051");
 	    //driver.findElements(By.cssSelector("input")).get(1).clear();
-	    driver.findElements(By.cssSelector("input")).get(1).sendKeys("manipal110");
+	    driver.findElements(By.cssSelector("input")).get(1).sendKeys("manipal111");
 	    
 //	    driver.findElement(By.name("user_id")).clear();
 //	    driver.findElement(By.name("user_id")).sendKeys("DV4051");

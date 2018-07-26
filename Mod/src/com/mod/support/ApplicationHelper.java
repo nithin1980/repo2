@@ -54,7 +54,30 @@ public class ApplicationHelper {
 	public ApplicationHelper() {
 		// TODO Auto-generated constructor stub
 	} 
+	
+	public static double[] getPriceRange(String model) {
+		ConfigData configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+model+".config");
 		
+		double[] ranges = new double[4];
+		String val = configData.getKeyValueConfigs().get("ce_range");
+		String[] vals = val.split("\\,");
+		ranges[0] = Double.valueOf(vals[0]);
+		ranges[1] = Double.valueOf(vals[1]);
+		
+		val = configData.getKeyValueConfigs().get("pe_range");
+		vals = val.split("\\,");
+		ranges[2] = Double.valueOf(vals[0]);
+		ranges[3] = Double.valueOf(vals[1]);
+		
+		Application_Config_Cache.put(model, configData);
+		
+		return ranges;
+	}
+	public static void placeConfig(String model) {
+		ConfigData configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+model+".config");
+		Application_Config_Cache.put(model, configData);
+		
+	}
 	public static String getProperty(String key) {
 		return (String)prop.get(key);
 	}

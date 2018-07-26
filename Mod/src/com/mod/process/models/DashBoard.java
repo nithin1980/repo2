@@ -28,7 +28,7 @@ public class DashBoard {
 	public static long lastRecordTime=0;
 	
 	
-	public DashBoard() {
+	public static void enableStatusCheck() {
 		System.out.println("Enable status check..");
 		ScheduledExecutorService threadService = Executors.newSingleThreadScheduledExecutor();
 		Runnable command = new Runnable() {

@@ -89,7 +89,7 @@ public abstract class ProcessModelAbstract {
 		return Double.valueOf(val);
 	}
 
-	private double getPositionId(String key){
+	protected double getPositionId(String key){
 		String val = modeConfig().getKeyValueConfigs().get(key);
 		if(val==null){
 			throw new RuntimeException("Position must be set up:"+key);

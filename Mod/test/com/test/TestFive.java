@@ -15,6 +15,9 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
+import com.mod.process.models.CacheService;
+import com.mod.process.models.DashBoard;
+import com.mod.support.ApplicationHelper;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -48,20 +51,49 @@ public class TestFive {
 //			}
 //
 //		}
+		
 //	}	
-		double position_val=13941;
-		double cost=151.5;
-		int lot_size=40;
-		int size = (int)(position_val/cost);
-		System.out.println(((size+10)/lot_size)-(size/lot_size));
-		if(((size+10)/lot_size)-(size/lot_size)==1){
-			System.out.println((size+10)/lot_size);
-		}else{
-			System.out.println(size/lot_size);
+		ApplicationHelper.placeConfig("pmodel11");
+		double position_val = positionVal("pmodel11");
+		int lot_size = lotsize("pmodel11");
+		
+		double[] ranges = ApplicationHelper.getPriceRange("pmodel11");
+		System.out.println();
+		double minPrice = ranges[2];
+		double maxPrice= ranges[3];
+		
+		GroupPosition groupPosition = new GroupPosition();
+		
+		double cost = 39;
+		Double key = null;
+		int size=0;
+		if(cost>minPrice && cost<maxPrice ){
+			//cost = CacheService.PRICE_LIST.get(key);
+			size =calculateSize(position_val, cost, lot_size);
+			size=size*lot_size;
+			groupPosition.getCePositions().add(new Position("CE", 100.00,cost,size));
+		//	ApplicationHelper.modeConfig("pmodel11").getKeyValueConfigs().put("ce_id", String.valueOf(key.doubleValue()));
+			
 		}
 		
+	}
+	private static double positionVal(String modelKey){
+		return Double.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("position_val"));
+	}
+	private static int lotsize(String modelKey){
+		return Integer.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("lot_size"));
+	}
+	private static int calculateSize(double position_val,double cost,int lot_size ){
+		int size = (int)(position_val/cost);
+		
+		if(((size+10)/lot_size)-(size/lot_size)==1){
+			return (size+10)/lot_size;
+		}else{
+			return size/lot_size;
+		}
 		
 	}
+	
 	private void first(){
 		//track first mnt and hold off for the next opp.
 	}

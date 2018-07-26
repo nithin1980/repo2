@@ -5,7 +5,7 @@ import java.util.List;
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
 
-public class ProcessingBlock11 extends ProcessModelAbstract {
+public class ProcessingBlock12 extends ProcessModelAbstract {
 
 	private double prev_pe=Double.valueOf(modeConfig().getKeyValueConfigs().get("prev_pe"));
 	private double prev_ce=Double.valueOf(modeConfig().getKeyValueConfigs().get("prev_ce"));
@@ -13,7 +13,7 @@ public class ProcessingBlock11 extends ProcessModelAbstract {
 	
     private String openingState;
     
-	public ProcessingBlock11(CacheService cacheService) {
+	public ProcessingBlock12(CacheService cacheService) {
 		super();
 		setCacheService(cacheService);
 	}    
@@ -21,7 +21,7 @@ public class ProcessingBlock11 extends ProcessModelAbstract {
 	@Override
 	public String modelid() {
 		// TODO Auto-generated method stub
-		return "pmodel11";
+		return "pmodel12";
 	}
 	
 	@Override
@@ -36,49 +36,14 @@ public class ProcessingBlock11 extends ProcessModelAbstract {
 		try {
 			GroupPosition groupPosition = DashBoard.positionMap.get(modelid());
 			
-			stateCheck();
-			
-			if(getCurrentPosition()==null && openingState!=null){
-			    switch (openingState) {
-					case ObservedState.UP_HIGH:
-						//ce opens very high. may go down. objective catch at lower value.
-						//pe low and may go down. 
-						if(entry(prev_pe, getPE_PRICE().getCurrentPrice().getValue(), getPE_PRICE().getNewPrice().getValue())){
-							if(getCurrentPosition()==null){
-								System.out.println("entry pe.. at:"+getPE_PRICE().getNewPrice().getValue());
-								groupPosition.getPePositions().add(new Position("PE", 100.00, getPE_PRICE().getNewPrice().getValue()));
-							}
-						}
-						break;
-					case ObservedState.DOWN_LOW:
-						if(entry(prev_ce, getCE_PRICE().getCurrentPrice().getValue(), getCE_PRICE().getNewPrice().getValue())){
-							if(getCurrentPosition()==null){
-								System.out.println("entry ce.. at:"+getCE_PRICE().getNewPrice().getValue());
-								groupPosition.getCePositions().add(new Position("CE", 100.00, getCE_PRICE().getNewPrice().getValue()));
-							}
-						}
-						break;
-					case ObservedState.UP_FLAT:
-						groupPosition.getPePositions().add(new Position("PE", 100.00, getPE_PRICE().getNewPrice().getValue()));
-						groupPosition.getCePositions().add(new Position("CE", 100.00, getCE_PRICE().getNewPrice().getValue()));
-						break;
-					case ObservedState.DOWN_FLAT:
-						groupPosition.getPePositions().add(new Position("PE", 100.00, getPE_PRICE().getNewPrice().getValue()));
-						groupPosition.getCePositions().add(new Position("CE", 100.00, getCE_PRICE().getNewPrice().getValue()));
-						break;
 
-					default:
-						break;
-				}	
-//			if(entry(prevDay, prevVal, currentVal))
-			}
 			groupPosition.assignCESell(getCacheService().PRICE_LIST.get(getPositionId("ce_id")));
 			groupPosition.assignPESell(getCacheService().PRICE_LIST.get(getPositionId("pe_id")));
 			List<String> peInfo = groupPosition.peInfo();
 			List<String> ceInfo = groupPosition.ceInfo();
-			System.out.println("Model 11,PE so far:"+peInfo.get(0)+","+peInfo.get(1)+","+peInfo.get(2));
-			System.out.println("Model 11,CE so far:"+ceInfo.get(0)+","+ceInfo.get(1)+","+ceInfo.get(2));
-			System.out.println("Model 11,Total:"+(Double.valueOf(peInfo.get(2))+Double.valueOf(ceInfo.get(2))));
+			System.out.println("Model 12,PE so far:"+peInfo.get(0)+","+peInfo.get(1)+","+peInfo.get(2));
+			System.out.println("Model 12,CE so far:"+ceInfo.get(0)+","+ceInfo.get(1)+","+ceInfo.get(2));
+			System.out.println("Model 12,Total:"+(Double.valueOf(peInfo.get(2))+Double.valueOf(ceInfo.get(2))));
 		} finally {
 			// TODO Auto-generated catch block
 			completedProcess=true;

@@ -24,6 +24,7 @@ import com.mod.process.models.DashBoard;
 import com.mod.process.models.ProcessModelAbstract;
 import com.mod.process.models.ProcessingBlock;
 import com.mod.process.models.ProcessingBlock10;
+import com.mod.process.models.ProcessingBlock11;
 import com.mod.process.models.ProcessingBlock2;
 import com.mod.process.models.ProcessingBlock3;
 import com.mod.process.models.ProcessingBlock5;
@@ -57,8 +58,8 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 //		processingModels.add(new ProcessingBlock6(CacheService.getInstance()));
 		
 //		processingModels.add(new ProcessingBlock7(CacheService.getInstance()));
-		processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
-		
+		//processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
+		//processingModels.add(new ProcessingBlock11(CacheService.getInstance()));
 	}
 	
 	public KiteGeneralWebSocketClient(CountDownLatch latch) {
@@ -70,7 +71,8 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 //		processingModels.add(new ProcessingBlock2());
 		//processingModels.add(new ProcessingBlock5(CacheService.getInstance()));
 		
-		processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
+	//	processingModels.add(new ProcessingBlock10(CacheService.getInstance()));
+		//processingModels.add(new ProcessingBlock11(CacheService.getInstance()));
 	}
 	
 	
@@ -184,5 +186,15 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
 			e.printStackTrace();
 		}
     }
+
+	public List<ProcessModelAbstract> getProcessingModels() {
+		return processingModels;
+	}
+
+	public void setProcessingModels(List<ProcessModelAbstract> processingModels) {
+		this.processingModels = processingModels;
+	}
+    
+    
 
 }
