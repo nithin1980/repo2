@@ -380,7 +380,7 @@ public class ApplicationHelper {
 		 * This should move to a batch process of reading the price
 		 */
 		if(validData){
-			CacheService.addDateRecordingCache();
+		//	CacheService.addDateRecordingCache();
 			
 			threadService.execute(new Runnable() {
 				
