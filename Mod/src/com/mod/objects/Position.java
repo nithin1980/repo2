@@ -134,6 +134,15 @@ public class Position {
 		setSize(localPosition.getSize());
 		
 	}
+	public void addNewAndAveragePosition(Position newPosition) {
+		double totalCost = cost()+newPosition.cost();
+		int totalSize = size()+newPosition.size();
+		
+		setBuy(totalCost/totalSize);
+		setSize(totalSize);
+		setExpense(getExpense()+newPosition.getExpense());
+		
+	}
 	public boolean isPEPosition(){
 		if(getName()!=null && getName().contains("PE")){
 			return true;

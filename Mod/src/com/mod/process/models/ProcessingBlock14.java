@@ -40,9 +40,11 @@ public class ProcessingBlock14 extends ProcessModelAbstract {
 			groupPosition.assignPESell(getCacheService().PRICE_LIST.get(getPositionId("pe_id")));
 			List<String> peInfo = groupPosition.peInfo();
 			List<String> ceInfo = groupPosition.ceInfo();
-			System.out.println("Model 14,PE so far:"+peInfo.get(0)+","+peInfo.get(1)+","+peInfo.get(2));
-			System.out.println("Model 14,CE so far:"+ceInfo.get(0)+","+ceInfo.get(1)+","+ceInfo.get(2));
-			System.out.println("Model 14,Total:"+(Double.valueOf(peInfo.get(2))+Double.valueOf(ceInfo.get(2))));
+			System.out.println("Model 14,PE so far:"+peInfo.get(0)+","+peInfo.get(1)+","+peInfo.get(2)+","+peInfo.get(3));
+			System.out.println("Model 14,CE so far:"+ceInfo.get(0)+","+ceInfo.get(1)+","+ceInfo.get(2)+","+ceInfo.get(3));
+			double total = (Double.valueOf(peInfo.get(2))+Double.valueOf(ceInfo.get(2)));
+			double percost = total*100/(Double.valueOf(peInfo.get(1))+Double.valueOf(ceInfo.get(1)));
+			System.out.println("Model 14,Total,"+total+",Percen,"+percost);
 		} finally {
 			// TODO Auto-generated catch block
 			completedProcess=true;

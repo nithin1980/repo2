@@ -55,6 +55,24 @@ public class ApplicationHelper {
 		// TODO Auto-generated constructor stub
 	} 
 	
+	public static double positionVal(String modelKey){
+		return Double.valueOf(modeConfig(modelKey).getKeyValueConfigs().get("position_val"));
+	}
+	public static int lotsize(String modelKey){
+		return Integer.valueOf(modeConfig(modelKey).getKeyValueConfigs().get("lot_size"));
+	}
+	public static int calculateSize(double position_val,double cost,int lot_size ){
+		int size = (int)(position_val/cost);
+		
+		if(((size+10)/lot_size)-(size/lot_size)==1){
+			return (size+10)/lot_size;
+		}else{
+			return size/lot_size;
+		}
+		
+	}
+	
+	
 	public static double[] getPriceRange(String model) {
 		ConfigData configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+model+".config");
 		

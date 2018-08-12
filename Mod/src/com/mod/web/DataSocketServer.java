@@ -1,5 +1,6 @@
 package com.mod.web;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -35,7 +36,7 @@ public class DataSocketServer {
     @OnMessage
     public void incoming(String message) {
         // Never trust the client
-    	System.out.println("message recieved.."+message);
+    	System.out.println("message recieved.."+message+":"+new Date());
     	
     	if("startkite".equals(message)){
     		DashBoard.kiteProcess.startProcess();

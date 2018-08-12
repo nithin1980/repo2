@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
+import com.mod.support.ApplicationHelper;
 
 public class ProcessingBlock15 extends ProcessModelAbstract {
 
@@ -28,9 +29,6 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 	public void processNow() {
 		// TODO Auto-generated method stub
 
-		//getCE_PRICE().getNewPrice()
-		//getCE_PRICE().getCurrentPrice()
-		
 		completedProcess=false;
 		
 		try {
@@ -44,19 +42,29 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 				
 				Iterator<Position> itr = groupPosition.getCePositions().iterator();
 				
+
+				
 				double ce_id=0;
 				double pe_id=0;
 				Position pos = null;
 				Position reverse = null;
-				double profit = 0;
+				double profitPer = 0;
+				int index=0;
 				while(itr.hasNext()) {
 					pos = itr.next();
 					reverse = pos.getReversePosition();
 					pos.setSell(getCacheService().PRICE_LIST.get(pos.getId()));
 					reverse.setSell(getCacheService().PRICE_LIST.get(reverse.getId()));
+					profitPer = profitPercen(pos, reverse);
+					System.out.println(pos.getId()+","+reverse.getId()+","+pos.getBuy()+","+reverse.getBuy()+","+pos.getSell()+","+reverse.getSell()+","+profit(pos, reverse)+","+profitPer+","+pos.profitPercentage()+","+reverse.profitPercentage());
 					
-					System.out.println(pos.getId()+","+reverse.getId()+","+pos.getBuy()+","+reverse.getBuy()+","+profit(pos, reverse)+","+profitPercen(pos, reverse));
+					if(profitPer<-10) {
+						addNewPosition(pos, pos.getId(), reverse.getId());
+						groupPosition.getCePositions().set(counter, pos);
+						System.out.println("Position Added:"+pos.getId()+","+reverse.getId());
+					}
 					
+					index++;
 					
 				}
 				
@@ -69,6 +77,33 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 		}
 		
 		completedProcess=true;
+	}
+	
+	private void addNewPosition(Position currenPosition,double ce_id,double pe_id) {
+		double position_val = ApplicationHelper.positionVal("pmodel15");
+		int lot_size = ApplicationHelper.lotsize("pmodel15");
+
+		double cost = CacheService.PRICE_LIST.get(ce_id);
+
+		int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
+		size=size*lot_size;
+		Position pos = new Position(ce_id,"CE", 100.00,cost,size);
+		
+		//clear
+		size=0;
+		cost=0;
+		
+		//Adding PE on reverse
+		cost = CacheService.PRICE_LIST.get(pe_id);
+		size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
+		size=size*lot_size;
+		pos.setReversePosition(new Position(pe_id,"PE", 100.00,cost,size)); 
+		
+		currenPosition.addNewAndAveragePosition(pos);
+		currenPosition.getReversePosition().addNewAndAveragePosition(pos.getReversePosition());
+		
+		
+		
 	}
 	/**
 	 * Check the opening value and see if 

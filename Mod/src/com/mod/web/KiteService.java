@@ -23,31 +23,15 @@ public class KiteService {
 	
 	private static int rangedModelId=11;
 	
-	private static double positionVal(String modelKey){
-		return Double.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("position_val"));
-	}
-	private static int lotsize(String modelKey){
-		return Integer.valueOf(ApplicationHelper.modeConfig(modelKey).getKeyValueConfigs().get("lot_size"));
-	}
-	private static int calculateSize(double position_val,double cost,int lot_size ){
-		int size = (int)(position_val/cost);
-		
-		if(((size+10)/lot_size)-(size/lot_size)==1){
-			return (size+10)/lot_size;
-		}else{
-			return size/lot_size;
-		}
-		
-	}
 	public static void orderPE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
 		
-		double position_val = positionVal("pmodel10");
-		int lot_size = lotsize("pmodel10");
+		double position_val = ApplicationHelper.positionVal("pmodel10");
+		int lot_size = ApplicationHelper.lotsize("pmodel10");
 		double pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
 		double cost = CacheService.PRICE_LIST.get(pe_id);
 		
-		int size = calculateSize(position_val, cost, lot_size); 
+		int size = ApplicationHelper.calculateSize(position_val, cost, lot_size); 
 				
 				//(int)(Double.valueOf(position_val)/(cost*lot_size));
 		size=size*lot_size;
@@ -60,13 +44,13 @@ public class KiteService {
 	public static void orderCE() throws RuntimeException{
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel10");
 
-		double position_val = positionVal("pmodel10");
-		int lot_size = lotsize("pmodel10");
+		double position_val = ApplicationHelper.positionVal("pmodel10");
+		int lot_size = ApplicationHelper.lotsize("pmodel10");
 		
 		double ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
 		double cost = CacheService.PRICE_LIST.get(ce_id);
 
-		int size =calculateSize(position_val, cost, lot_size); 
+		int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
 				//(int)(Double.valueOf(position_val)/(cost*lot_size));
 		size=size*lot_size;
 		
@@ -95,8 +79,8 @@ public class KiteService {
 		String model="pmodel"+rangedModelId;
 		GroupPosition groupPosition = DashBoard.positionMap.get(model);
 
-		double position_val = positionVal(model);
-		int lot_size = lotsize(model);
+		double position_val = ApplicationHelper.positionVal(model);
+		int lot_size = ApplicationHelper.lotsize(model);
 		
 		double[] ranges = ApplicationHelper.getPriceRange(model);
 		
@@ -109,14 +93,18 @@ public class KiteService {
 		int size=0;
 		Iterator<Double> keys  = KiteStockConverter.BN_CE_LIST.keySet().iterator();
 		
+		boolean addModel=false;
+		
 		while(keys.hasNext()){
 			key = keys.next();
 			if(CacheService.PRICE_LIST.get(key)>=minPrice && CacheService.PRICE_LIST.get(key)<=maxPrice ){
 				cost = CacheService.PRICE_LIST.get(key);
-				size =calculateSize(position_val, cost, lot_size);
+				size =ApplicationHelper.calculateSize(position_val, cost, lot_size);
 				size=size*lot_size;
 				groupPosition.getCePositions().add(new Position("CE", 100.00,cost,size));
 				ApplicationHelper.modeConfig(model).getKeyValueConfigs().put("ce_id", String.valueOf(key.doubleValue()));
+				
+				addModel=true;
 				
 			}
 		}
@@ -127,18 +115,31 @@ public class KiteService {
 		minPrice = ranges[2];
 		maxPrice=ranges[3];
 		
+		if(!addModel) {
+			System.out.println("No CE position taken...!!!!!");
+			return;
+		}else {
+			addModel=false;
+		}
+		
 		keys  = KiteStockConverter.BN_PE_LIST.keySet().iterator();
 		while(keys.hasNext()){
 			key = keys.next();
 			if(CacheService.PRICE_LIST.get(key)>=minPrice && CacheService.PRICE_LIST.get(key)<=maxPrice ){
 				cost = CacheService.PRICE_LIST.get(key);
-				size =calculateSize(position_val, cost, lot_size);
+				size =ApplicationHelper.calculateSize(position_val, cost, lot_size);
 				size=size*lot_size;
 				groupPosition.getPePositions().add(new Position("PE", 100.00,cost,size));
 				ApplicationHelper.modeConfig(model).getKeyValueConfigs().put("pe_id", String.valueOf(key.doubleValue()));
+				addModel=true;
 			}
 		}
-	
+
+		if(!addModel) {
+			System.out.println("No PE position taken....!!!!!");
+			return;
+		}
+		
 		boolean modelAdded = false;		//(int)(Double.valueOf(position_val)/(cost*lot_size));
 		try {
 			ProcessModelAbstract processingModel = null;
@@ -178,8 +179,8 @@ public class KiteService {
 		
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel15");
 
-		double position_val = positionVal("pmodel15");
-		int lot_size = lotsize("pmodel15");
+		double position_val = ApplicationHelper.positionVal("pmodel15");
+		int lot_size = ApplicationHelper.lotsize("pmodel15");
 		
 		boolean addModel =  false;
 		
@@ -198,7 +199,7 @@ public class KiteService {
 				//Adding CE 
 				double cost = CacheService.PRICE_LIST.get(ce_id);
 
-				int size =calculateSize(position_val, cost, lot_size); 
+				int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
 				size=size*lot_size;
 				Position pos = new Position(ce_id,"CE", 100.00,cost,size);
 				
@@ -208,7 +209,7 @@ public class KiteService {
 				
 				//Adding PE on reverse
 				cost = CacheService.PRICE_LIST.get(pe_id);
-				size =calculateSize(position_val, cost, lot_size); 
+				size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
 				size=size*lot_size;
 				pos.setReversePosition(new Position(pe_id,"PE", 100.00,cost,size)); 
 				

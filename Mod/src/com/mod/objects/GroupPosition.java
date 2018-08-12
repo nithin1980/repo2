@@ -93,10 +93,15 @@ public class GroupPosition {
 		data.add(String.valueOf(num));
 		data.add(String.valueOf(amount));
 		data.add(String.valueOf(prof));
+		data.add(String.valueOf(percentage(prof, amount)));
 		
 		return data;
 		
 	}
+	private double percentage(double profit,double cost){
+		return (profit/cost)*100;
+	}	
+	
 	public List<String> ceInfo(){
 		List<String> data = new ArrayList<String>();
 		
@@ -118,7 +123,7 @@ public class GroupPosition {
 		data.add(String.valueOf(num));
 		data.add(String.valueOf(amount));
 		data.add(String.valueOf(prof));
-		
+		data.add(String.valueOf(percentage(prof, amount)));
 		return data;
 		
 	}
