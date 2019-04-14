@@ -195,26 +195,35 @@ public class KiteService {
 			while(pe_list_itr.hasNext()) {
 				pe_id = pe_list_itr.next();
 				
-				
-				//Adding CE 
-				double cost = CacheService.PRICE_LIST.get(ce_id);
+				if(CacheService.PRICE_LIST.containsKey(ce_id) && CacheService.PRICE_LIST.containsKey(pe_id)) {
+					//Adding CE 
+					double cost = CacheService.PRICE_LIST.get(ce_id);
 
-				int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
-				size=size*lot_size;
-				Position pos = new Position(ce_id,"CE", 100.00,cost,size);
+					int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
+					size=size*lot_size;
+					Position pos = new Position(ce_id,"CE", 100.00,cost,size);
+					
+					//clear
+					size=0;
+					cost=0;
+					
+					//Adding PE on reverse
+					cost = CacheService.PRICE_LIST.get(pe_id);
+					size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
+					size=size*lot_size;
+					pos.setReversePosition(new Position(pe_id,"PE", 100.00,cost,size)); 
+					
+					groupPosition.getCePositions().add(pos);
+					
+					addModel = true;
+					
+				}else if(!CacheService.PRICE_LIST.containsKey(ce_id)) {
+					System.out.println("No price found for ce:"+ce_id);
+				}else if(!CacheService.PRICE_LIST.containsKey(pe_id)) {
+					System.out.println("No price found for pe:"+pe_id);
+				}
 				
-				//clear
-				size=0;
-				cost=0;
 				
-				//Adding PE on reverse
-				cost = CacheService.PRICE_LIST.get(pe_id);
-				size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
-				size=size*lot_size;
-				pos.setReversePosition(new Position(pe_id,"PE", 100.00,cost,size)); 
-				
-				groupPosition.getCePositions().add(pos);
-				addModel = true;
 			}
 		}
 		
