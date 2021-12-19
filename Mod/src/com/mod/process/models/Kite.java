@@ -60,7 +60,7 @@ public class Kite {
   public void setUp() throws Exception {
 	getTargetList();  
 	//System.setProperty("webdriver.gecko.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/geckodriver.exe");
-	System.setProperty("webdriver.chrome.driver", "C:/Users/nkumar/git/repo1/master/Mod/WebContent/WEB-INF/lib/chromedriver.exe");
+	System.setProperty("webdriver.chrome.driver", "C:/Users/Vihaan/git/repo1/Mod/WebContent/WEB-INF/lib/chromedriver.exe");
 	
 	// start the proxy
 //	proxy = new BrowserMobProxyServer();

@@ -13,7 +13,7 @@ function connect(){
     try{
 
 	
-	var host = "ws://localhost:8980/Mod/socket/data";
+	var host = "ws://localhost:8080/Mod/socket/data";
     socket = new WebSocket(host);
 
         message('<p class="event">Socket Status: '+socket.readyState);

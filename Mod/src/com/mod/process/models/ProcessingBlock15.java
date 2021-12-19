@@ -1,7 +1,11 @@
 package com.mod.process.models;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.mod.objects.GroupPosition;
 import com.mod.objects.Position;
@@ -14,6 +18,9 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
     
     private int counter;
     
+    private static Map<Double, Double> PREVIOUS_lTP = new HashMap<Double, Double>(); 
+    
+    
 	public ProcessingBlock15(CacheService cacheService) {
 		super();
 		setCacheService(cacheService);
@@ -25,6 +32,7 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 		return "pmodel15";
 	}
 	
+	
 	@Override
 	public void processNow() {
 		// TODO Auto-generated method stub
@@ -35,9 +43,12 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 			if(counter==0) {
 				System.out.println("Staring Model 15 counter");
 			}
-			if(counter<30) {
+			//boolean freekPrice = validateFrekPriceChange();
+			//System.out.println("freek price:"+freekPrice);
+			boolean freekPrice=false;
+			if(counter<15 && !freekPrice) {
 				counter++;
-			}else {
+			}else if(!freekPrice){
 				GroupPosition groupPosition = DashBoard.positionMap.get(modelid());
 				
 				Iterator<Position> itr = groupPosition.getCePositions().iterator();
@@ -50,23 +61,31 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 				Position reverse = null;
 				double profitPer = 0;
 				int index=0;
-				while(itr.hasNext()) {
-					pos = itr.next();
-					reverse = pos.getReversePosition();
-					pos.setSell(getCacheService().PRICE_LIST.get(pos.getId()));
-					reverse.setSell(getCacheService().PRICE_LIST.get(reverse.getId()));
-					profitPer = profitPercen(pos, reverse);
-					System.out.println(pos.getId()+","+reverse.getId()+","+pos.getBuy()+","+reverse.getBuy()+","+pos.getSell()+","+reverse.getSell()+","+profit(pos, reverse)+","+profitPer+","+pos.profitPercentage()+","+reverse.profitPercentage());
-					
-					if(profitPer<-10) {
-						addNewPosition(pos, pos.getId(), reverse.getId());
-						groupPosition.getCePositions().set(counter, pos);
-						System.out.println("Position Added:"+pos.getId()+","+reverse.getId());
-					}
-					
-					index++;
-					
-				}
+				System.out.println("Time:"+new Date());
+				
+				/***
+				 *  New code to record just the price.
+				 */
+				printPrices();
+				
+				
+//				while(itr.hasNext()) {
+//					pos = itr.next();
+//					reverse = pos.getReversePosition();
+//					pos.setSell(getCacheService().PRICE_LIST.get(pos.getId()));
+//					reverse.setSell(getCacheService().PRICE_LIST.get(reverse.getId()));
+//					profitPer = profitPercen(pos, reverse);
+//					//System.out.println(pos.getId()+","+reverse.getId()+","+pos.getBuy()+","+reverse.getBuy()+","+pos.getSell()+","+reverse.getSell()+","+profit(pos, reverse)+","+profitPer+","+pos.profitPercentage()+","+reverse.profitPercentage());
+//					
+////					if(profitPer<-10) {
+////						addNewPosition(pos, pos.getId(), reverse.getId());
+////						groupPosition.getCePositions().set(counter, pos);
+////						System.out.println("Position Added:"+pos.getId()+","+reverse.getId());
+////					}
+//					
+//					index++;
+//					
+//				}
 				
 				counter=0;
 				
@@ -77,6 +96,53 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 		}
 		
 		completedProcess=true;
+	}
+	
+	private boolean validateFrekPriceChange() {
+		
+		Iterator<Double> itr = getCacheService().PRICE_LIST.keySet().iterator();
+		Double key =  null;
+		
+		if(PREVIOUS_lTP.size()==0) {
+			while(itr.hasNext()) {
+				key = itr.next();
+				PREVIOUS_lTP.put(key, getCacheService().PRICE_LIST.get(key));
+				//System.out.println("R_C,"+key.doubleValue()+","+getCacheService().PRICE_LIST.get(key).doubleValue());
+			}
+
+		}
+		
+		Iterator<Double> previousitr = PREVIOUS_lTP.keySet().iterator();
+		double currentVal = 0;
+		double previousVal = 0;
+		double percenChange = 0;
+		while(previousitr.hasNext()) {
+			key = previousitr.next();
+			currentVal = getCacheService().PRICE_LIST.get(key).doubleValue();
+			previousVal = PREVIOUS_lTP.get(key).doubleValue();
+			percenChange = ((currentVal-previousVal)/previousVal)*100;
+			if(percenChange>25) {
+				System.out.println("Freek Price");
+				printPrices();
+			}
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	private void printPrices() {
+		
+		Iterator<Double> itr = getCacheService().PRICE_LIST.keySet().iterator();
+		Double key =  null;
+		while(itr.hasNext()) {
+			key = itr.next();
+			System.out.println("R_C,"+key.doubleValue()+","+getCacheService().PRICE_LIST.get(key).doubleValue());
+			PREVIOUS_lTP.put(key, getCacheService().PRICE_LIST.get(key));
+		}
+		
+		
 	}
 	
 	private void addNewPosition(Position currenPosition,double ce_id,double pe_id) {

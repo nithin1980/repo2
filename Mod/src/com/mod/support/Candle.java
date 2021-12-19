@@ -2,6 +2,7 @@ package com.mod.support;
 
 public class Candle{
 
+	
 	private String time;
 	private double open;
 	private double high;
