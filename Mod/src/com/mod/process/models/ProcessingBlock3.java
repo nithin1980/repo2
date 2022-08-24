@@ -54,8 +54,8 @@ public class ProcessingBlock3 extends ProcessModelAbstract {
 		ScriptData ceScript = new ScriptData();
 		List<String> values = null;
 		
-		CacheService.clearNifty();;
-		CacheService.dumpNifty();
+//		CacheService.clearNifty();;
+//		CacheService.dumpNifty();
 		//ApplicationHelper.threadService.shutdown();
 		
 		DashBoard.positionMap.put("1", new GroupPosition());
@@ -74,7 +74,7 @@ public class ProcessingBlock3 extends ProcessModelAbstract {
 		
 		for(int i=0;i<size;i++){
 			values = dataList.get(i);
-			CacheService.addNifty(Double.valueOf(values.get(1)));
+//			CacheService.addNifty(Double.valueOf(values.get(1)));
 			if(i==8471){
 				log=false;
 			}
@@ -330,7 +330,7 @@ public class ProcessingBlock3 extends ProcessModelAbstract {
 		 * TODO
 		 * This needs to be stored... calling hits performance.
 		 */
-		int niftyRecordSize = CacheService.niftyCount();
+//		int niftyRecordSize = CacheService.niftyCount();
 		
 		
 		/**
@@ -353,19 +353,19 @@ public class ProcessingBlock3 extends ProcessModelAbstract {
 		boolean higherThanLowest = false;
 		TDoubleList queryList = null;
 		
-		if(niftyRecordSize>10){
-			queryList = CacheService.getItemsFromNiftyCache(10);
-			trend = Chart.calculateTrend(queryList);
-			
-			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList.subList(5, 10));
-			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList.subList(5, 10));
-		}else if(niftyRecordSize>4){
-			queryList = CacheService.getItemsFromNiftyCache(4);
-			trend = Chart.calculateTrend(queryList);
-			
-			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList);
-			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList);
-		}
+//		if(niftyRecordSize>10){
+//			queryList = CacheService.getItemsFromNiftyCache(10);
+//			trend = Chart.calculateTrend(queryList);
+//			
+//			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList.subList(5, 10));
+//			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList.subList(5, 10));
+//		}else if(niftyRecordSize>4){
+//			queryList = CacheService.getItemsFromNiftyCache(4);
+//			trend = Chart.calculateTrend(queryList);
+//			
+//			lowerThanHighest = Chart.isLowerThanHighest(newPrice, queryList);
+//			higherThanLowest = Chart.isHigherThanLowest(newPrice, queryList);
+//		}
 		
 		logBuilder.append("nifty:"+newPrice+","+peNewPrice.getValue()+","+ceNewPrice.getValue()+",trend:"+trend+",lowerThanHighest:"+lowerThanHighest+",higherThanLowest:"+higherThanLowest);
 		

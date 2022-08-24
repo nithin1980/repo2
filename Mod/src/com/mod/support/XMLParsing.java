@@ -21,27 +21,30 @@ public class XMLParsing {
 	private static final XmlFriendlyNameCoder XML_FRIENDLY_REPLACER = new XmlFriendlyNameCoder("_", "_");
 	private static final XStream X_STREAM = new XStream(new XppDriver(XML_FRIENDLY_REPLACER)){
 		
-		@Override
-        protected MapperWrapper wrapMapper(MapperWrapper next)
-        {
-            AnnotationMapper mapper = new AnnotationMapper(next,(ConverterRegistry) this.getConverterLookup(),getClassLoader(), this.getReflectionProvider(), new JVM());
-
-            return new MapperWrapper(mapper)
-            {
-
-                @Override
-                public boolean shouldSerializeMember(Class definedIn, String fieldName)
-                {
-                    return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
-                }
-                
-                
-            };
-        } 
+//		@Override
+//        protected MapperWrapper wrapMapper(MapperWrapper next)
+//        {
+//            AnnotationMapper mapper = new AnnotationMapper(next,(ConverterRegistry) this.getConverterLookup(),getClassLoader(), this.getReflectionProvider(), new JVM());
+//
+//            return new MapperWrapper(mapper)
+//            {
+//
+//                @Override
+//                public boolean shouldSerializeMember(Class definedIn, String fieldName)
+//                {
+//                    return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+//                }
+//                
+//                
+//            };
+//        } 
 	};
 	
 	static{
 		X_STREAM.processAnnotations(ConfigData.class);
+		X_STREAM.allowTypes(new Class[] {
+				ConfigData.class
+		});
 	}
 	
 	

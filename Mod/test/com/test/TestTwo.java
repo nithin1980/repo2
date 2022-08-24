@@ -3,6 +3,8 @@ package com.test;
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 
+
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +67,11 @@ public class TestTwo {
 		ProcessingBlock7 block7 = new ProcessingBlock7(TestCacheService.getInstance());
 		for(int i=1;i<4711;i++){
 			
-			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
-			System.out.println(CacheService.getValueForIndex(256265.0, i));
-			TestCacheService.PRICE_LIST.put(13943298.0, CacheService.getValueForIndex(13943298.0, i));
-			TestCacheService.PRICE_LIST.put(13942018.0, CacheService.getValueForIndex(13942018.0, i));
-			
+//			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
+//			System.out.println(CacheService.getValueForIndex(256265.0, i));
+//			TestCacheService.PRICE_LIST.put(13943298.0, CacheService.getValueForIndex(13943298.0, i));
+//			TestCacheService.PRICE_LIST.put(13942018.0, CacheService.getValueForIndex(13942018.0, i));
+//			
 			TestCacheService.addDateRecordingCache();
 			TestCacheService.updateNiftyTrend(256265.0);
 			

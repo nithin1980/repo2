@@ -160,7 +160,7 @@ public class KiteGeneralWebSocketClient extends WebSocketClient {
       
       try {
           //URI serverEndpointUri = new URI("wss://websocket.kite.trade/?api_key=kitefront&user_id=DV4051&public_token=f88c4a16db7899fc39d2446098ea0c9a");
-    	  System.out.println(appConfig().getKeyValueConfigs().get("destination_url"));
+		  System.out.println(appConfig().getKeyValueConfigs().get("destination_url"));
           URI serverEndpointUri = new URI(appConfig().getKeyValueConfigs().get("destination_url"));
           kiteSession = container.connectToServer(this, serverEndpointUri);
           

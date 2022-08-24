@@ -1,8 +1,6 @@
 package com.mod.web;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +8,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -26,8 +19,8 @@ import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.google.gson.JsonParseException;
 import com.mod.datafeeder.DataFeed;
 import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
@@ -49,6 +42,29 @@ private String websocketKey;
 
 private String destinationUrl;
 
+
+/***
+ * Websocket data
+ * 
+ * LoggingPreferences loggingprefs = new LoggingPreferences();
+loggingprefs.enable(LogType.PERFORMANCE, Level.ALL);
+
+ChromeOptions options = new ChromeOptions();
+options.setCapability("goog:loggingPrefs", loggingprefs);
+options.addArguments("--enable-devtools-experiments", "--force-devtools-available", "--debug-devtools");
+
+ChromeDriver chromeDriver = new ChromeDriver(options);
+DevTools devTools = chromeDriver.getDevTools();
+devTools.createSession();
+devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));`
+
+devTools.addListener(Network.webSocketFrameSent(), webSocketFrameSent -> printData(webSocketFrameSent));
+devTools.addListener(Network.webSocketFrameReceived(), webSocketFrameReceived -> printData(webSocketFrameReceived));
+ * 
+ * 
+ * 
+ * 
+ */
  
 public void startPE(){
  try {
@@ -85,7 +101,7 @@ public void stopCE(){
 public void startProcess(){
  
  getkeys();
- 
+ System.out.println(ApplicationHelper.getProperty("config.location")+"app.config");;
  ConfigData configData = XMLParsing.readAppConfig(ApplicationHelper.getProperty("config.location")+"app.config");
 
  configData.getKeyValueConfigs().put("Sec-WebSocket-Key",websocketKey);
@@ -126,9 +142,9 @@ public void startProcess(){
  
  KiteStockConverter.build();
  
- CacheService.clearDateDataRecord();
- CacheService.addMetaDataToDateRecording("group1", metadata());
- CacheService.initializeDataArray(initialSetup());
+// CacheService.clearDateDataRecord();
+// CacheService.addMetaDataToDateRecording("group1", metadata());
+// CacheService.initializeDataArray(initialSetup());
  
  //setApplicableTime();
  DashBoard.enableStatusCheck();
@@ -143,7 +159,7 @@ private void setDashboardPosition(){
 }
 public void dumpData(){
  System.out.println("Saving data....");
- CacheService.dumpDateRecording();
+// CacheService.dumpDateRecording();
  System.out.println(DashBoard.positionMap);
 }
 public void stopProcess(){
@@ -167,48 +183,48 @@ private CacheMetaData metadata(){
  return new CacheMetaData(metadata);
 }
 
-private void setApplicableTime(){
- String url =  appConfig().getKeyValueConfigs().get("time_url");
- HttpClient client = HttpClientBuilder.create().build();
- HttpGet get = new HttpGet(url);
- GeneralJsonObject jsonObject = null;
- try {
-  HttpResponse response = client.execute(get);
- 
-  BufferedReader rd = new BufferedReader(
-          new InputStreamReader(response.getEntity().getContent()));
-
-  StringBuffer result = new StringBuffer();
-  String line = "";
-  while ((line = rd.readLine()) != null) {
-   result.append(line);
-  }
-  jsonObject = ApplicationHelper.getObjectMapper().readValue(result.toString(), GeneralJsonObject.class);
- 
-  System.out.println(jsonObject.getDateTime_24HR());
- } catch (ClientProtocolException e) {
-  // TODO Auto-generated catch block
-  e.printStackTrace();
-  throw new RuntimeException("Not able to get time"+e);
- } catch (UnsupportedOperationException e) {
-  // TODO Auto-generated catch block
-  e.printStackTrace();
-  throw new RuntimeException("Not able to get time"+e);
- } catch (IOException e) {
-  // TODO Auto-generated catch block
-  e.printStackTrace();
-  throw new RuntimeException("Not able to get time"+e);
- }
- 
- if(jsonObject.getDateTime_24HR()==null){
-  throw new RuntimeException("Not able to get time,as the value is empty. Process stopped");
- }
- 
- DashBoard.checkedTime=jsonObject.getDateTime_24HR();
- 
- 
- 
-}
+//private void setApplicableTime(){
+// String url =  appConfig().getKeyValueConfigs().get("time_url");
+// HttpClient client = HttpClientBuilder.create().build();
+// HttpGet get = new HttpGet(url);
+// GeneralJsonObject jsonObject = null;
+// try {
+//  HttpResponse response = client.execute(get);
+// 
+//  BufferedReader rd = new BufferedReader(
+//          new InputStreamReader(response.getEntity().getContent()));
+//
+//  StringBuffer result = new StringBuffer();
+//  String line = "";
+//  while ((line = rd.readLine()) != null) {
+//   result.append(line);
+//  }
+//  jsonObject = ApplicationHelper.getObjectMapper().readValue(result.toString(), GeneralJsonObject.class);
+// 
+//  System.out.println(jsonObject.getDateTime_24HR());
+// } catch (ClientProtocolException e) {
+//  // TODO Auto-generated catch block
+//  e.printStackTrace();
+//  throw new RuntimeException("Not able to get time"+e);
+// } catch (UnsupportedOperationException e) {
+//  // TODO Auto-generated catch block
+//  e.printStackTrace();
+//  throw new RuntimeException("Not able to get time"+e);
+// } catch (IOException e) {
+//  // TODO Auto-generated catch block
+//  e.printStackTrace();
+//  throw new RuntimeException("Not able to get time"+e);
+// }
+// 
+// if(jsonObject.getDateTime_24HR()==null){
+//  throw new RuntimeException("Not able to get time,as the value is empty. Process stopped");
+// }
+// 
+// DashBoard.checkedTime=jsonObject.getDateTime_24HR();
+// 
+// 
+// 
+//}
 private static ConfigData appConfig(){
  return ApplicationHelper.Application_Config_Cache.get("app");
 }
@@ -294,13 +310,29 @@ private void getkeys(){
  } catch (InterruptedException e1) {
   // TODO Auto-generated catch block
   e1.printStackTrace();
- }    
+ }
    
-    LogEntries les = driver.manage().logs().get(LogType.PERFORMANCE);
+    
+    
+   LogEntries les = driver.manage().logs().get(LogType.PERFORMANCE);
+   
+   
+//   String method = messageJSON.getJSONObject("message").getString("method");
+//   if(method.equalsIgnoreCase("Network.webSocketFrameSent")){
+//       System.out.println("Message Sent: " + messageJSON.getJSONObject("message").getJSONObject("params").getJSONObject("response").getString("payloadData"));
+//   }else if(method.equalsIgnoreCase("Network.webSocketFrameReceived")){
+//       System.out.println("Message Received: " + messageJSON.getJSONObject("message").getJSONObject("params").getJSONObject("response").getString("payloadData"));
+//   }
+//   } catch (JSONException e) {
+//       e.printStackTrace();
+//   }   
+
     try {
   for (LogEntry le : les) {
-      //System.out.println(le.getMessage());
+	  
+      System.out.println(le.getMessage());
    if(le.getMessage().contains("Network.webSocketHandshakeResponseReceived")){
+	   
     GeneralJsonObject jsonObject = ApplicationHelper.getObjectMapper().readValue(le.getMessage(), GeneralJsonObject.class);
     this.websocketKey = jsonObject.websocketKey();
     this.destinationUrl = jsonObject.url();

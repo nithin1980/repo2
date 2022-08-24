@@ -25,25 +25,25 @@ public class Chart {
 		data.addAll(Arrays.asList(d));
 		long t = System.currentTimeMillis();
 		
-		List<Double> dd = CacheService.getItemsFromCache(100, "9700CE");
-		System.out.println("dd"+dd);
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				CacheService.writeToCache(719.1, "9700CE");
-				
-			}
-		}).start();
-		
+//		List<Double> dd = CacheService.getItemsFromCache(100, "9700CE");
+//		System.out.println("dd"+dd);
+//		new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				CacheService.writeToCache(719.1, "9700CE");
+//				
+//			}
+//		}).start();
+//		
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		findHighLows(dd);
+//		findHighLows(dd);
 		
 //		System.out.println("dd"+dd);
 //		TDoubleList tDoubleList = new TDoubleArrayList();

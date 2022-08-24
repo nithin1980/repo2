@@ -273,7 +273,7 @@ public class Kite {
   }
   
   private void createRecord(String data){
-	  CacheService.write(String.valueOf(recordCount), data);
+//	  CacheService.write(String.valueOf(recordCount), data);
 	  recordCount++;
 	  System.out.println(data);
   }

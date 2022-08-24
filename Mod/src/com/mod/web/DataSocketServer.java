@@ -9,6 +9,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.junit.Test;
+
 import com.mod.process.models.DashBoard;
 
 @ServerEndpoint(value = "/socket/data")
@@ -87,6 +89,11 @@ public class DataSocketServer {
                 String message = "has been disconnected.";
                 broadcast(message);
             }
-    }    
+    } 
+    
+    @Test
+    public void test() {
+    	DashBoard.kiteProcess.startProcess();
+    }
 
 }

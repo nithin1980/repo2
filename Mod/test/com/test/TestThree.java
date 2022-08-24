@@ -66,11 +66,11 @@ public class TestThree {
 		ProcessingBlock8 block8 = new ProcessingBlock8(TestCacheService.getInstance());
 		for(int i=1;i<4711;i++){
 			
-			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
-			System.out.println(CacheService.getValueForIndex(256265.0, i));
-			TestCacheService.PRICE_LIST.put(10377730.0, CacheService.getValueForIndex(10377730.0, i));
-			TestCacheService.PRICE_LIST.put(10118146.0, CacheService.getValueForIndex(10118146.0, i));
-			
+//			TestCacheService.PRICE_LIST.put(256265.0, CacheService.getValueForIndex(256265.0, i));
+//			System.out.println(CacheService.getValueForIndex(256265.0, i));
+//			TestCacheService.PRICE_LIST.put(10377730.0, CacheService.getValueForIndex(10377730.0, i));
+//			TestCacheService.PRICE_LIST.put(10118146.0, CacheService.getValueForIndex(10118146.0, i));
+//			
 			TestCacheService.addDateRecordingCache();
 			TestCacheService.updateNiftyTrend(256265.0);
 			

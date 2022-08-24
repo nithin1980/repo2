@@ -48,14 +48,14 @@ public class TestOne {
 		
 		KiteStockConverter.build();
 		
-		CacheService.clearDateDataRecord();
-		CacheService.addMetaDataToDateRecording("group1", metadata());
-		CacheService.initializeDataArray(initialSetup());
+//		CacheService.clearDateDataRecord();
+//		CacheService.addMetaDataToDateRecording("group1", metadata());
+//		CacheService.initializeDataArray(initialSetup());
 		/**
 		 * Need to intialise the price backup thread as well.
 		 */
 		
-		CacheService.getMetaDataToDateRecording("group1");
+//		CacheService.getMetaDataToDateRecording("group1");
 		
 		long t = System.currentTimeMillis();
 //		for(int i=0;i<10;i++){
@@ -89,7 +89,7 @@ public class TestOne {
 //			e1.printStackTrace();
 //		}
 		
-		CacheService.dumpDateRecording();
+//		CacheService.dumpDateRecording();
 		/**
 		 * Gives back the last 5 prices
 		 */

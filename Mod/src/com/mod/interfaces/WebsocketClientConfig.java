@@ -20,7 +20,7 @@ public class WebsocketClientConfig extends Configurator {
     public void beforeRequest(Map<String, List<String>> headers) {
         called = true;
         headers.put("Accept-Encoding", Arrays.asList("gzip, deflate, br"));
-        headers.put("Accept-Language", Arrays.asList("en-US,en;q=0.8"));
+        headers.put("Accept-Language", Arrays.asList("en-GB,en-US;q=0.9,en;q=0.8"));
         headers.put("Cache-Control", Arrays.asList("no-cache"));
         headers.put("Connection", Arrays.asList("Upgrade"));
         headers.put("Host", Arrays.asList("websocket.kite.trade"));
@@ -29,7 +29,7 @@ public class WebsocketClientConfig extends Configurator {
         headers.put("Sec-WebSocket-Extensions", Arrays.asList("permessage-deflate; client_max_window_bits"));
         
         //headers.put("Sec-WebSocket-Key", Arrays.asList("6fzWv4vmBRfkKoA4OgzCIA=="));
-        System.out.println("User Agent:"+configData.getKeyValueConfigs().get("Sec-WebSocket-Key"));
+        System.out.println("Sec-WebSocket-Key:"+configData.getKeyValueConfigs().get("Sec-WebSocket-Key"));
         headers.put("Sec-WebSocket-Key", Arrays.asList(configData.getKeyValueConfigs().get("Sec-WebSocket-Key")));
         
         headers.put("Sec-WebSocket-Version", Arrays.asList("13"));
