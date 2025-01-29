@@ -60,7 +60,7 @@ public class ProcessingBlock12 extends ProcessModelAbstract {
 	 */
 	private void stateCheck(){
 		
-		double bnifty = CacheService.PRICE_LIST.get(260105.0);
+		double bnifty = CacheService.PRICE_LIST.get(260105);
 		if(openingState==null){
 			if(bnifty-prev_nifty>0.5 || bnifty-prev_nifty<0.5 ){
 				double openPercentage = percen(bnifty, prev_nifty);

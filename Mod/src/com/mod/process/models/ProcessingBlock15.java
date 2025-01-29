@@ -18,7 +18,7 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
     
     private int counter;
     
-    private static Map<Double, Double> PREVIOUS_lTP = new HashMap<Double, Double>(); 
+    private static Map<Long, Double> PREVIOUS_lTP = new HashMap<Long, Double>(); 
     
     
 	public ProcessingBlock15(CacheService cacheService) {
@@ -100,8 +100,8 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 	
 	private boolean validateFrekPriceChange() {
 		
-		Iterator<Double> itr = getCacheService().PRICE_LIST.keySet().iterator();
-		Double key =  null;
+		Iterator<Long> itr = getCacheService().PRICE_LIST.keySet().iterator();
+		Long key =  null;
 		
 		if(PREVIOUS_lTP.size()==0) {
 			while(itr.hasNext()) {
@@ -112,7 +112,7 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 
 		}
 		
-		Iterator<Double> previousitr = PREVIOUS_lTP.keySet().iterator();
+		Iterator<Long> previousitr = PREVIOUS_lTP.keySet().iterator();
 		double currentVal = 0;
 		double previousVal = 0;
 		double percenChange = 0;
@@ -134,8 +134,8 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 	
 	private void printPrices() {
 		
-		Iterator<Double> itr = getCacheService().PRICE_LIST.keySet().iterator();
-		Double key =  null;
+		Iterator<Long> itr = getCacheService().PRICE_LIST.keySet().iterator();
+		Long key =  null;
 		while(itr.hasNext()) {
 			key = itr.next();
 			System.out.println("R_C,"+key.doubleValue()+","+getCacheService().PRICE_LIST.get(key).doubleValue());
@@ -145,7 +145,7 @@ public class ProcessingBlock15 extends ProcessModelAbstract {
 		
 	}
 	
-	private void addNewPosition(Position currenPosition,double ce_id,double pe_id) {
+	private void addNewPosition(Position currenPosition,long ce_id,long pe_id) {
 		double position_val = ApplicationHelper.positionVal("pmodel15");
 		int lot_size = ApplicationHelper.lotsize("pmodel15");
 

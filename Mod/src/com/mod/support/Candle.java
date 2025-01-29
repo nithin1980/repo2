@@ -9,6 +9,7 @@ public class Candle{
 	private double low;
 	private double close;
 	private double vol;
+	private double change;
 	
 	private String state;
 	
@@ -16,7 +17,35 @@ public class Candle{
 		// TODO Auto-generated constructor stub
 	}
 	
+
+	public Candle(String time,String open, String high, String low, String close) {
+		// TODO Auto-generated constructor stub
+		this.setClose(Double.valueOf(close));
+		this.setHigh(Double.valueOf(high));
+		this.setLow(Double.valueOf(low));
+		this.setOpen(Double.valueOf(open));
+		this.setTime(time);
+	}
+
+	public Candle(double change) {
+		setChange(change);
+		
+	}
 	public Candle(Candle candle) {
+		// TODO Auto-generated constructor stub
+		this.setClose(candle.getClose());
+		this.setHigh(candle.getHigh());
+		this.setLow(candle.getLow());
+		this.setOpen(candle.getOpen());
+		this.setState(candle.getState());
+		if(candle.getTime()!=null) {
+			this.setTime(candle.getTime().split("\\+")[0]);
+		}
+		
+		this.setVol(candle.getVol());
+	}
+	
+	public void populateWithAnotherCandle(Candle candle) {
 		// TODO Auto-generated constructor stub
 		this.setClose(candle.getClose());
 		this.setHigh(candle.getHigh());
@@ -27,6 +56,13 @@ public class Candle{
 		this.setVol(candle.getVol());
 	}
 	
+	public void setAllWithSinglePrice(double price) {
+		setOpen(price);
+		setHigh(price);
+		setLow(price);
+		setClose(price);
+		
+	}
 	
 	public void reset(){
 		setClose(0);
@@ -35,7 +71,61 @@ public class Candle{
 		setOpen(0);
 		setTime("0");
 		setVol(0);
+		setChange(0);
 		setState(null);
+	}
+	
+
+	/**
+	 * Need to cater to the fact that open, low & high can all be the same. Indicates no price movement.
+	 * @return
+	 */
+	public boolean isOpenEqualToLow() {
+		
+		if(getLow()!=0 && getHigh()!=0 
+				&& getLow()==getHigh()) {
+			return false;
+		}
+		
+		if(getOpen()!=0 && getLow()!=0 
+				&& getOpen()==getLow()) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Need to cater to the fact that open, low & high can all be the same. Indicates no price movement.
+	 * @return
+	 */
+	
+	public boolean isOpenEqualToHigh() {
+		if(getLow()!=0 && getHigh()!=0 
+				&& getLow()==getHigh()) {
+			return false;
+		}
+		
+		if(getOpen()!=0 && getHigh()!=0 
+				&& getOpen()==getHigh()) {
+			return true;
+		}
+		
+		return false;
+		
+	}
+	
+	public double bwHighLow() {
+		return (getHigh()+getLow())/2;
+	}
+	public boolean isBetweenHighLow(double expectedValue) {
+		
+		if(expectedValue<=getHigh() && expectedValue>=getLow()) {
+			return true;
+		}
+		
+		return false;
+		
 	}
 	
 	public void populate(double value){
@@ -51,7 +141,7 @@ public class Candle{
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "High:"+getHigh()+" Low:"+getLow()+" Close:"+getClose();
+		return "Time:"+time+ " High:"+getHigh()+" Low:"+getLow()+" Close:"+getClose()+" Change:"+getChange();
 	}
 	/**
 	 * @return the time
@@ -143,6 +233,16 @@ public class Candle{
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+
+	public double getChange() {
+		return change;
+	}
+
+
+	public void setChange(double change) {
+		this.change = change;
 	}
 	
 	

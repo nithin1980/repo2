@@ -28,7 +28,7 @@ public class KiteService {
 		
 		double position_val = ApplicationHelper.positionVal("pmodel10");
 		int lot_size = ApplicationHelper.lotsize("pmodel10");
-		double pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
+		long pe_id = ApplicationHelper.getPositionId("pmodel10", "pe_id");
 		double cost = CacheService.PRICE_LIST.get(pe_id);
 		
 		int size = ApplicationHelper.calculateSize(position_val, cost, lot_size); 
@@ -47,7 +47,7 @@ public class KiteService {
 		double position_val = ApplicationHelper.positionVal("pmodel10");
 		int lot_size = ApplicationHelper.lotsize("pmodel10");
 		
-		double ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
+		long ce_id = ApplicationHelper.getPositionId("pmodel10", "ce_id");
 		double cost = CacheService.PRICE_LIST.get(ce_id);
 
 		int size =ApplicationHelper.calculateSize(position_val, cost, lot_size); 
@@ -89,9 +89,9 @@ public class KiteService {
 		
 		
 		double cost = 0;
-		Double key = null;
+		Long key = null;
 		int size=0;
-		Iterator<Double> keys  = KiteStockConverter.BN_CE_LIST.keySet().iterator();
+		Iterator<Long> keys  = KiteStockConverter.BN_CE_LIST.keySet().iterator();
 		
 		boolean addModel=false;
 		
@@ -174,8 +174,8 @@ public class KiteService {
 	}
 	
 	public static void orderCombination() {
-		Iterator<Double> ce_list_itr = KiteStockConverter.BN_CE_LIST.keySet().iterator();
-		Iterator<Double> pe_list_itr =  null;
+		Iterator<Long> ce_list_itr = KiteStockConverter.BN_CE_LIST.keySet().iterator();
+		Iterator<Long> pe_list_itr =  null;
 		
 		GroupPosition groupPosition = DashBoard.positionMap.get("pmodel15");
 
@@ -185,8 +185,8 @@ public class KiteService {
 		boolean addModel =  false;
 		
 		
-		double ce_id = 0;
-		double pe_id = 0;
+		long ce_id = 0;
+		long pe_id = 0;
 		while(ce_list_itr.hasNext()) {
 			ce_id = ce_list_itr.next();
 			

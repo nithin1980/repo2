@@ -1,7 +1,9 @@
 package com.test;
 
 import java.nio.ByteBuffer;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,9 +14,11 @@ import com.mod.datafeeder.DataFeed;
 import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.interfaces.KiteStockConverter;
 import com.mod.objects.CacheMetaData;
+import com.mod.objects.PositionalData;
 import com.mod.process.models.CacheService;
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;
+import com.mod.support.OpenHighLowSupport;
 import com.mod.support.XMLParsing;
 
 import gnu.trove.list.TDoubleList;
@@ -161,4 +165,106 @@ public class TestOne {
 		return new CacheMetaData(metadata);
 	}
 
+	
+	public static void main(String[] args) {
+		double posCost=50000;
+		
+		List<Depths> depths = new ArrayList<Depths>();
+		depths.add(new Depths(220.3, 200));
+		depths.add(new Depths(221.3, 100));
+		depths.add(new Depths(223.3, 300));
+		depths.add(new Depths(224.3, 200));
+		depths.add(new Depths(225.3, 400));
+		depths.add(new Depths(226.3, 100));
+		
+		double price = 0.00;
+		long qt = 0;
+		
+		double totalval = 0;
+		long totalqt = 0;
+		
+		/**
+		 * If overall is less the posCost, then keep taking it.
+		 */
+		
+		for(int i=0;i<depths.size();i++) {
+			System.out.println(totalqt+" -"+totalval);
+			price = depths.get(i).getPrice();
+			qt = depths.get(i).getQuantity();
+
+			if(totalval<posCost) {
+				
+				boolean added =  false;
+
+				if(((price*qt)+totalval) <=posCost) {
+					
+					totalval =  totalval+ (price*qt);
+					totalqt = totalqt+qt;
+					added =  true;
+					
+					//place order
+					
+				}
+				
+				/**
+				 * If the present depth value + previous ones are greater than posCost
+				 */
+				if( ((price*qt)+totalval)>posCost && !added){
+					
+					double remaining = posCost-totalval;
+					long pur = Double.valueOf(remaining).longValue()/Double.valueOf(price).longValue();
+					totalqt = totalqt+pur;
+					totalval =totalval+ (price*pur);
+					
+					//place order
+					
+				}
+				
+				
+				
+
+			}
+			
+
+		}
+		
+		
+
+	}
+	
+	
+	static void buySLCalculation(PositionalData position,double currentPrice,double buyPrice, double profitZone,double defaultSL) {
+		
+		double priceDiffPer = ApplicationHelper.percen(buyPrice,currentPrice);
+		
+		double currentSL = position.getExpectedSL(); //get this from the position api
+		boolean changeSL=true;
+		double newSL=0;
+		
+		
+		if(priceDiffPer>=profitZone) {
+			newSL = currentPrice *(1+(defaultSL/100)) ;
+			
+			if(newSL<=currentSL) {
+				//no need to change the SL
+				changeSL=true;
+				position.setExpectedSL(newSL);
+			}
+			
+			//System.out.println("Profit zone: CurrentSL="+currentSL+" buyprice:"+buyPrice+" currentprice:"+currentPrice+" newsl:"+newSL+" changing sl:"+changeSL);
+			
+		}
+		
+		else if(priceDiffPer<(-defaultSL)) {
+			//newSL = buyPrice *(1-(defaultSL/100));
+			//we wait for 15 mnts....
+			changeSL=false;
+			//--System.out.println(modelid()+" "+position.getKey()+" Below SL zone:");
+			//System.out.println("Below SL zone: CurrentSL="+currentSL+" buyprice:"+buyPrice+" currentprice:"+currentPrice+" newsl:"+newSL);
+		}
+		
+		System.out.println(position.getExpectedSL());
+		
+	}
+	
 }

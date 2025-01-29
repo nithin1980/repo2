@@ -71,7 +71,7 @@ public abstract class ProcessModelAbstract {
 		this.setPositionExpense(positionExpense());
 		setPE_PRICE(new ScriptData(getPositionId("pe_id"), 0, ""));
 		setCE_PRICE(new ScriptData(getPositionId("ce_id"), 0, ""));
-		setNIFTY(new ScriptData(256265.0,0,""));
+		setNIFTY(new ScriptData(256265,0,""));
 	}
 	
 	public ConfigData appConfig(){
@@ -89,12 +89,12 @@ public abstract class ProcessModelAbstract {
 		return Double.valueOf(val);
 	}
 
-	protected double getPositionId(String key){
+	protected long getPositionId(String key){
 		String val = modeConfig().getKeyValueConfigs().get(key);
 		if(val==null){
 			throw new RuntimeException("Position must be set up:"+key);
 		}
-		return Double.valueOf(val);
+		return Long.valueOf(val);
 		
 	}
 	

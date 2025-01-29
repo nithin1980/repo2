@@ -5,7 +5,7 @@ import java.util.List;
 import com.mod.process.models.Constants;
 
 public class ScriptData {
-	private double id;
+	private long id;
 	private double open;
 	private double dayHigh;
 	private double dayLow;
@@ -76,7 +76,7 @@ public class ScriptData {
 		setNewPrice(new ValueTime(currentPriceTime, newPrice));
 		setOpen(newPrice);
 	}
-	public ScriptData(double id,double newPrice,String currentPriceTime) {
+	public ScriptData(long id,double newPrice,String currentPriceTime) {
 		// TODO Auto-generated constructor stub
 		setCurrentPrice(new ValueTime(currentPriceTime, newPrice));
 		setNewPrice(new ValueTime(currentPriceTime, newPrice));
@@ -109,10 +109,10 @@ public class ScriptData {
 		setBracketLowHigherValue(new ValueTime(getBracketLow().getTime(), getBracketLow().getValue()+spread));
 	}
 	
-	public double getId() {
+	public long getId() {
 		return id;
 	}
-	public void setId(double id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public double getRangeBoundHigh() {

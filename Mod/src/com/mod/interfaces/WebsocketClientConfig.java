@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.websocket.ClientEndpointConfig.Configurator;
-import javax.websocket.HandshakeResponse;
+import jakarta.websocket.ClientEndpointConfig.Configurator;
+import jakarta.websocket.HandshakeResponse;
 
 import com.mod.support.ApplicationHelper;
 import com.mod.support.ConfigData;

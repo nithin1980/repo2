@@ -1,29 +1,38 @@
 package com.mod.web;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mod.process.models.DashBoard;
+import com.mod.process.models.dashboard.BNFOptionSellingWithBuyDashboard;
+import com.mod.support.ApplicationHelper;
+import com.test.TestBNFOptionSellingWithBuy;
 
 @ServerEndpoint(value = "/socket/data")
 public class DataSocketServer {
 	
-	private Session session;
+	public Session session;
+	
+	public static List<Session> sessions = new ArrayList<Session>();
 	
     @OnOpen
     public void start(Session session) {
         this.session = session;
-        System.out.println("starting..");
+        System.out.println("starting.."+session.getId());
         String message = "has joined.";
         broadcast(message);
+        sessions.add(session);
     }
 
 
@@ -60,7 +69,96 @@ public class DataSocketServer {
     		DashBoard.kiteProcess.bothEquals();
     	}else if("combination".equals(message)){
     		DashBoard.kiteProcess.combination();
+    	} else if(message!=null && message.contains("ui_")) {
+    		DashBoard.parse_and_ProcessUIData(message);
+    		
+    		new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					Session storedSession =  DataSocketServer.sessions.get(0);
+					if(!storedSession.isOpen()) {
+						storedSession =  DataSocketServer.sessions.get(1);
+					}
+					
+		            try {
+		            	String dashb = null;
+		            	if(message.contains("CSS")) {
+		            		
+		            		new Thread( new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									
+					            	try {
+					            		
+										TestBNFOptionSellingWithBuy td = new TestBNFOptionSellingWithBuy();
+										td.before();
+										//storedSession.getBasicRemote().sendText("{\"ui_1\""+":"+"\"before processed\"}");
+										td.testStdFlow();
+										
+										String dashb = ApplicationHelper.getObjectMapper().writeValueAsString(BNFOptionSellingWithBuyDashboard.getInstance().info);
+										Session storedSession =  DataSocketServer.sessions.get(0);
+										storedSession.getAsyncRemote().sendText(dashb);
+									} catch (JsonProcessingException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									
+								}
+							}).start();
+		            		
+		            		storedSession.getAsyncRemote().sendText("{\"ui_1\""+":"+"\"new thread created\"}");
+		            	}
+		            	
+		            	
+		            	
+		            	if(message.contains("HTML")) {
+		            		dashb = ApplicationHelper.getObjectMapper().writeValueAsString(BNFOptionSellingWithBuyDashboard.getInstance().info);
+		            		storedSession.getAsyncRemote().sendText(dashb);
+		            	}
+		            	
+		            	//storedSession.getBasicRemote().sendText("{\"ui_1\""+":"+"\"some data is here\"}");
+		            	System.out.println("Sending message back to the browser");
+		                
+		            } catch (IOException e) {
+		                try {
+		                    session.close();
+		                } catch (IOException e1) {
+		                    // Ignore
+		                }
+		                String message = "has been disconnected.";
+		                
+		            }
+
+				}
+			}).start();
+    		
+    		System.out.println("new thread done....."+DataSocketServer.sessions.size());
+    		Session storedSession =  DataSocketServer.sessions.get(0);
+    		if(!storedSession.isOpen()) {
+    			storedSession =  DataSocketServer.sessions.get(1);
+    		}
+    		
+    		storedSession.getAsyncRemote().sendText("{\"ui_1\""+":"+"\"thread finished \"}");
+
     	}
+    	
+    	
+    	
+
     	
     	
     }
@@ -74,7 +172,7 @@ public class DataSocketServer {
         t.printStackTrace();
     }
     
-    private void broadcast(String msg) {
+    public void broadcast(String msg) {
       
             try {
                 

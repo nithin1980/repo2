@@ -91,10 +91,29 @@
 	<input type="button" value="Stop CE" onclick="send('stopce');"/>
     <input type="button" value="Both with Range" onclick="send('bothranged');"/>
     <input type="button" value="Combination" onclick="send('combination');"/>
+    
 	
 	
 	<input type="button" value="Start Tracking" onclick="send('starttrack');"/>
 	<input type="button" value="Stop Tracking" onclick="send('stoptrack');"/>
+	
+	<input type="button" value="Testing" onclick="send('stoptrack');"/>
+
+
+    <form action="" id="form1">
+    	<input type="text" name="some_1" id="some_1"/>
+    	<input type="text" name="some_2" id="some_2"/>
+
+		<input type="radio" id="html" name="fav_language" value="HTML">
+		<label for="html">HTML</label><br>
+		<input type="radio" id="css" name="fav_language" value="CSS">
+		<label for="css">CSS</label><br>
+		<input type="radio" id="javascript" name="fav_language" value="JavaScript">
+		<label for="javascript">JavaScript</label>
+    	
+    	<input type="button" value="click json" onclick="displayjson();"/>
+    </form>
+
 	
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

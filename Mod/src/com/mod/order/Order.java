@@ -8,7 +8,7 @@ public class Order {
 	private SystemInterface systemInterface;
 	
 	public Order() {
-		setSystemInterface(new KiteInterface());
+		setSystemInterface(KiteInterface.getInstance());
 	}
 	public Order(SystemInterface systemInterface) {
 		setSystemInterface(systemInterface);

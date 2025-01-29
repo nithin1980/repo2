@@ -1,5 +1,8 @@
 package com.mod.process.models;
 
+import static com.mod.support.ApplicationHelper.getObjectMapper;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -8,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.mod.interfaces.KiteGeneralWebSocketClient;
 import com.mod.objects.GroupPosition;
+import com.mod.support.KiteCandleData;
 import com.mod.web.KiteProcess;
+import com.mod.web.UIRequestData;
 
 
 public class DashBoard {
@@ -54,5 +59,23 @@ public class DashBoard {
 	public static void setKiteGenerlWebSocketClient(KiteGeneralWebSocketClient client){
 		kiteWebSocketClient = client;
 	}
+	
+	public static void parse_and_ProcessUIData(String data) {
+		HashMap<String, String> requestData = null;
+		try {
+			requestData =  getObjectMapper().readValue(data, HashMap.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println(requestData);
+		
+		
+		
+		
+	}
+	
+	
 	
 }

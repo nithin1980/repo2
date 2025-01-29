@@ -1,32 +1,17 @@
 package com.mod.process.models;
 
-import gnu.trove.list.TDoubleList;
-import gnu.trove.list.array.TDoubleArrayList;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.IndexTreeList;
-import org.mapdb.Serializer;
-
-
-
-import com.mod.datafeeder.DataFeed;
-import com.mod.objects.CacheMetaData;
-import com.mod.support.ApplicationHelper;
+import com.mod.enums.EnumPositionType;
+import com.mod.objects.PositionalData;
 import com.mod.support.Candle;
+import com.mod.support.CandleWrapper;
+import com.mod.support.OpenHighLowSupport;
+import com.mod.support.StockMetadataSupport;
 
 public class CacheService{
 
@@ -35,7 +20,11 @@ public class CacheService{
 		// TODO Auto-generated constructor stub
 	}
 	
+	public static final Map<String, String> variables = new HashMap<String, String>();
+	
 	private static final CacheService singleton = new CacheService(); 
+	public static final long BN_KEY=260105;
+	public static final long NF_KEY=256265;
 	
 	static final String currentDate = getCurrentDate();
 //	static final File dbfile = new File("C:/data/mapdb/report5.db");
@@ -64,7 +53,37 @@ public class CacheService{
 	static final int holdingSize = 10;
 //	private static TDoubleList[] dataArray = new TDoubleArrayList[holdingSize];
 	
-	public static Map<Double, Double> PRICE_LIST = new HashMap<Double, Double>();
+	public static Map<Long, Double> PRICE_LIST = new HashMap<Long, Double>();
+	public static List<PositionalData> positionalData = new ArrayList<PositionalData>();
+	public static Map<Long, CandleWrapper> candleData= new HashMap<Long, CandleWrapper>();
+	public static Map<Long,OpenHighLowSupport> stockFutureData = new HashMap<Long, OpenHighLowSupport>();
+	public static Map<Long, StockMetadataSupport> stockMetadata =  new HashMap<Long, StockMetadataSupport>();
+	
+	
+	//public static LinkedList<Double> BB_Close_Records = new LinkedList<Double>();
+	
+	
+	
+	
+	public  Integer[] findPositionsbyKey(long key, EnumPositionType positionType) {
+		
+		List<Integer> indexes = new ArrayList<Integer>();
+		
+		if(positionalData!=null & positionalData.size()>0) {
+			for(int i=0;i<positionalData.size();i++) {
+				if(key == positionalData.get(i).getKey() && positionType.equals(positionalData.get(i).getPositionType())) {
+					indexes.add(i);
+				}else if(key == positionalData.get(i).getKey() && positionType.equals(EnumPositionType.Both)) {
+					indexes.add(i);
+				}
+				
+				
+				
+			}
+		}
+		
+		return indexes.toArray(new Integer[indexes.size()]);
+	}
 	
 //	public static HTreeMap<Double,TDoubleList> optionsBackup = null;
 //	private static TDoubleList optionCodes = new TDoubleArrayList();
@@ -105,7 +124,15 @@ public class CacheService{
 	
 	public static CacheService getInstance(){
 		return singleton;
-	}	
+	}
+	
+	public static double getBNCurrentPrice() {
+		return PRICE_LIST.get(BN_KEY);
+	}
+	public static double getNFCurrentPrice() {
+		return PRICE_LIST.get(NF_KEY);
+	}
+	
 	/**----------------------------------------------------------------------------------------------------------
 	 */
 //	public static void addMetaDataToDateRecording(String groupName,CacheMetaData metadata){
