@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Hello, world!</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <form action="" id="form1" class="" style="margin-left: 20px;">
+    	<div class="form-row">
+	    	<input type="button" value="Start TopBottomLong" onclick="displayjson();"  class="btn btn-primary mb-2 mx-sm-3"/>
+	    	<input type="button" value="Stop TopBottomLong" onclick="displayjson();"  class="btn btn-primary mb-2"/>
+    	</div>
+	    <div class="form-row" style="border:1px solid">
+	    	<div class="col-1">
+		    	<input type="text" name="ui_1" id="ui_1" class="form-control" placeholder="Some one" readonly="readonly"/>
+		    </div>	
+		    <div class="col-2">	
+		    	<input type="text" name="ui_2" id="ui_2"  class="form-control" placeholder="Some two"/>
+		    	<input type="text" name="ui_3" id="ui_3"  class="form-control" placeholder="Some 3"/>
+			</div>
+		    	
+			
+			<div class="col">
+				<input type="radio" id="ui_4" name="ui_4" value="HTML">
+				<label for="html">HTML</label><br>
+				<input type="radio" id="ui_4" name="ui_4" value="CSS">
+				<label for="css">CSS</label><br>
+				<input type="radio" id="ui_4" name="ui_4" value="JavaScript">
+				<label for="javascript">JavaScript</label>
+	    	</div>
+	    	
+	    	<div class="col">
+	    		<input type="button" value="click json" onclick="stopSome();"  class="btn btn-primary mb-2"/>
+	    	</div>
+	    </div>
+	    <div class="form-row">
+	    	<div class="col">
+	    		<div class="form-row"><label>tickerUnsubcribed</label><input type="text" id="tickerUnsubcribed" readonly="readonly"/></div>
+	    		<div class="form-row"><label>PE_Name</label><input type="text" id="PE_Name"/></div>
+	    		<div class="form-row"><label>CE_Name</label><input type="text" id="CE_Name"/></div>
+	    		<div class="form-row"><label>allfailurePositionClosed</label><input type="text" id="allfailurePositionClosed"/></div>
+	    		<div class="form-row"><label>cancelledPosition</label><input type="text" id="cancelledPosition"/></div>
+	    		<div class="form-row"><label>orderCheckStatus</label><input type="text" id="orderCheckStatus"/></div>
+	    		
+	    	</div>
+	    	<div class="col">
+	    		<div class="form-row"><label>cancelledAllOrders</label><input type="text" id="cancelledAllOrders" readonly="readonly"/></div>
+	    		<div class="form-row"><label>cancelledOrders</label><input type="text" id="cancelledOrders"/></div>
+	    		<div class="form-row"><label>both_sellAndSLPlaced</label><input type="text" id="both_sellAndSLPlaced"/></div>
+	    		<div class="form-row"><label>FIRST_DEPTH_QUERY</label><input type="text" id="FIRST_DEPTH_QUERY"/></div>
+	    		<div class="form-row"><label>ce_sellAndSLPlaced</label><input type="text" id="ce_sellAndSLPlaced"/></div>
+	    		<div class="form-row"><label>pe_sellAndSLPlaced</label><input type="text" id="pe_sellAndSLPlaced"/></div>
+	    	</div>
+	    	
+	    </div>
+    </form>
+
+	
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-3.2.1.slim.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/default.js" type="text/javascript"></script>
+  </body>
+</html>

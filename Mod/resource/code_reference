@@ -1,0 +1,317 @@
+//		String url="https://api.kite.trade/portfolio/positions";
+//		
+//		HttpClient client = HttpClientBuilder.create().build();
+//		HttpGet get = new HttpGet(url);
+//		get.addHeader("X-Kite-Version", "3");
+//		
+//		String authorisation = "token "+CacheService.variables.get(KITE_API_KEY)+":"+CacheService.variables.get(KITE_ACCESS_TOKEN);
+//		get.addHeader("Authorization", authorisation);
+//		
+//		get.addHeader("Connection", "keep-alive");
+//		get.addHeader("Accept-Encoding", "gzip, deflate, br");
+//		get.addHeader("Accept", "application/json, text/plain, */*");
+//		StringBuffer result = new StringBuffer();
+//		
+//		try {
+//			//post.setEntity(new UrlEncodedFormEntity(urlParameters));
+//			//post.setEntity(requestEntity);
+//			long t = System.currentTimeMillis();
+//			HttpResponse response = client.execute(get);
+//			
+//			BufferedReader rd = new BufferedReader(
+//			        new InputStreamReader(response.getEntity().getContent()));
+//
+//			
+//			
+//			
+//			
+//			String line = "";
+//			while ((line = rd.readLine()) != null) {
+//				result.append(line);
+//			}
+//			System.out.println("Time taken for position data:"+(System.currentTimeMillis()-t));
+//			System.out.println(result);
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ClientProtocolException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+		
+		
+		KitePositionQueryResponse response = new KitePositionQueryResponse();
+		
+		try {
+			Map<String, List<Position>> positionData =  LTPKiteAPIWebsocket.getSDK().getPositions();
+			
+			response = populatePositionData(positionData);
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			response.setStatus("FAILED");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			response.setStatus("FAILED");
+		} catch (KiteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			response.setStatus("FAILED");
+		}
+		
+		
+		
+//		try {
+//			response = ApplicationHelper.getObjectMapper().readValue(result.toString(), KitePositionQueryResponse.class);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+
+
+
+
+
+	public List<Candle> getCandleData(String stockKey,EnumMinuteType minuteType) {
+		// TODO Auto-generated method stub
+		
+		//4 day before to cover the weekend issue as well
+		
+		String startDate = new Date(System.currentTimeMillis()-(457400*1000)).toString();
+		String endDate = new Date(System.currentTimeMillis()).toString();
+		
+		if(stockKey.contains(".")) {
+			stockKey = stockKey.split(".")[0];
+		}
+		
+		String url="https://api.kite.trade/instruments/historical/"+stockKey+"/"+minuteType.getMinuteString()+"?from="+startDate+"&to="+endDate;
+		
+		System.out.println("URL for candle data:"+url);
+		
+		
+		
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet get = new HttpGet(url);
+		get.addHeader("X-Kite-Version", "3");
+		
+		String authorisation = "token "+CacheService.variables.get(KITE_API_KEY)+":"+CacheService.variables.get(KITE_ACCESS_TOKEN);
+		get.addHeader("Authorization", authorisation);
+		
+		get.addHeader("Connection", "keep-alive");
+		get.addHeader("Accept-Encoding", "gzip, deflate, br");
+		get.addHeader("Accept", "application/json, text/plain, */*");
+		StringBuffer result = new StringBuffer();
+		
+		List<Candle> candles=null;
+		
+		try {
+			//post.setEntity(new UrlEncodedFormEntity(urlParameters));
+			//post.setEntity(requestEntity);
+			long t = System.currentTimeMillis();
+			HttpResponse response = client.execute(get);
+			
+			BufferedReader rd = new BufferedReader(
+			        new InputStreamReader(response.getEntity().getContent()));
+
+			
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			
+			System.out.println(result);
+			KiteCandleData candleData =  getObjectMapper().readValue(result.toString(), KiteCandleData.class); 
+			candles = candleData.getData().candleInformation();
+			
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		return candles;
+	}
+	
+	
+	public CreateOrderResponse createOrder(CreateOrderRequest orderRequest) {
+		// TODO Auto-generated method stub
+		
+		KiteCreateOrderRequest request = (KiteCreateOrderRequest)orderRequest;
+		
+		
+		
+		
+		
+		String url="https://api.kite.trade/orders/"+request.getVariety();
+		
+		System.out.println("URL for order:"+url+" for "+request.getTradingSymbol());
+		
+		assertNotNull(request.getExchange());
+		assertNotNull(request.getVariety());
+		assertNotNull(request.getTradingSymbol());
+		assertNotNull(request.getTransactionType());
+		assertNotNull(request.getOrderType());
+    	assertNotEquals(0,request.getQuantity());
+		assertNotNull(request.getProduct());
+		assertNotNull(request.getValidity());
+
+		if(KiteDataConstant.Order_Type_sl.equals(request.getOrderType()) || 
+				KiteDataConstant.Order_Type_sl_m.equals(request.getOrderType())){
+			assertNotNull(request.getSlTriggerPrice());
+		}
+
+		assertNotNull(request.getPrice());
+
+		
+		System.out.println("API Order request:{"+request.getExchange()+",-,"+request.getOrderType()+",-,"+request.getPrice()+",-,"
+							+request.getProduct()+",-,"+request.getQuantity()+",-,"+request.getSlTriggerPrice()+",-,"
+							+request.getTradingSymbol()+",-,"+request.getTransactionType()+",-,"+request.getValidity()+",-,"+request.getVariety());
+		
+		
+		//for limit order, which can act like SL
+		
+		
+		
+		OrderParams params = new OrderParams();
+		params.exchange = request.getExchange();
+		params.tradingsymbol=request.getTradingSymbol();
+		params.transactionType=request.getTransactionType();
+		params.orderType=request.getOrderType();
+		params.quantity = request.getQuantity();
+		params.product=request.getProduct();
+		params.validity=request.getValidity();
+		
+		if(!KiteDataConstant.Order_Type_sl_m.equals(request.getOrderType())) {
+			params.price=Double.valueOf(request.getPrice());
+		}
+		
+		
+		
+		if(KiteDataConstant.Order_Type_sl.equals(request.getOrderType()) || 
+				KiteDataConstant.Order_Type_sl_m.equals(request.getOrderType())){
+				params.triggerPrice= Double.valueOf(request.getSlTriggerPrice());
+				
+		}
+		
+		KiteCreateOrderResponse orderResponse = new KiteCreateOrderResponse();
+		orderResponse.setData(new KiteCreateOrderResponseLayer2());
+		Order order = null;
+		
+//		try {
+//			order = LTPKiteAPIWebsocket.getSDK().placeOrder(params, request.getVariety());
+//			orderResponse.setStatus(order.status);
+//		} catch (JSONException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			orderResponse.setStatus(FAILED);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			orderResponse.setStatus(FAILED);
+//		} catch (KiteException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			orderResponse.setStatus(FAILED);
+//		}
+//		
+//		orderResponse.getData().setOrderId(Long.valueOf(order.orderId));
+		
+		
+		
+		
+		
+		/**
+		 * Back up
+		 */
+		
+//		HttpClient client = HttpClientBuilder.create().build();
+//		HttpPost post = new HttpPost(url);
+//		post.addHeader("X-Kite-Version", "3");
+//		
+//		String authorisation = "token "+CacheService.variables.get(KITE_API_KEY)+":"+CacheService.variables.get(KITE_ACCESS_TOKEN);
+//		post.addHeader("Authorization", authorisation);
+//		
+//		post.addHeader("Connection", "keep-alive");
+//		post.addHeader("Accept-Encoding", "gzip, deflate, br");
+//		post.addHeader("Accept", "*/*");
+//		post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+//		
+//		
+//		StringBuffer result = new StringBuffer();
+//		
+//		KiteCreateOrderResponse orderResponse = null;
+//		
+//		try {
+//			//post.setEntity(new UrlEncodedFormEntity(urlParameters));
+//			//post.setEntity(requestEntity);
+//			long t = System.currentTimeMillis();
+//			
+//					
+//			List<BasicNameValuePair> values = new ArrayList<BasicNameValuePair>();	
+//			values.add(new BasicNameValuePair("tradingsymbol", request.getTradingSymbol()));
+//			values.add(new BasicNameValuePair("exchange", request.getExchange()));
+//			values.add(new BasicNameValuePair("transaction_type", request.getTransactionType()));
+//			values.add(new BasicNameValuePair("order_type", request.getOrderType()));
+//			values.add(new BasicNameValuePair("quantity",String.valueOf(request.getQuantity())));
+//			values.add(new BasicNameValuePair("product", request.getProduct()));
+//			values.add(new BasicNameValuePair("validity", request.getValidity()));
+//			
+//			//for SL trigger
+//			if(KiteDataConstant.Order_Type_sl.equals(request.getOrderType()) || 
+//				KiteDataConstant.Order_Type_sl_m.equals(request.getOrderType())){
+//				
+//				values.add(new BasicNameValuePair("trigger_price", request.getSlTriggerPrice()));
+//			}
+//			
+//			//for limit order, which can act like SL
+//			values.add(new BasicNameValuePair("price", request.getPrice()));
+//			
+//					
+//			UrlEncodedFormEntity entity = new UrlEncodedFormEntity(values);
+//			post.setEntity(entity);
+//			
+//			HttpResponse response = client.execute(post);
+//			
+//			BufferedReader rd = new BufferedReader(
+//			        new InputStreamReader(response.getEntity().getContent()));
+//
+//			
+//			String line = "";
+//			while ((line = rd.readLine()) != null) {
+//				result.append(line);
+//			}
+//			
+//			System.out.println(result);
+//			orderResponse =  getObjectMapper().readValue(result.toString(), KiteCreateOrderResponse.class); 
+//			
+//			
+//			
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ClientProtocolException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		
+		
+		return orderResponse;
+	}

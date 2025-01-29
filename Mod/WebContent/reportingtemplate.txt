@@ -1,0 +1,105 @@
+
+const ctx#object_id# = document.getElementById('myChart#object_id#').getContext('2d');
+const myChart#object_id# = new Chart(ctx#object_id#, {
+    type: 'line',
+    data: {
+        labels: [#xrow_count#],
+        datasets: [{
+            label: '#stock_code#',
+            data: [#column1_data#],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: 'ESL',
+            data: [#column2_data#],
+            backgroundColor: [
+                'rgba(0, 0, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(0, 0, 255, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: 'OP-SL',
+            data: [#column3_data#],
+            backgroundColor: [
+                'rgba(255, 0, 0, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 0, 0, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: '60Sec-SL',
+            data: [#column4_data#],
+            backgroundColor: [
+                'rgba(0, 255, 0, 0.2)'
+            ],
+            borderColor: [
+                'rgba(0, 255, 0, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: 'BrkE-SL',
+            data: [#column5_data#],
+            backgroundColor: [
+                'rgba(128, 128, 128, 0.2)'
+            ],
+            borderColor: [
+                'rgba(128, 128, 128, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: 'F-SL',
+            data: [#column6_data#],
+            backgroundColor: [
+                'rgba(255, 255, 0, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 255, 0, 1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: 'S-SL',
+            data: [#column7_data#],
+            backgroundColor: [
+                'rgba(255, 0, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 0, 255, 1)'
+            ],
+            borderWidth: 1
+        }
+		
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: false
+            }
+        }
+    }
+});
+
